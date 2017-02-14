@@ -1295,7 +1295,12 @@ define('quad',['threejs'], (THREE) => {
 
 			_initialPosition = position; 
 			_geometry = new THREE.PlaneGeometry( sideLength, sideLength, 1, 1 );
-			 _material = new THREE.MeshBasicMaterial({side: THREE.DoubleSide, color: "#999999"});
+			 _material = new THREE.MeshBasicMaterial({
+			 										  side: THREE.DoubleSide,
+			 										  color: "#999999",
+			 										  transparent: true,
+			 										  opacity: 0.75 
+			 										 });
 
 			_plane = new THREE.Mesh( _geometry, _material );
 			_plane.position.set(position.x, position.y, position.z);
@@ -1307,6 +1312,10 @@ define('quad',['threejs'], (THREE) => {
 
 		self.setMaterial = (someMaterial) => {
 			_plane.material = someMaterial;
+		}
+
+		self.setMaterialColor = (someColor) => {
+			_plane.material.color.setHex(someColor);
 		}
 
 		self.pushForward = (howMuch) => {
@@ -1329,12 +1338,14 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 	
 		let _videoElement = null;
 		let _texture = null;
+		let _quad = null;
+
 		let self = this;
 
 		self.initialize = () => {
 
-			Quad.call(self, scene, position, normal, sideLength);
-			
+			_quad = new Quad(scene, position, normal, sideLength);
+
 			_videoElement = videoElement;
 
 			_texture = new THREE.Texture(_videoElement);
@@ -1348,11 +1359,11 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 	        	map: _texture,
 	        	overdraw: true,
 	        	transparent: true,
-	        	opacity: 0.75,
+	        	opacity: 0.9,
 	        	side: THREE.DoubleSide
 	        });
 
-	        this.setMaterial(_material);
+	        _quad.setMaterial(_material);
 		}
 
 		self.initialize();
@@ -1361,15 +1372,65 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 			_texture.needsUpdate = true;
 		}
 
-	}
+		self.pushForward = (howMuch) => {
+			_quad.pushForward(howMuch);
+		}
 
-	VideoQuad.prototype = Object.create(Quad.prototype);
+	}
 	
 	return VideoQuad;
 });
-define('cube',['threejs', 'quad', 'videoQuad'], (THREE, Quad, VideoQuad) => {
+define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
-	function Cube(scene, position, frontVec, upVec, size, videoElements) {
+	let ImageQuad = function(scene, position, normal, sideLength, imageElement){
+	
+		let _imageElement = null;
+		let _texture = null;
+		let _quad = null;
+
+		let self = this;
+
+		self.initialize = () => {
+
+			_quad = new Quad(scene, position, normal, sideLength);
+
+			_imageElement = imageElement;
+
+			_texture = new THREE.Texture(_imageElement);
+	        _texture.minFilter = THREE.NearestFilter;
+	        _texture.magFilter = THREE.NearestFilter;
+	        _texture.format = THREE.RGBFormat;
+	        _texture.wrapS = THREE.ClampToEdgeWrapping;
+	        _texture.wrapT = THREE.ClampToEdgeWrapping;
+
+	        _material = new THREE.MeshBasicMaterial({
+	        	map: _texture,
+	        	overdraw: true,
+	        	transparent: true,
+	        	opacity: 0.9,
+	        	side: THREE.DoubleSide
+	        });
+
+	        _quad.setMaterial(_material);
+		}
+
+		self.initialize();
+
+        self.update = () => {
+			_texture.needsUpdate = true;
+		}
+
+		self.pushForward = (howMuch) => {
+			_quad.pushForward(howMuch);
+		}
+
+	}
+	
+	return ImageQuad;
+});
+define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, VideoQuad, ImageQuad) => {
+
+	function Cube(scene, position, frontVec, upVec, size, sidesInformation) {
 
 		let self = this;
 
@@ -1378,29 +1439,65 @@ define('cube',['threejs', 'quad', 'videoQuad'], (THREE, Quad, VideoQuad) => {
 		let _leftVec = _rightVec.clone().negate();
 		let _downVec = upVec.clone().negate();
 
-	    let _frontQuad = new VideoQuad(scene, position.clone().addScaledVector(frontVec, size / 2), frontVec, size, videoElements["FRONT"]);
-	    let _rearQuad = new VideoQuad(scene, position.clone().addScaledVector(_rearVec, size / 2), _rearVec, size, videoElements["REAR"]);
-	    let _rightQuad = new VideoQuad(scene, position.clone().addScaledVector(_rightVec, size / 2), _rightVec, size, videoElements["RIGHT"]);
-	    let _leftQuad = new Quad(scene, position.clone().addScaledVector(_leftVec, size / 2), _leftVec, size);
-	    let _topQuad = new Quad(scene, position.clone().addScaledVector(upVec, size / 2), upVec, size);
-	    let _bottomQuad = new VideoQuad(scene, position.clone().addScaledVector(_downVec, size / 2), _downVec, size, videoElements["BOTTOM"]);
+		let _quads = {};
+
+		let _hardcodedSideInformation = {
+			"FRONT" : { position: position.clone().addScaledVector(frontVec, size / 2), normal: frontVec },
+			"REAR" : { position: position.clone().addScaledVector(_rearVec, size / 2), normal: _rearVec },
+			"RIGHT": { position: position.clone().addScaledVector(_rightVec, size / 2), normal: _rightVec },
+			"LEFT" : { position: position.clone().addScaledVector(_leftVec, size / 2), normal: _leftVec },
+			"TOP" : {position: position.clone().addScaledVector(upVec, size / 2), normal: upVec },
+			"BOTTOM" : { position: position.clone().addScaledVector(_downVec, size / 2), normal: _downVec }
+		};
+
+		function _validateSideAndItsInformation(side, sideInformation){
+
+			if (sideInformation.quadType == "EMPTY")
+				return;
+			if (sideInformation.quadType == "VIDEO") {
+				if (!sideInformation.hasOwnProperty("videoElement"))
+					throw "Cube side that has quadType \"VIDEO\" must contain property \"videoElement\"";
+				return;
+			}
+			if (sideInformation.quadType == "IMAGE"){
+				if (!sideInformation.hasOwnProperty("imageElement"))
+					throw "Cube side that has quadType \"IMAGE\" must contain property \"imageElement\"" + " ";
+			}
+		}
+		function _createCubeSide(side, sideInformation) {
+
+			_validateSideAndItsInformation(side, sideInformation);
+
+			switch (sidesInformation[side].quadType){
+				case "EMPTY" : return new Quad(scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size);
+				case "VIDEO" : return new VideoQuad(scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.videoElement);
+				case "IMAGE" : return new ImageQuad(scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.imageElement);
+			}
+		}
+
+		function _initialize() {
+
+			_quads["FRONT"] = _createCubeSide("FRONT", sidesInformation["FRONT"]);
+			_quads["REAR"] = _createCubeSide("REAR", sidesInformation["REAR"]);
+			_quads["RIGHT"] = _createCubeSide("RIGHT", sidesInformation["RIGHT"]);
+			_quads["LEFT"] = _createCubeSide("LEFT", sidesInformation["LEFT"]);
+			_quads["TOP"] = _createCubeSide("TOP", sidesInformation["TOP"]);
+			_quads["BOTTOM"] = _createCubeSide("BOTTOM", sidesInformation["BOTTOM"]);
+		}
+
+
+		_initialize();
 
 	    self.expand = (howMuch) => {
-	    	_frontQuad.pushForward(howMuch);
-	    	_rearQuad.pushForward(howMuch);
-	    	_rightQuad.pushForward(howMuch);
-	    	_leftQuad.pushForward(howMuch);
-	    	_topQuad.pushForward(howMuch);
-	    	_bottomQuad.pushForward(howMuch);
+	    	Object.keys(_quads).forEach((side) => {
+	    		_quads[side].pushForward(howMuch);
+	    	});
 	    }
 
 	    self.update = () => {
-	    	_frontQuad.update();
-	    	_rearQuad.update();
-	    	_rightQuad.update();
-	    	_leftQuad.update();
-	    	_topQuad.update();
-	    	_bottomQuad.update();
+	    	Object.keys(_quads).forEach((side) => {
+	    		_quads[side].update();
+	    	});
 	    }
 	}
 
@@ -1410,7 +1507,7 @@ define('cube',['threejs', 'quad', 'videoQuad'], (THREE, Quad, VideoQuad) => {
 define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube) => {
 	
 	var scene, camera, renderer;
-	let geometry, material, mesh, cube, controls;
+	let geometry, material, mesh, startCube, finishedCube, controls;
 
 	function _init() {
 
@@ -1422,15 +1519,28 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 	    renderer = new THREE.WebGLRenderer();
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 
-	    cube = new Cube(scene, new THREE.Vector3(), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
+	    startCube = new Cube(scene, new THREE.Vector3(-300.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
-	    					"FRONT" : document.querySelector("#sampleVideo"),
-	    					"REAR" : document.querySelector("#sampleVideo1"),
-	    					"RIGHT" : document.querySelector("#sampleVideo2"),
-	    					"BOTTOM" : document.querySelector("#sampleVideo3"),
+	    					"FRONT" : { quadType: "EMPTY", color: "0xFF0000"},
+	    					"REAR" : { quadType: "EMPTY", color: "0x00FF00"},
+	    					"RIGHT" : { quadType: "EMPTY", color: "0x0000FF"},
+	    					"LEFT" : { quadType: "EMPTY", color: "0xFFFF00"},
+	    					"BOTTOM" : { quadType: "EMPTY"},
+	    					"TOP": { quadType: "EMPTY"}
 	    				});
 
-	    cube.expand(0);
+	   finishedCube = new Cube(scene, new THREE.Vector3(300.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
+	    				{
+	    					"FRONT" : { quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo")},
+	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
+	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
+	    					"LEFT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo3")},
+	    					"BOTTOM" : { quadType: "EMPTY"},
+	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
+	    				});
+
+	    startCube.expand(0);
+	    finishedCube.expand(0);
 
 	    controls = new OrbitControls( camera );
   		controls.addEventListener( 'change', () => {
@@ -1439,6 +1549,14 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 
 	    
 	    document.body.appendChild( renderer.domElement );
+
+	    renderer.domElement.addEventListener("mousedown", (event) => {
+	    		// mouse down
+	    });
+
+	    renderer.domElement.addEventListener("mouseup", (event) => {
+	    		// mouse up
+	    });
 	}
 
 	function _animate() {
@@ -1454,7 +1572,8 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 		let video = document.getElementById("sampleVideo");
 
 	    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-  			cube.update();
+  			startCube.update();
+  			finishedCube.update();
   		}
 
    		renderer.render( scene, camera );
@@ -1479,9 +1598,10 @@ requirejs.config({
 
 require(['scene'], function(scene){
 
-	scene.init();
-	scene.animate();
-	
+	document.querySelector("#starterButton").addEventListener("click", () => {
+		scene.init();
+		scene.animate();
+	});
 });
 define("main", function(){});
 
