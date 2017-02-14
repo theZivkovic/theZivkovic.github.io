@@ -1551,17 +1551,17 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 	    	document.querySelector("#sampleVideo3").pause();
 	    });
 
-	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
-		document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+	    renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		renderer.domElement.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		renderer.domElement.addEventListener( 'touchmove', onDocumentTouchMove, false );
 
 		function onDocumentMouseDown( event ) {
 
 				event.preventDefault();
 
-				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
-				document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+				renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp, false );
+				renderer.domElement.addEventListener( 'mouseout', onDocumentMouseOut, false );
 
 				mouseXOnMouseDown = event.clientX - windowHalfX;
 				targetRotationOnMouseDown = targetRotation;
@@ -1578,17 +1578,17 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 
 		function onDocumentMouseUp( event ) {
 
-			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+			renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
 
 		}
 
 		function onDocumentMouseOut( event ) {
 
-			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+			renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
 
 		}
 
