@@ -1519,32 +1519,19 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 	    renderer = new THREE.WebGLRenderer();
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 
-		document.querySelector("#sampleVideo").play();
-		document.querySelector("#sampleVideo1").play();
-		document.querySelector("#sampleVideo2").play();
-		document.querySelector("#sampleVideo3").play();
 		
-	    startCube = new Cube(scene, new THREE.Vector3(-300.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
-	    				{
-	    					"FRONT" : { quadType: "EMPTY", color: "0xFF0000"},
-	    					"REAR" : { quadType: "EMPTY", color: "0x00FF00"},
-	    					"RIGHT" : { quadType: "EMPTY", color: "0x0000FF"},
-	    					"LEFT" : { quadType: "EMPTY", color: "0xFFFF00"},
-	    					"BOTTOM" : { quadType: "EMPTY"},
-	    					"TOP": { quadType: "EMPTY"}
-	    				});
 
-	   finishedCube = new Cube(scene, new THREE.Vector3(300.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
+	   finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
 	    					"FRONT" : { quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo")},
-	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
-	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
+	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
+	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
 	    					"LEFT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo3")},
 	    					"BOTTOM" : { quadType: "EMPTY"},
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
 
-	    startCube.expand(0);
+	   
 	    finishedCube.expand(0);
 
 	    controls = new OrbitControls( camera );
@@ -1562,6 +1549,20 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 	    renderer.domElement.addEventListener("mouseup", (event) => {
 	    		// mouse up
 	    });
+
+	    document.querySelector("#starterButton").addEventListener("click", (event) => {
+	    	document.querySelector("#sampleVideo").play();
+			document.querySelector("#sampleVideo1").play();
+			document.querySelector("#sampleVideo2").play();
+			document.querySelector("#sampleVideo3").play();
+	    });
+
+	     document.querySelector("#stopperButton").addEventListener("click", (event) => {
+	    	document.querySelector("#sampleVideo").pause();
+			document.querySelector("#sampleVideo1").pause();
+			document.querySelector("#sampleVideo2").pause();
+			document.querySelector("#sampleVideo3").pause();
+	    });
 	}
 
 	function _animate() {
@@ -1577,7 +1578,6 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 		let video = document.getElementById("sampleVideo");
 
 	    if (video.readyState === video.HAVE_ENOUGH_DATA) {
-  			startCube.update();
   			finishedCube.update();
   		}
 
@@ -1602,11 +1602,10 @@ requirejs.config({
 });
 
 require(['scene'], function(scene){
-
-	document.querySelector("#starterButton").addEventListener("click", () => {
+	
 		scene.init();
 		scene.animate();
-	});
+
 });
 define("main", function(){});
 
