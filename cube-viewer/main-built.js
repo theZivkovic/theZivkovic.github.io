@@ -1507,8 +1507,11 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube) => {
 	
 	var scene, camera, renderer;
-	let geometry, material, mesh, startCube, finishedCube, controls;
+	let geometry, material, mesh, finishedCube, controls;
+	let targetRotation = 0;
 
+	let windowHalfX = window.innerWidth / 2;
+	let windowHalfY = window.innerHeight / 2;
 	function _init() {
 
 	    scene = new THREE.Scene();
@@ -1519,56 +1522,106 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 	    renderer = new THREE.WebGLRenderer();
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 
-		
-
-	   finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
+	 
+	   	finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
 	    					"FRONT" : { quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo")},
-	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
-	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
+	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
+	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
 	    					"LEFT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo3")},
 	    					"BOTTOM" : { quadType: "EMPTY"},
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
 
-	   
 	    finishedCube.expand(0);
-
-	    controls = new OrbitControls( camera );
-  		controls.addEventListener( 'change', () => {
-  			_render();	 
-  		});
-
 	    
 	    document.body.appendChild( renderer.domElement );
 
-	    renderer.domElement.addEventListener("mousedown", (event) => {
-	    		// mouse down
-	    });
-
-	    renderer.domElement.addEventListener("mouseup", (event) => {
-	    		// mouse up
-	    });
-
-	    document.querySelector("#starterButton").addEventListener("click", (event) => {
+	    document.querySelector("#startButton").addEventListener("click", (event) => {
 	    	document.querySelector("#sampleVideo").play();
-			document.querySelector("#sampleVideo1").play();
-			document.querySelector("#sampleVideo2").play();
-			document.querySelector("#sampleVideo3").play();
+	    	document.querySelector("#sampleVideo1").play();
+	    	document.querySelector("#sampleVideo2").play();
+	    	document.querySelector("#sampleVideo3").play();
 	    });
 
-	     document.querySelector("#stopperButton").addEventListener("click", (event) => {
+	    document.querySelector("#pauseButton").addEventListener("click", (event) => {
 	    	document.querySelector("#sampleVideo").pause();
-			document.querySelector("#sampleVideo1").pause();
-			document.querySelector("#sampleVideo2").pause();
-			document.querySelector("#sampleVideo3").pause();
+	    	document.querySelector("#sampleVideo1").pause();
+	    	document.querySelector("#sampleVideo2").pause();
+	    	document.querySelector("#sampleVideo3").pause();
 	    });
+
+	    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
+		document.addEventListener( 'touchstart', onDocumentTouchStart, false );
+		document.addEventListener( 'touchmove', onDocumentTouchMove, false );
+
+		function onDocumentMouseDown( event ) {
+
+				event.preventDefault();
+
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'mouseup', onDocumentMouseUp, false );
+				document.addEventListener( 'mouseout', onDocumentMouseOut, false );
+
+				mouseXOnMouseDown = event.clientX - windowHalfX;
+				targetRotationOnMouseDown = targetRotation;
+
+		}
+
+		function onDocumentMouseMove( event ) {
+
+			mouseX = event.clientX - windowHalfX;
+
+			targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.02;
+
+		}
+
+		function onDocumentMouseUp( event ) {
+
+			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+		}
+
+		function onDocumentMouseOut( event ) {
+
+			document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+		}
+
+		function onDocumentTouchStart( event ) {
+
+			if ( event.touches.length === 1 ) {
+
+				event.preventDefault();
+
+				mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
+				targetRotationOnMouseDown = targetRotation;
+
+			}
+
+		}
+
+		function onDocumentTouchMove( event ) {
+
+			if ( event.touches.length === 1 ) {
+
+				event.preventDefault();
+
+				mouseX = event.touches[ 0 ].pageX - windowHalfX;
+				targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
+
+			}
+
+		}	  	
 	}
 
 	function _animate() {
 
 	   requestAnimationFrame( _animate );
-	   controls.update();
 	   _render();
 
 	}
@@ -1581,6 +1634,11 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
   			finishedCube.update();
   		}
 
+  		//console.log(targetRotation);
+
+  		camera.position.set(700 * Math.cos(targetRotation),0, 700 * Math.sin(targetRotation));
+		camera.up = new THREE.Vector3(0,1,0);
+		camera.lookAt(new THREE.Vector3(0,0,0));
    		renderer.render( scene, camera );
 	}
 
@@ -1602,10 +1660,10 @@ requirejs.config({
 });
 
 require(['scene'], function(scene){
-	
-		scene.init();
-		scene.animate();
 
+	scene.init();
+	scene.animate();
+	
 });
 define("main", function(){});
 
