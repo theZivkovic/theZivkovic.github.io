@@ -1519,6 +1519,11 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 	    renderer = new THREE.WebGLRenderer();
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 
+		document.querySelector("#sampleVideo").play();
+		document.querySelector("#sampleVideo1").play();
+		document.querySelector("#sampleVideo2").play();
+		document.querySelector("#sampleVideo3").play();
+		
 	    startCube = new Cube(scene, new THREE.Vector3(-300.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
 	    					"FRONT" : { quadType: "EMPTY", color: "0xFF0000"},
@@ -1544,7 +1549,7 @@ define('scene',['threejs', 'orbitControls', 'cube'], (THREE, OrbitControls, Cube
 
 	    controls = new OrbitControls( camera );
   		controls.addEventListener( 'change', () => {
-  				_render();	 
+  			_render();	 
   		});
 
 	    
