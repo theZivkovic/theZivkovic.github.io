@@ -897,6 +897,8 @@ define('cameraControl',['threejs'], (THREE) => {
 
 			_mouseYOnMouseDown = event.clientY - _windowHalfY;
 			_targetRotationYOnMouseDown = _targetRotationY;
+
+			console.log("CLICK");
 		}
 
 		function _onMouseMove(event){
@@ -936,6 +938,8 @@ define('cameraControl',['threejs'], (THREE) => {
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;
+
+				console.log("TOUCH");
 			}
 		}
 
@@ -955,14 +959,9 @@ define('cameraControl',['threejs'], (THREE) => {
 			}
 		}
 
-		function _onTouch(event){
-			alert("HA");
-		}
-
 		sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
 		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
-		sceneDomElement.addEventListener( 'click', _onTouch, false);
 
 		self.update = () => {
 
