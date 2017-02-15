@@ -869,6 +869,8 @@ define('cameraControl',['threejs'], (THREE) => {
 
 		let _camera = camera;
 
+		let _callbacksMap = {};
+
 		let _windowHalfX = window.innerWidth / 2;
 		let _windowHalfY = window.innerHeight / 2;
 
@@ -898,7 +900,8 @@ define('cameraControl',['threejs'], (THREE) => {
 			_mouseYOnMouseDown = event.clientY - _windowHalfY;
 			_targetRotationYOnMouseDown = _targetRotationY;
 
-			alert("CLICK");
+			if (_callbacksMap.hasOwnProperty("singleClick"))
+					_callbacksMap["singleClick"](event);
 		}
 
 		function _onMouseMove(event){
@@ -939,7 +942,8 @@ define('cameraControl',['threejs'], (THREE) => {
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;
 
-				alert("TOUCH");
+				if (_callbacksMap.hasOwnProperty("singleClick"))
+					_callbacksMap["singleClick"](event);
 			}
 		}
 
@@ -955,7 +959,6 @@ define('cameraControl',['threejs'], (THREE) => {
 				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
 				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * ROTATION_SPEED;
 				_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-
 			}
 		}
 
@@ -973,6 +976,10 @@ define('cameraControl',['threejs'], (THREE) => {
 
 			_camera.lookAt(new THREE.Vector3(0,0,0));
 			
+		}
+
+		self.on = (eventName, callback) => {
+			_callbacksMap[eventName] = callback;
 		}
 	}
 
@@ -1211,6 +1218,8 @@ define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube
 	let windowHalfX = window.innerWidth / 2;
 	let windowHalfY = window.innerHeight / 2;
 
+	let shouldExpandTheCube = true;
+
 	function _init() {
 
 	    scene = new THREE.Scene();
@@ -1222,6 +1231,15 @@ define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 	    document.body.appendChild( renderer.domElement );
 	    controls = new CameraControl(camera, renderer.domElement);
+	    controls.on('singleClick', (event) => {
+
+	    	if (shouldExpandTheCube)
+	    		finishedCube.expand(100);
+	    	else
+	    		finishedCube.expand(0);
+
+	    	shouldExpandTheCube = !shouldExpandTheCube;	
+	    });
 	 
 	   	finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
@@ -1232,8 +1250,6 @@ define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube
 	    					"BOTTOM" : { quadType: "EMPTY"},
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
-
-	    finishedCube.expand(0);
 	    
 	    document.querySelector("#startButton").addEventListener("click", (event) => {
 	    	document.querySelector("#sampleVideo").play();
