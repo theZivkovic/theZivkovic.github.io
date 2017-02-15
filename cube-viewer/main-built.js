@@ -903,27 +903,57 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 
 		let _clickedTwice = false;
 
+		const MouseDownStates = { "IDLE" : 0, "ONCE" : 1, "TWICE": 2 };
+		let _currentMouseDownState = MouseDownStates.IDLE;
+
 		function _onMouseDown(event) {
 
 			event.preventDefault();
 
-			if (!_clickedTwice) {
-					_clickedTwice = true;
-					setTimeout(() => { _clickedTwice = false; }, 300);	
-					
-					sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
-					sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
-					sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
+			if (_currentMouseDownState == MouseDownStates.IDLE){
+				setTimeout(() => {
+					if (_currentMouseDownState == MouseDownStates.ONCE)
+						_handleEndOfSingleMouseDown(event);
+					_currentMouseDownState = MouseDownStates.IDLE;
 
-					_mouseXOnMouseDown = event.clientX - _windowHalfX;
-					_targetRotationXOnMouseDown = _targetRotationX;
-
-					_mouseYOnMouseDown = event.clientY - _windowHalfY;
-					_targetRotationYOnMouseDown = _targetRotationY;	
-					return;
+				}, 300);
+				_currentMouseDownState = MouseDownStates.ONCE;
+			}
+			else if (_currentMouseDownState == MouseDownStates.ONCE)
+			{
+				_handleEndOfDoubleMouseDown(event);
+				_currentMouseDownState = MouseDownStates.IDLE;
 			}
 
-			if (_clickedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
+			_handleEveryMouseDown(event);
+		}
+
+		function _handleEveryMouseDown(event){
+
+			_mouseXOnMouseDown = event.clientX - _windowHalfX;
+			_targetRotationXOnMouseDown = _targetRotationX;
+
+			_mouseYOnMouseDown = event.clientY - _windowHalfY;
+			_targetRotationYOnMouseDown = _targetRotationY;	
+
+			sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
+			sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
+			sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
+		}
+
+		function _handleEndOfSingleMouseDown(event){
+				
+				if (_callbacksMap.hasOwnProperty("singleClick"))
+					_callbacksMap["singleClick"](event);
+		}
+
+		function _handleEndOfDoubleMouseDown(event){
+
+			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
+			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
+			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
+
+			if (_callbacksMap.hasOwnProperty("doubleClick"))
 					_callbacksMap["doubleClick"](event);
 		}
 
@@ -946,9 +976,9 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 
 		function _onMouseOut( event ) {
 
-			renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-			renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-			renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+			sceneDomElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			sceneDomElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			sceneDomElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
 
 		}
 
@@ -998,30 +1028,54 @@ define('androidCameraControl',['threejs'], (THREE) => {
 		const ROTATION_Y_MAX_ANGLE = 1.2;
 		const ROTATION_SPEED = 0.01;
 
-		let _tappedTwice = false;
+		const MouseDownStates = { "IDLE" : 0, "ONCE" : 1, "TWICE": 2 };
+		let _currentMouseDownState = MouseDownStates.IDLE;
 
 		function _onTouchStart( event ){
 
-			if ( event.touches.length === 1 ) {
+			event.preventDefault();
 
-				event.preventDefault();
+			if (_currentMouseDownState == MouseDownStates.IDLE){
+				setTimeout(() => {
+					if (_currentMouseDownState == MouseDownStates.ONCE)
+						_handleEndOfSingleTap(event);
+					_currentMouseDownState = MouseDownStates.IDLE;
 
-				if (!_tappedTwice) {
-					_tappedTwice = true;
-					setTimeout(() => { _tappedTwice = false; }, 300);	
-
-					_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
-					_targetRotationXOnMouseDown = _targetRotationX;
-
-					_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-					_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-					_targetRotationYOnMouseDown = _targetRotationY;
-					return;
-				}
-
-				if (_tappedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
-					_callbacksMap["doubleClick"](event);
+				}, 300);
+				_currentMouseDownState = MouseDownStates.ONCE;
 			}
+			else if (_currentMouseDownState == MouseDownStates.ONCE)
+			{
+				_handleEndOfDoubleTap(event);
+				_currentMouseDownState = MouseDownStates.IDLE;
+			}
+
+			_handleEveryTap(event);
+		}
+
+		function _handleEveryTap(event){
+
+			_mouseXOnMouseDown = event.clientX - _windowHalfX;
+			_targetRotationXOnMouseDown = _targetRotationX;
+
+			_mouseYOnMouseDown = event.clientY - _windowHalfY;
+			_targetRotationYOnMouseDown = _targetRotationY;	
+		}
+
+		function _handleEndOfSingleTap(event){
+				
+				if (_callbacksMap.hasOwnProperty("singleClick"))
+					_callbacksMap["singleClick"](event);
+		}
+
+		function _handleEndOfDoubleTap(event){
+
+			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
+			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
+			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
+
+			if (_callbacksMap.hasOwnProperty("doubleClick"))
+					_callbacksMap["doubleClick"](event);
 		}
 
 		function _onTouchMove(event){
@@ -1322,6 +1376,20 @@ define('scene',['threejs',
 	    		finishedCube.expand(0);
 
 	    	shouldExpandTheCube = !shouldExpandTheCube;	
+	    });
+
+	    controls.on('singleClick', (event) => {
+
+	    	let mouse = new THREE.Vector2();
+	    	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+			let raycaster = new THREE.Raycaster();
+			raycaster.setFromCamera( mouse, camera );
+
+			var intersects = raycaster.intersectObjects( scene.children );
+			console.log(intersects);
+
 	    });
 	 
 	   	finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
