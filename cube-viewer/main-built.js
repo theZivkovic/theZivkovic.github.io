@@ -903,6 +903,7 @@ define('cameraControl',['threejs'], (THREE) => {
 
 			let mouseY = event.clientY - _windowHalfY;
 			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * 0.005;
+			_targetRotationY = THREE.Math.clamp(_targetRotationY, -1.2, 1.2);
 		}
 
 		function _onMouseUp(event) {
@@ -930,7 +931,7 @@ define('cameraControl',['threejs'], (THREE) => {
 				_targetRotationXOnMouseDown = _targetRotationX;
 
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-				_targetRotationYOnMouseDown = _targetRotationX;
+				_targetRotationYOnMouseDown = _targetRotationY;
 			}
 		}
 
@@ -945,6 +946,7 @@ define('cameraControl',['threejs'], (THREE) => {
 
 				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
 				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * 0.005;
+				_targetRotationY = THREE.Math.clamp(_targetRotationY, -1.2, 1.2);
 
 			}
 		}
@@ -955,7 +957,7 @@ define('cameraControl',['threejs'], (THREE) => {
 
 		self.update = () => {
 
-			_targetRotationY = THREE.Math.clamp(_targetRotationY, -1.2, 1.2);
+			
 			_camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
