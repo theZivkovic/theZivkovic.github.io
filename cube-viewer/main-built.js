@@ -1058,13 +1058,13 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 		function _handleEveryMouseDown(event){
 
-			_mouseXOnMouseDown = event.clientX - _windowHalfX;
+			_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
 			_targetRotationXOnMouseDown = _targetRotationX;
 
-			_mouseYOnMouseDown = event.clientY - _windowHalfY;
+			_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 			_targetRotationYOnMouseDown = _targetRotationY;	
 
-			sceneDomElement.addEventListener( 'touchmove', _onMouseMove, false );
+			sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
 		}
 
 		function _handleEndOfSingleMouseDown(event){
@@ -1075,7 +1075,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 		function _handleEndOfDoubleMouseDown(event){
 
-			sceneDomElement.removeEventListener( 'touchmove', _onMouseMove, false );
+			sceneDomElement.removeEventListener( 'touchmove', _onTouchMove, false );
 
 			if (_callbacksMap.hasOwnProperty("doubleClick"))
 					_callbacksMap["doubleClick"](event);
