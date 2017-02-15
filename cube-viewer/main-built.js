@@ -1070,10 +1070,6 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 		function _handleEndOfDoubleTap(event){
 
-			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
-			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
-			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
-
 			if (_callbacksMap.hasOwnProperty("doubleClick"))
 					_callbacksMap["doubleClick"](event);
 		}
