@@ -879,6 +879,7 @@ define('cameraControl',['threejs'], (THREE) => {
 		let _mouseYOnMouseDown = 0;
 		let _targetRotationYOnMouseDown = 0;
 		let _targetRotationY = 0;
+		let _targetRotationYPrev = 0;
 
 		function _onMouseDown(event) {
 
@@ -898,10 +899,10 @@ define('cameraControl',['threejs'], (THREE) => {
 		function _onMouseMove(event){
 
 			let mouseX = event.clientX - _windowHalfX;
-			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * 0.02;
+			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * 0.005;
 
 			let mouseY = event.clientY - _windowHalfY;
-			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * 0.02;
+			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * 0.005;
 		}
 
 		function _onMouseUp(event) {
@@ -940,10 +941,10 @@ define('cameraControl',['threejs'], (THREE) => {
 				event.preventDefault();
 
 				let mouseX = event.touches[ 0 ].pageX - _windowHalfX;
-				_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * 0.05;
+				_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * 0.005;
 
 				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
-				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * 0.05;
+				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * 0.005;
 
 			}
 		}
@@ -953,11 +954,17 @@ define('cameraControl',['threejs'], (THREE) => {
 		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
 
 		self.update = () => {
+
+			_targetRotationY = THREE.Math.clamp(_targetRotationY, -1.2, 1.2);
 			_camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
-			_camera.up = new THREE.Vector3(0,1,0);
+
+
 			_camera.lookAt(new THREE.Vector3(0,0,0));
+
+			_targetRotationYPrev = _targetRotationY;
+			
 		}
 	}
 
@@ -1200,7 +1207,7 @@ define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube
 
 	    scene = new THREE.Scene();
 
-	    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+	    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
 	    camera.position.z = 1000;
 
 	    renderer = new THREE.WebGLRenderer();
