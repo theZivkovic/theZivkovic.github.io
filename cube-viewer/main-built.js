@@ -879,7 +879,6 @@ define('cameraControl',['threejs'], (THREE) => {
 		let _mouseYOnMouseDown = 0;
 		let _targetRotationYOnMouseDown = 0;
 		let _targetRotationY = 0;
-		let _targetRotationYPrev = 0;
 
 		function _onMouseDown(event) {
 
@@ -931,6 +930,7 @@ define('cameraControl',['threejs'], (THREE) => {
 				_targetRotationXOnMouseDown = _targetRotationX;
 
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
+				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, -1.2, 1.2);
 				_targetRotationYOnMouseDown = _targetRotationY;
 			}
 		}
@@ -964,8 +964,6 @@ define('cameraControl',['threejs'], (THREE) => {
 
 
 			_camera.lookAt(new THREE.Vector3(0,0,0));
-
-			_targetRotationYPrev = _targetRotationY;
 			
 		}
 	}
