@@ -886,21 +886,30 @@ define('cameraControl',['threejs'], (THREE) => {
 		const ROTATION_Y_MAX_ANGLE = 1.2;
 		const ROTATION_SPEED = 0.01;
 
+		let _tappedTwice = false;
+
 		function _onMouseDown(event) {
 
 			event.preventDefault();
 
-			sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
-			sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
-			sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
+			if (!_tappedTwice) {
+					_tappedTwice = true;
+					console.log("tapped twice went true");
+					setTimeout(() => { _tappedTwice = false; console.log("tapped twice went false"); }, 300);	
+					
+					sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
+					sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
+					sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
 
-			_mouseXOnMouseDown = event.clientX - _windowHalfX;
-			_targetRotationXOnMouseDown = _targetRotationX;
+					_mouseXOnMouseDown = event.clientX - _windowHalfX;
+					_targetRotationXOnMouseDown = _targetRotationX;
 
-			_mouseYOnMouseDown = event.clientY - _windowHalfY;
-			_targetRotationYOnMouseDown = _targetRotationY;
+					_mouseYOnMouseDown = event.clientY - _windowHalfY;
+					_targetRotationYOnMouseDown = _targetRotationY;	
+					return;
+			}
 
-			if (_callbacksMap.hasOwnProperty("singleClick"))
+			if (_tappedTwice && _callbacksMap.hasOwnProperty("singleClick"))
 					_callbacksMap["singleClick"](event);
 		}
 
@@ -935,14 +944,21 @@ define('cameraControl',['threejs'], (THREE) => {
 
 				event.preventDefault();
 
-				_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
-				_targetRotationXOnMouseDown = _targetRotationX;
+				if (!_tappedTwice) {
+					_tappedTwice = true;
+					console.log("tapped twice went true");
+					setTimeout(() => { _tappedTwice = false; console.log("tapped twice went false"); }, 300);	
 
-				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-				_targetRotationYOnMouseDown = _targetRotationY;
+					_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
+					_targetRotationXOnMouseDown = _targetRotationX;
 
-				if (_callbacksMap.hasOwnProperty("singleClick"))
+					_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
+					_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
+					_targetRotationYOnMouseDown = _targetRotationY;
+					return;
+				}
+
+				if (_tappedTwice && _callbacksMap.hasOwnProperty("singleClick"))
 					_callbacksMap["singleClick"](event);
 			}
 		}
