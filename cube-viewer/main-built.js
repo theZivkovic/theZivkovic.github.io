@@ -880,6 +880,10 @@ define('cameraControl',['threejs'], (THREE) => {
 		let _targetRotationYOnMouseDown = 0;
 		let _targetRotationY = 0;
 
+		const ROTATION_Y_MIN_ANGLE = -1.2;
+		const ROTATION_Y_MAX_ANGLE = 1.2;
+		const ROTATION_SPEED = 0.01;
+
 		function _onMouseDown(event) {
 
 			event.preventDefault();
@@ -898,11 +902,11 @@ define('cameraControl',['threejs'], (THREE) => {
 		function _onMouseMove(event){
 
 			let mouseX = event.clientX - _windowHalfX;
-			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * 0.005;
+			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
 
 			let mouseY = event.clientY - _windowHalfY;
-			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * 0.005;
-			_targetRotationY = THREE.Math.clamp(_targetRotationY, -1.2, 1.2);
+			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * ROTATION_SPEED;
+			_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 		}
 
 		function _onMouseUp(event) {
@@ -930,7 +934,7 @@ define('cameraControl',['threejs'], (THREE) => {
 				_targetRotationXOnMouseDown = _targetRotationX;
 
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, -1.2, 1.2);
+				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;
 			}
 		}
@@ -942,11 +946,11 @@ define('cameraControl',['threejs'], (THREE) => {
 				event.preventDefault();
 
 				let mouseX = event.touches[ 0 ].pageX - _windowHalfX;
-				_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * 0.005;
+				_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
 
 				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
-				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * 0.005;
-				_targetRotationY = THREE.Math.clamp(_targetRotationY, -1.2, 1.2);
+				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * ROTATION_SPEED;
+				_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 
 			}
 		}
