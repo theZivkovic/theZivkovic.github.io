@@ -909,8 +909,7 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 
 			if (!_clickedTwice) {
 					_clickedTwice = true;
-					console.log("_clickedTwice went true");
-					setTimeout(() => { _clickedTwice = false; console.log("_clickedTwice went false"); }, 300);	
+					setTimeout(() => { _clickedTwice = false; }, 300);	
 					
 					sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
 					sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
@@ -924,8 +923,8 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 					return;
 			}
 
-			if (_clickedTwice && _callbacksMap.hasOwnProperty("singleClick"))
-					_callbacksMap["singleClick"](event);
+			if (_clickedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
+					_callbacksMap["doubleClick"](event);
 		}
 
 		function _onMouseMove(event){
@@ -1009,8 +1008,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 				if (!_tappedTwice) {
 					_tappedTwice = true;
-					console.log("tapped twice went true");
-					setTimeout(() => { _tappedTwice = false; console.log("tapped twice went false"); }, 300);	
+					setTimeout(() => { _tappedTwice = false; }, 300);	
 
 					_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
 					_targetRotationXOnMouseDown = _targetRotationX;
@@ -1021,8 +1019,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 					return;
 				}
 
-				if (_tappedTwice && _callbacksMap.hasOwnProperty("singleClick"))
-					_callbacksMap["singleClick"](event);
+				if (_tappedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
+					_callbacksMap["doubleClick"](event);
 			}
 		}
 
@@ -1113,54 +1111,6 @@ define('quad',['threejs'], (THREE) => {
 
 	return Quad;
 });
-define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
-
-	let VideoQuad = function(scene, position, normal, sideLength, videoElement){
-	
-		let _videoElement = null;
-		let _texture = null;
-		let _quad = null;
-
-		let self = this;
-
-		self.initialize = () => {
-
-			_quad = new Quad(scene, position, normal, sideLength);
-
-			_videoElement = videoElement;
-
-			_texture = new THREE.Texture(_videoElement);
-	        _texture.minFilter = THREE.NearestFilter;
-	        _texture.magFilter = THREE.NearestFilter;
-	        _texture.format = THREE.RGBFormat;
-	        _texture.wrapS = THREE.ClampToEdgeWrapping;
-	        _texture.wrapT = THREE.ClampToEdgeWrapping;
-
-	        _material = new THREE.MeshBasicMaterial({
-	        	map: _texture,
-	        	overdraw: true,
-	        	transparent: true,
-	        	opacity: 0.9,
-	        	side: THREE.DoubleSide
-	        });
-
-	        _quad.setMaterial(_material);
-		}
-
-		self.initialize();
-
-        self.update = () => {
-			_texture.needsUpdate = true;
-		}
-
-		self.pushForward = (howMuch) => {
-			_quad.pushForward(howMuch);
-		}
-
-	}
-	
-	return VideoQuad;
-});
 define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 	let ImageQuad = function(scene, position, normal, sideLength, imageElement){
@@ -1208,6 +1158,54 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 	}
 	
 	return ImageQuad;
+});
+define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
+
+	let VideoQuad = function(scene, position, normal, sideLength, videoElement){
+	
+		let _videoElement = null;
+		let _texture = null;
+		let _quad = null;
+
+		let self = this;
+
+		self.initialize = () => {
+
+			_quad = new Quad(scene, position, normal, sideLength);
+
+			_videoElement = videoElement;
+
+			_texture = new THREE.Texture(_videoElement);
+	        _texture.minFilter = THREE.NearestFilter;
+	        _texture.magFilter = THREE.NearestFilter;
+	        _texture.format = THREE.RGBFormat;
+	        _texture.wrapS = THREE.ClampToEdgeWrapping;
+	        _texture.wrapT = THREE.ClampToEdgeWrapping;
+
+	        _material = new THREE.MeshBasicMaterial({
+	        	map: _texture,
+	        	overdraw: true,
+	        	transparent: true,
+	        	opacity: 0.9,
+	        	side: THREE.DoubleSide
+	        });
+
+	        _quad.setMaterial(_material);
+		}
+
+		self.initialize();
+
+        self.update = () => {
+			_texture.needsUpdate = true;
+		}
+
+		self.pushForward = (howMuch) => {
+			_quad.pushForward(howMuch);
+		}
+
+	}
+	
+	return VideoQuad;
 });
 define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, VideoQuad, ImageQuad) => {
 
@@ -1285,20 +1283,23 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 
 	return Cube;
 });
-define('scene',['threejs', 'deviceInformator', 'desktopCameraControl', 'androidCameraControl', 'cube'], (THREE, DeviceInformator, DesktopCameraControl, AndroidCameraControl, Cube) => {
+define('scene',['threejs',
+		'deviceInformator',
+		'desktopCameraControl',
+		'androidCameraControl',
+		'imageQuad',
+		 'cube'
+		], (THREE, DeviceInformator, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube) => {
 	
 	var scene, camera, renderer;
-	let geometry, material, mesh, finishedCube, controls;
-	let targetRotationX = 0;
-
+	let finishedCube, logoQuad, controls;
+	
 	let windowHalfX = window.innerWidth / 2;
 	let windowHalfY = window.innerHeight / 2;
 
 	let shouldExpandTheCube = true;
 
 	function _init() {
-
-		console.log(DeviceInformator.isMobile());
 
 	    scene = new THREE.Scene();
 
@@ -1313,9 +1314,8 @@ define('scene',['threejs', 'deviceInformator', 'desktopCameraControl', 'androidC
 	    	controls = new AndroidCameraControl(camera, renderer.domElement);
 	    else 
 	  		controls = new DesktopCameraControl(camera, renderer.domElement);
-	  	
-	    controls.on('singleClick', (event) => {
 
+	    controls.on('doubleClick', (event) => {
 	    	if (shouldExpandTheCube)
 	    		finishedCube.expand(100);
 	    	else
@@ -1333,7 +1333,10 @@ define('scene',['threejs', 'deviceInformator', 'desktopCameraControl', 'androidC
 	    					"BOTTOM" : { quadType: "EMPTY"},
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
-	    
+
+	   	logoQuad = new ImageQuad(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 400, document.querySelector("#mainLogoImage"));
+	    logoQuad.update();
+
 	    document.querySelector("#startButton").addEventListener("click", (event) => {
 	    	document.querySelector("#sampleVideo").play();
 	    	document.querySelector("#sampleVideo1").play();
