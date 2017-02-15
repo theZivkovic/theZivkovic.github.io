@@ -1033,43 +1033,49 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 		function _onTouchStart( event ){
 
-			event.preventDefault();
-			console.log("TEST");
-			
-			if (_currentMouseDownState == MouseDownStates.IDLE){
-				setTimeout(() => {
-					if (_currentMouseDownState == MouseDownStates.ONCE)
-						_handleEndOfSingleTap(event);
-					_currentMouseDownState = MouseDownStates.IDLE;
+			if ( event.touches.length === 1 ) {
 
-				}, 300);
-				_currentMouseDownState = MouseDownStates.ONCE;
-			}
-			else if (_currentMouseDownState == MouseDownStates.ONCE)
-			{
-				_handleEndOfDoubleTap(event);
-				_currentMouseDownState = MouseDownStates.IDLE;
-			}
+					event.preventDefault();
 
-			_handleEveryTap(event);
+					if (_currentMouseDownState == MouseDownStates.IDLE){
+						setTimeout(() => {
+							if (_currentMouseDownState == MouseDownStates.ONCE)
+								_handleEndOfSingleMouseDown(event);
+							_currentMouseDownState = MouseDownStates.IDLE;
+
+						}, 300);
+						_currentMouseDownState = MouseDownStates.ONCE;
+					}
+					else if (_currentMouseDownState == MouseDownStates.ONCE)
+					{
+						_handleEndOfDoubleMouseDown(event);
+						_currentMouseDownState = MouseDownStates.IDLE;
+					}
+
+					_handleEveryMouseDown(event);
+			}
 		}
 
-		function _handleEveryTap(event){
+		function _handleEveryMouseDown(event){
 
 			_mouseXOnMouseDown = event.clientX - _windowHalfX;
 			_targetRotationXOnMouseDown = _targetRotationX;
 
 			_mouseYOnMouseDown = event.clientY - _windowHalfY;
 			_targetRotationYOnMouseDown = _targetRotationY;	
+
+			sceneDomElement.addEventListener( 'touchmove', _onMouseMove, false );
 		}
 
-		function _handleEndOfSingleTap(event){
+		function _handleEndOfSingleMouseDown(event){
 				
 				if (_callbacksMap.hasOwnProperty("singleClick"))
 					_callbacksMap["singleClick"](event);
 		}
 
-		function _handleEndOfDoubleTap(event){
+		function _handleEndOfDoubleMouseDown(event){
+
+			sceneDomElement.removeEventListener( 'touchmove', _onMouseMove, false );
 
 			if (_callbacksMap.hasOwnProperty("doubleClick"))
 					_callbacksMap["doubleClick"](event);
