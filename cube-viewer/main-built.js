@@ -1376,15 +1376,15 @@ define('scene',['threejs',
 
 	    controls.on('singleClick', (event) => {
 
-	    	let mouse = new THREE.Vector2();
-	    	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-			mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+	  	//   	let mouse = new THREE.Vector2();
+	  //   	mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+			// mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-			let raycaster = new THREE.Raycaster();
-			raycaster.setFromCamera( mouse, camera );
+			// let raycaster = new THREE.Raycaster();
+			// raycaster.setFromCamera( mouse, camera );
 
-			var intersects = raycaster.intersectObjects( scene.children );
-			console.log(intersects);
+			// var intersects = raycaster.intersectObjects( scene.children );
+			// console.log(intersects);
 
 	    });
 	 
