@@ -1310,7 +1310,7 @@ define('scene',['threejs', 'deviceInformator', 'desktopCameraControl', 'androidC
 	    document.body.appendChild( renderer.domElement );
 
 	    if (DeviceInformator.isMobile())
-	    	controls = new AndroidCameraControl(camera, render.domElement);
+	    	controls = new AndroidCameraControl(camera, renderer.domElement);
 	    else 
 	  		controls = new DesktopCameraControl(camera, renderer.domElement);
 	  	
