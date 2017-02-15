@@ -861,9 +861,122 @@ loadTextureCube:function(a,b,c,d){console.warn("THREE.ImageUtils.loadTextureCube
 k.Projector=function(){console.error("THREE.Projector has been moved to /examples/js/renderers/Projector.js.");this.projectVector=function(a,b){console.warn("THREE.Projector: .projectVector() is now vector.project().");a.project(b)};this.unprojectVector=function(a,b){console.warn("THREE.Projector: .unprojectVector() is now vector.unproject().");a.unproject(b)};this.pickingRay=function(){console.error("THREE.Projector: .pickingRay() is now raycaster.setFromCamera().")}};k.CanvasRenderer=function(){console.error("THREE.CanvasRenderer has been moved to /examples/js/renderers/CanvasRenderer.js");
 this.domElement=document.createElementNS("http://www.w3.org/1999/xhtml","canvas");this.clear=function(){};this.render=function(){};this.setClearColor=function(){};this.setSize=function(){}};Object.defineProperty(k,"__esModule",{value:!0})});
 
-define('cameraControl',['threejs'], (THREE) => {
+define('deviceInformator',[], () => {
 
-	let CameraControl = function(camera, sceneDomElement){
+	function _isAndroid() { return navigator.userAgent.match(/Android/i) != null; }
+	function _isBlackBerry() { return navigator.userAgent.match(/BlackBerry/i) != null; }
+	function _isIOS() { return navigator.userAgent.match(/iPhone|iPad|iPod/i) != null; }
+	function _isOpera() {  return navigator.userAgent.match(/Opera Mini/i) != null; }
+	function _isWindowsPhone() {  return navigator.userAgent.match(/IEMobile/i) != null; }
+
+	return {
+	    isMobile: function() {
+	        return _isAndroid() || _isBlackBerry() || _isIOS() || _isOpera() || _isWindowsPhone();
+	    }
+	}
+
+});
+define('desktopCameraControl',['threejs'], (THREE) => {
+
+	let DesktopCameraControl = function(camera, sceneDomElement){
+
+		let self = this;
+
+		let _camera = camera;
+
+		let _callbacksMap = {};
+
+		let _windowHalfX = window.innerWidth / 2;
+		let _windowHalfY = window.innerHeight / 2;
+
+		let _mouseXOnMouseDown = 0;
+		let _targetRotationXOnMouseDown = 0;
+		let _targetRotationX = 0;
+
+		let _mouseYOnMouseDown = 0;
+		let _targetRotationYOnMouseDown = 0;
+		let _targetRotationY = 0;
+
+		const ROTATION_Y_MIN_ANGLE = -1.2;
+		const ROTATION_Y_MAX_ANGLE = 1.2;
+		const ROTATION_SPEED = 0.01;
+
+		let _clickedTwice = false;
+
+		function _onMouseDown(event) {
+
+			event.preventDefault();
+
+			if (!_clickedTwice) {
+					_clickedTwice = true;
+					console.log("_clickedTwice went true");
+					setTimeout(() => { _clickedTwice = false; console.log("_clickedTwice went false"); }, 300);	
+					
+					sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
+					sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
+					sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
+
+					_mouseXOnMouseDown = event.clientX - _windowHalfX;
+					_targetRotationXOnMouseDown = _targetRotationX;
+
+					_mouseYOnMouseDown = event.clientY - _windowHalfY;
+					_targetRotationYOnMouseDown = _targetRotationY;	
+					return;
+			}
+
+			if (_clickedTwice && _callbacksMap.hasOwnProperty("singleClick"))
+					_callbacksMap["singleClick"](event);
+		}
+
+		function _onMouseMove(event){
+
+			let mouseX = event.clientX - _windowHalfX;
+			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
+
+			let mouseY = event.clientY - _windowHalfY;
+			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * ROTATION_SPEED;
+			_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
+		}
+
+		function _onMouseUp(event) {
+			
+			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
+			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
+			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
+		}
+
+		function _onMouseOut( event ) {
+
+			renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+			renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+			renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+
+		}
+
+		sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
+
+		self.update = () => {
+
+			
+			_camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
+								 1000 * Math.sin(_targetRotationY),
+								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
+
+
+			_camera.lookAt(new THREE.Vector3(0,0,0));
+			
+		}
+
+		self.on = (eventName, callback) => {
+			_callbacksMap[eventName] = callback;
+		}
+	}
+
+	return DesktopCameraControl;
+});
+define('androidCameraControl',['threejs'], (THREE) => {
+
+	let AndroidCameraControl = function(camera, sceneDomElement){
 
 		let self = this;
 
@@ -887,56 +1000,6 @@ define('cameraControl',['threejs'], (THREE) => {
 		const ROTATION_SPEED = 0.01;
 
 		let _tappedTwice = false;
-
-		// function _onMouseDown(event) {
-
-		// 	event.preventDefault();
-
-		// 	if (!_tappedTwice) {
-		// 			_tappedTwice = true;
-		// 			console.log("tapped twice went true");
-		// 			setTimeout(() => { _tappedTwice = false; console.log("tapped twice went false"); }, 300);	
-					
-		// 			sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
-		// 			sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
-		// 			sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
-
-		// 			_mouseXOnMouseDown = event.clientX - _windowHalfX;
-		// 			_targetRotationXOnMouseDown = _targetRotationX;
-
-		// 			_mouseYOnMouseDown = event.clientY - _windowHalfY;
-		// 			_targetRotationYOnMouseDown = _targetRotationY;	
-		// 			return;
-		// 	}
-
-		// 	if (_tappedTwice && _callbacksMap.hasOwnProperty("singleClick"))
-		// 			_callbacksMap["singleClick"](event);
-		// }
-
-		// function _onMouseMove(event){
-
-		// 	let mouseX = event.clientX - _windowHalfX;
-		// 	_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
-
-		// 	let mouseY = event.clientY - _windowHalfY;
-		// 	_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * ROTATION_SPEED;
-		// 	_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-		// }
-
-		// function _onMouseUp(event) {
-			
-		// 	sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
-		// 	sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
-		// 	sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
-		// }
-
-		// function _onMouseOut( event ) {
-
-		// 	renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-		// 	renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-		// 	renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-
-		// }
 
 		function _onTouchStart( event ){
 
@@ -978,13 +1041,12 @@ define('cameraControl',['threejs'], (THREE) => {
 			}
 		}
 
-		//sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
+
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
 		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
 
 		self.update = () => {
 
-			
 			_camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
@@ -999,7 +1061,7 @@ define('cameraControl',['threejs'], (THREE) => {
 		}
 	}
 
-	return CameraControl;
+	return AndroidCameraControl;
 });
 define('quad',['threejs'], (THREE) => {
 
@@ -1048,8 +1110,6 @@ define('quad',['threejs'], (THREE) => {
 			// do nothing for now
 		}
 	}
-
-	
 
 	return Quad;
 });
@@ -1225,7 +1285,7 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 
 	return Cube;
 });
-define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube) => {
+define('scene',['threejs', 'deviceInformator', 'desktopCameraControl', 'androidCameraControl', 'cube'], (THREE, DeviceInformator, DesktopCameraControl, AndroidCameraControl, Cube) => {
 	
 	var scene, camera, renderer;
 	let geometry, material, mesh, finishedCube, controls;
@@ -1238,6 +1298,8 @@ define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube
 
 	function _init() {
 
+		console.log(DeviceInformator.isMobile());
+
 	    scene = new THREE.Scene();
 
 	    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
@@ -1246,7 +1308,12 @@ define('scene',['threejs', 'cameraControl', 'cube'], (THREE, CameraControl, Cube
 	    renderer = new THREE.WebGLRenderer();
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 	    document.body.appendChild( renderer.domElement );
-	    controls = new CameraControl(camera, renderer.domElement);
+
+	    if (DeviceInformator.isMobile())
+	    	controls = new AndroidCameraControl(camera, render.domElement);
+	    else 
+	  		controls = new DesktopCameraControl(camera, renderer.domElement);
+	  	
 	    controls.on('singleClick', (event) => {
 
 	    	if (shouldExpandTheCube)
