@@ -898,7 +898,7 @@ define('cameraControl',['threejs'], (THREE) => {
 			_mouseYOnMouseDown = event.clientY - _windowHalfY;
 			_targetRotationYOnMouseDown = _targetRotationY;
 
-			console.log("CLICK");
+			alert("CLICK");
 		}
 
 		function _onMouseMove(event){
@@ -939,7 +939,7 @@ define('cameraControl',['threejs'], (THREE) => {
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;
 
-				console.log("TOUCH");
+				alert("TOUCH");
 			}
 		}
 
