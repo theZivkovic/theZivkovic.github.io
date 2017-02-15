@@ -955,9 +955,14 @@ define('cameraControl',['threejs'], (THREE) => {
 			}
 		}
 
+		function _onTouch(event){
+			alert("HA");
+		}
+
 		sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
 		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
+		sceneDomElement.addEventListener( 'click', _onTouch, false);
 
 		self.update = () => {
 
