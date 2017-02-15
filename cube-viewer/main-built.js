@@ -888,55 +888,55 @@ define('cameraControl',['threejs'], (THREE) => {
 
 		let _tappedTwice = false;
 
-		function _onMouseDown(event) {
+		// function _onMouseDown(event) {
 
-			event.preventDefault();
+		// 	event.preventDefault();
 
-			if (!_tappedTwice) {
-					_tappedTwice = true;
-					console.log("tapped twice went true");
-					setTimeout(() => { _tappedTwice = false; console.log("tapped twice went false"); }, 300);	
+		// 	if (!_tappedTwice) {
+		// 			_tappedTwice = true;
+		// 			console.log("tapped twice went true");
+		// 			setTimeout(() => { _tappedTwice = false; console.log("tapped twice went false"); }, 300);	
 					
-					sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
-					sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
-					sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
+		// 			sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
+		// 			sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
+		// 			sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
 
-					_mouseXOnMouseDown = event.clientX - _windowHalfX;
-					_targetRotationXOnMouseDown = _targetRotationX;
+		// 			_mouseXOnMouseDown = event.clientX - _windowHalfX;
+		// 			_targetRotationXOnMouseDown = _targetRotationX;
 
-					_mouseYOnMouseDown = event.clientY - _windowHalfY;
-					_targetRotationYOnMouseDown = _targetRotationY;	
-					return;
-			}
+		// 			_mouseYOnMouseDown = event.clientY - _windowHalfY;
+		// 			_targetRotationYOnMouseDown = _targetRotationY;	
+		// 			return;
+		// 	}
 
-			if (_tappedTwice && _callbacksMap.hasOwnProperty("singleClick"))
-					_callbacksMap["singleClick"](event);
-		}
+		// 	if (_tappedTwice && _callbacksMap.hasOwnProperty("singleClick"))
+		// 			_callbacksMap["singleClick"](event);
+		// }
 
-		function _onMouseMove(event){
+		// function _onMouseMove(event){
 
-			let mouseX = event.clientX - _windowHalfX;
-			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
+		// 	let mouseX = event.clientX - _windowHalfX;
+		// 	_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
 
-			let mouseY = event.clientY - _windowHalfY;
-			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * ROTATION_SPEED;
-			_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-		}
+		// 	let mouseY = event.clientY - _windowHalfY;
+		// 	_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * ROTATION_SPEED;
+		// 	_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
+		// }
 
-		function _onMouseUp(event) {
+		// function _onMouseUp(event) {
 			
-			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
-			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
-			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
-		}
+		// 	sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
+		// 	sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
+		// 	sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
+		// }
 
-		function _onMouseOut( event ) {
+		// function _onMouseOut( event ) {
 
-			renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-			renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-			renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
+		// 	renderer.domElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
+		// 	renderer.domElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
+		// 	renderer.domElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
 
-		}
+		// }
 
 		function _onTouchStart( event ){
 
@@ -978,7 +978,7 @@ define('cameraControl',['threejs'], (THREE) => {
 			}
 		}
 
-		sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
+		//sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
 		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
 
