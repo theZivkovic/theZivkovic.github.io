@@ -1034,7 +1034,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 		function _onTouchStart( event ){
 
 			event.preventDefault();
-
+			console.log("TEST");
+			
 			if (_currentMouseDownState == MouseDownStates.IDLE){
 				setTimeout(() => {
 					if (_currentMouseDownState == MouseDownStates.ONCE)
