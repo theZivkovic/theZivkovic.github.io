@@ -1114,7 +1114,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
-		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
+		//sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
 
 		self.update = () => {
 
