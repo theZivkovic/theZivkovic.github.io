@@ -1096,13 +1096,13 @@ define('androidCameraControl',['threejs'], (THREE) => {
 					_currentTouchDownState = TouchDownState.IDLE;
 				}
 
-				_mouseXOnMouseDown = event.clientX - _windowHalfX;
+				_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
 				_targetRotationXOnMouseDown = _targetRotationX;
 
-				_mouseYOnMouseDown = event.clientY - _windowHalfY;
+				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;	
-				
+
 				// if (!_tappedTwice) {
 				// 	_tappedTwice = true;
 				// 	setTimeout(() => { _tappedTwice = false; }, 300);	
