@@ -1197,6 +1197,9 @@ define('quad',['threejs'], (THREE) => {
 			return _id;
 		}
 
+		self.getPosition = () => { return _plane.position; }
+		self.getRotation = () => { return _plane.rotation; }
+
 		self.setMaterial = (someMaterial) => {
 			_plane.material = someMaterial;
 		}
@@ -1336,9 +1339,326 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 	
 	return VideoQuad;
 });
-define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, VideoQuad, ImageQuad) => {
+define('threejsCSS3D',['threejs'], (THREE) => {
 
-	function Cube(scene, position, frontVec, upVec, size, sidesInformation) {
+	THREE.CSS3DObject = function ( element ) {
+
+	THREE.Object3D.call( this );
+
+		this.element = element;
+		this.element.style.position = 'absolute';
+
+		this.addEventListener( 'removed', function ( event ) {
+
+			if ( this.element.parentNode !== null ) {
+
+				this.element.parentNode.removeChild( this.element );
+
+			}
+
+		} );
+
+	};
+
+	THREE.CSS3DObject.prototype = Object.create( THREE.Object3D.prototype );
+	THREE.CSS3DObject.prototype.constructor = THREE.CSS3DObject;
+
+	THREE.CSS3DSprite = function ( element ) {
+
+		THREE.CSS3DObject.call( this, element );
+
+	};
+
+	THREE.CSS3DSprite.prototype = Object.create( THREE.CSS3DObject.prototype );
+	THREE.CSS3DSprite.prototype.constructor = THREE.CSS3DSprite;
+
+	//
+
+	THREE.CSS3DRenderer = function () {
+
+		console.log( 'THREE.CSS3DRenderer', THREE.REVISION );
+
+		var _width, _height;
+		var _widthHalf, _heightHalf;
+
+		var matrix = new THREE.Matrix4();
+
+		var cache = {
+			camera: { fov: 0, style: '' },
+			objects: {}
+		};
+
+		var domElement = document.createElement( 'div' );
+		domElement.style.overflow = 'hidden';
+
+		domElement.style.WebkitTransformStyle = 'preserve-3d';
+		domElement.style.MozTransformStyle = 'preserve-3d';
+		domElement.style.oTransformStyle = 'preserve-3d';
+		domElement.style.transformStyle = 'preserve-3d';
+
+		this.domElement = domElement;
+
+		var cameraElement = document.createElement( 'div' );
+
+		cameraElement.style.WebkitTransformStyle = 'preserve-3d';
+		cameraElement.style.MozTransformStyle = 'preserve-3d';
+		cameraElement.style.oTransformStyle = 'preserve-3d';
+		cameraElement.style.transformStyle = 'preserve-3d';
+
+		domElement.appendChild( cameraElement );
+
+		this.setClearColor = function () {};
+
+		this.getSize = function() {
+
+			return {
+				width: _width,
+				height: _height
+			};
+
+		};
+
+		this.setSize = function ( width, height ) {
+
+			_width = width;
+			_height = height;
+
+			_widthHalf = _width / 2;
+			_heightHalf = _height / 2;
+
+			domElement.style.width = width + 'px';
+			domElement.style.height = height + 'px';
+
+			cameraElement.style.width = width + 'px';
+			cameraElement.style.height = height + 'px';
+
+		};
+
+		var epsilon = function ( value ) {
+
+			return Math.abs( value ) < Number.EPSILON ? 0 : value;
+
+		};
+
+		var getCameraCSSMatrix = function ( matrix ) {
+
+			var elements = matrix.elements;
+
+			return 'matrix3d(' +
+				epsilon( elements[ 0 ] ) + ',' +
+				epsilon( - elements[ 1 ] ) + ',' +
+				epsilon( elements[ 2 ] ) + ',' +
+				epsilon( elements[ 3 ] ) + ',' +
+				epsilon( elements[ 4 ] ) + ',' +
+				epsilon( - elements[ 5 ] ) + ',' +
+				epsilon( elements[ 6 ] ) + ',' +
+				epsilon( elements[ 7 ] ) + ',' +
+				epsilon( elements[ 8 ] ) + ',' +
+				epsilon( - elements[ 9 ] ) + ',' +
+				epsilon( elements[ 10 ] ) + ',' +
+				epsilon( elements[ 11 ] ) + ',' +
+				epsilon( elements[ 12 ] ) + ',' +
+				epsilon( - elements[ 13 ] ) + ',' +
+				epsilon( elements[ 14 ] ) + ',' +
+				epsilon( elements[ 15 ] ) +
+			')';
+
+		};
+
+		var getObjectCSSMatrix = function ( matrix ) {
+
+			var elements = matrix.elements;
+
+			return 'translate3d(-50%,-50%,0) matrix3d(' +
+				epsilon( elements[ 0 ] ) + ',' +
+				epsilon( elements[ 1 ] ) + ',' +
+				epsilon( elements[ 2 ] ) + ',' +
+				epsilon( elements[ 3 ] ) + ',' +
+				epsilon( - elements[ 4 ] ) + ',' +
+				epsilon( - elements[ 5 ] ) + ',' +
+				epsilon( - elements[ 6 ] ) + ',' +
+				epsilon( - elements[ 7 ] ) + ',' +
+				epsilon( elements[ 8 ] ) + ',' +
+				epsilon( elements[ 9 ] ) + ',' +
+				epsilon( elements[ 10 ] ) + ',' +
+				epsilon( elements[ 11 ] ) + ',' +
+				epsilon( elements[ 12 ] ) + ',' +
+				epsilon( elements[ 13 ] ) + ',' +
+				epsilon( elements[ 14 ] ) + ',' +
+				epsilon( elements[ 15 ] ) +
+			')';
+
+		};
+
+		var renderObject = function ( object, camera ) {
+
+			if ( object instanceof THREE.CSS3DObject ) {
+
+				var style;
+
+				if ( object instanceof THREE.CSS3DSprite ) {
+
+					// http://swiftcoder.wordpress.com/2008/11/25/constructing-a-billboard-matrix/
+
+					matrix.copy( camera.matrixWorldInverse );
+					matrix.transpose();
+					matrix.copyPosition( object.matrixWorld );
+					matrix.scale( object.scale );
+
+					matrix.elements[ 3 ] = 0;
+					matrix.elements[ 7 ] = 0;
+					matrix.elements[ 11 ] = 0;
+					matrix.elements[ 15 ] = 1;
+
+					style = getObjectCSSMatrix( matrix );
+
+				} else {
+
+					style = getObjectCSSMatrix( object.matrixWorld );
+
+				}
+
+				var element = object.element;
+				var cachedStyle = cache.objects[ object.id ];
+
+				if ( cachedStyle === undefined || cachedStyle !== style ) {
+
+					element.style.WebkitTransform = style;
+					element.style.MozTransform = style;
+					element.style.oTransform = style;
+					element.style.transform = style;
+
+					cache.objects[ object.id ] = style;
+
+				}
+
+				if ( element.parentNode !== cameraElement ) {
+
+					cameraElement.appendChild( element );
+
+				}
+
+			}
+
+			for ( var i = 0, l = object.children.length; i < l; i ++ ) {
+
+				renderObject( object.children[ i ], camera );
+
+			}
+
+		};
+
+		this.render = function ( scene, camera ) {
+
+			var fov = 0.5 / Math.tan( THREE.Math.degToRad( camera.getEffectiveFOV() * 0.5 ) ) * _height;
+
+			if ( cache.camera.fov !== fov ) {
+
+				domElement.style.WebkitPerspective = fov + "px";
+				domElement.style.MozPerspective = fov + "px";
+				domElement.style.oPerspective = fov + "px";
+				domElement.style.perspective = fov + "px";
+
+				cache.camera.fov = fov;
+
+			}
+
+			scene.updateMatrixWorld();
+
+			if ( camera.parent === null ) camera.updateMatrixWorld();
+
+			camera.matrixWorldInverse.getInverse( camera.matrixWorld );
+
+			var style = "translate3d(0,0," + fov + "px)" + getCameraCSSMatrix( camera.matrixWorldInverse ) +
+				" translate3d(" + _widthHalf + "px," + _heightHalf + "px, 0)";
+
+			if ( cache.camera.style !== style ) {
+
+				cameraElement.style.WebkitTransform = style;
+				cameraElement.style.MozTransform = style;
+				cameraElement.style.oTransform = style;
+				cameraElement.style.transform = style;
+
+				cache.camera.style = style;
+
+			}
+
+			renderObject( scene, camera );
+
+		};
+
+	};
+
+	return {
+		Object3D: THREE.CSS3DObject,
+		CSS3DSprite: THREE.CSS3DSprite,
+		CSS3DRenderer: THREE.CSS3DRenderer
+
+	}
+});
+
+
+define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D) => {
+
+
+	
+	let HTMLQuad = function(id, scene, cssScene, position, normal, sideLength, htmlElement){
+		
+		let _cssObject = null;
+		let _quad = null;
+
+		let self = this;
+
+		function _updateCSSObjectPositionAndRotation(){
+			_cssObject.position.x = _quad.getPosition().x;
+			_cssObject.position.y = _quad.getPosition().y;
+			_cssObject.position.z = _quad.getPosition().z;
+
+			_cssObject.rotation.x = _quad.getRotation().x;
+			_cssObject.rotation.y = _quad.getRotation().y;
+			_cssObject.rotation.z = _quad.getRotation().z;
+		}
+
+		self.initialize = () => {
+
+			_quad = new Quad(id, scene, position, normal, sideLength);
+
+			_cssObject = new THREECSS3D.Object3D(htmlElement);
+			_updateCSSObjectPositionAndRotation();
+			cssScene.add(_cssObject);
+
+			var material   = new THREE.MeshBasicMaterial();
+			material.color.set('black')
+			material.opacity   = 0;
+			material.blending  = THREE.NoBlending;
+			_quad.setMaterial(material);
+		}
+
+		self.initialize();
+
+		self.getID = () => {
+			return _quad.getID();
+		}
+
+        self.update = () => {
+			
+		}
+
+		self.pushForward = (howMuch) => {
+			_quad.pushForward(howMuch);
+			_updateCSSObjectPositionAndRotation();
+		}
+
+		self.setLookAt = (newLookAt) => {
+			_quad.setLookAt(newLookAt);
+		}
+	}
+
+	return HTMLQuad;
+});
+define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE, Quad, VideoQuad, ImageQuad, HTMLQuad) => {
+
+	function Cube(scene, cssScene, position, frontVec, upVec, size, sidesInformation) {
 
 		let self = this;
 
@@ -1369,7 +1689,13 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 			}
 			if (sideInformation.quadType == "IMAGE"){
 				if (!sideInformation.hasOwnProperty("imageElement"))
-					throw "Cube side that has quadType \"IMAGE\" must contain property \"imageElement\"" + " ";
+					throw "Cube side that has quadType \"IMAGE\" must contain property \"imageElement\"";
+				return;
+			}
+			if (sideInformation.quadType = "HTML"){
+				if (!sideInformation.hasOwnProperty("htmlElement"))
+					throw "Cube side that has quad type \"HTML\" must contatin property \"htmlElement\"";
+				return;
 			}
 		}
 		function _createCubeSide(side, sideInformation) {
@@ -1380,6 +1706,7 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 				case "EMPTY" : return new Quad(side, scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size);
 				case "VIDEO" : return new VideoQuad(side, scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.videoElement);
 				case "IMAGE" : return new ImageQuad(side, scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.imageElement);
+				case "HTML"	 : return new HTMLQuad(side, scene, cssScene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.htmlElement);
 			}
 		}
 
@@ -1422,10 +1749,11 @@ define('scene',['threejs',
 		'desktopCameraControl',
 		'androidCameraControl',
 		'imageQuad',
-		 'cube'
-		], (THREE, DeviceInformator, VideoManager, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube) => {
+		 'cube',
+		 'threejsCSS3D'
+		], (THREE, DeviceInformator, VideoManager, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube, THREECSS3D) => {
 	
-	let scene, camera, renderer;
+	let scene, cssScene, camera, renderer, cssRenderer;
 	let finishedCube, logoQuad, controls;
 	let videoManager;
 
@@ -1437,14 +1765,29 @@ define('scene',['threejs',
 	function _init() {
 
 	    scene = new THREE.Scene();
+	    cssScene = new THREE.Scene();
 
 	    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 	    camera.position.z = 1000;
 
-	    renderer = new THREE.WebGLRenderer({anitialiasing: true});
+	    renderer = new THREE.WebGLRenderer({anitialiasing: true, alpha:true});
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 	    renderer.setClearColor( 0xDDDDDD, 1 );
+	    renderer.domElement.style.position = 'absolute';
+	    renderer.domElement.style.zIndex = 1;
+	    renderer.domElement.style.top = 0;
+
+	    cssRenderer = new THREECSS3D.CSS3DRenderer();
+	    cssRenderer.setSize( window.innerWidth, window.innerHeight );
+	    cssRenderer.setClearColor(0xDDDDDD, 1);
+	    cssRenderer.domElement.style.position = 'absolute';
+		cssRenderer.domElement.style.top = 0;
+		cssRenderer.domElement.style.zIndex = 0;
+
+		document.body.appendChild( cssRenderer.domElement );
 	    document.body.appendChild( renderer.domElement );
+	    
+	    cssRenderer.domElement = renderer.domElement;
 
 	    videoManager = new VideoManager([
 	    									document.querySelector("#sampleVideo"),
@@ -1486,13 +1829,23 @@ define('scene',['threejs',
 
 	    });
 	 
-	   	finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
+	 	var div = document.createElement( 'div' );
+		div.style.width = '500px';
+		div.style.height = '500px';
+		div.style.backgroundColor = '#444';
+		var h1 = document.createElement('h1');
+		h1.innerHTML = "Rendered text";
+		h1.style.color="#FFF";
+		h1.style.textAlign="center";
+		div.appendChild(h1);
+
+	   	finishedCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
-	    					"FRONT" : { quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo")},
+	    					"BOTTOM" : { quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo")},
 	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
 	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
 	    					"LEFT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo3")},
-	    					"BOTTOM" : { quadType: "EMPTY"},
+	    					"FRONT" : { quadType: "HTML", htmlElement: div },
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
 
@@ -1510,6 +1863,7 @@ define('scene',['threejs',
 				camera.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
+				cssRenderer.setSize(window.innerWidth, window.innerHeight);
 		}
 
 	}
@@ -1529,6 +1883,8 @@ define('scene',['threejs',
   			finishedCube.update();
   		}
   		controls.update();
+   		
+   		cssRenderer.render(cssScene, camera);
    		renderer.render( scene, camera );
    		logoQuad.setLookAt(camera.position);
 	}
@@ -1546,6 +1902,7 @@ requirejs.config({
     baseUrl: "/scripts",
     paths: {
         "threejs"		: "../libs/threejs/three.min",
+        "threejsCSS3D"	: "../libs/threejs/three.css3DObject", 
         "orbitControls" : "../libs/orbitcontrols/OrbitControls"
     }
 });
