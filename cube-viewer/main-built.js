@@ -1064,7 +1064,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 		let _tappedTwice = false;
 
 		let TouchDownStates = { "IDLE" : 0, "ONCE" : 1, "TWICE" : 2 };
-		let _currentTouchDownState = TouchDownState.IDLE;
+		let _currentTouchDownState = TouchDownStates.IDLE;
 
 		function _onTouchStart( event ){
 
@@ -1072,9 +1072,9 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 				event.preventDefault();
 
-				if (_currentTouchDownState == TouchDownState.IDLE) {
+				if (_currentTouchDownState == TouchDownStates.IDLE) {
 					setTimeout(() => {
-						if (_currentTouchDownState == TouchDownState.ONCE){
+						if (_currentTouchDownState == TouchDownStates.ONCE){
 
 							if (_callbacksMap.hasOwnProperty("singleClick"))
 								_callbacksMap["singleClick"]({
@@ -1082,18 +1082,18 @@ define('androidCameraControl',['threejs'], (THREE) => {
 									y: event.touches[0].pageY
 								});
 						}
-						_currentTouchDownState = TouchDownState.IDLE;
+						_currentTouchDownState = TouchDownStates.IDLE;
 					}, 300);
-					_currentTouchDownState = TouchDownState.ONCE;
+					_currentTouchDownState = TouchDownStates.ONCE;
 				}
-				else if (_currentTouchDownState == TouchDownState.ONCE)
+				else if (_currentTouchDownState == TouchDownStates.ONCE)
 				{
 					if (_callbacksMap.hasOwnProperty("doubleClick"))
 						_callbacksMap["doubleClick"]({
 							x: event.clientX,
 							y: event.clientY
 						});
-					_currentTouchDownState = TouchDownState.IDLE;
+					_currentTouchDownState = TouchDownStates.IDLE;
 				}
 
 				_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
