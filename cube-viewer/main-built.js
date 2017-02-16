@@ -1213,6 +1213,10 @@ define('quad',['threejs'], (THREE) => {
 		self.update = () => {
 			// do nothing for now
 		}
+
+		self.setLookAt = (newLookAt) => {
+			_plane.lookAt(newLookAt);
+		}
 	}
 
 	return Quad;
@@ -1263,6 +1267,10 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.pushForward = (howMuch) => {
 			_quad.pushForward(howMuch);
+		}
+
+		self.setLookAt = (newLookAt) => {
+			_quad.setLookAt(newLookAt);
 		}
 
 	}
@@ -1319,6 +1327,10 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.getVideoElementID = () => {
 			return videoElement.id;
+		}
+
+		self.setLookAt = (newLookAt) => {
+			_quad.setLookAt(newLookAt);
 		}
 	}
 	
@@ -1429,8 +1441,9 @@ define('scene',['threejs',
 	    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 	    camera.position.z = 1000;
 
-	    renderer = new THREE.WebGLRenderer();
+	    renderer = new THREE.WebGLRenderer({anitialiasing: true});
 	    renderer.setSize( window.innerWidth, window.innerHeight );
+	    renderer.setClearColor( 0xDDDDDD, 1 );
 	    document.body.appendChild( renderer.domElement );
 
 	    videoManager = new VideoManager([
@@ -1483,22 +1496,8 @@ define('scene',['threejs',
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
 
-	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 400, document.querySelector("#mainLogoImage"));
+	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), document.querySelector("#mainLogoImage"));
 	    logoQuad.update();
-
-	    document.querySelector("#startButton").addEventListener("click", (event) => {
-	    	document.querySelector("#sampleVideo").play();
-	    	document.querySelector("#sampleVideo1").play();
-	    	document.querySelector("#sampleVideo2").play();
-	    	document.querySelector("#sampleVideo3").play();
-	    });
-
-	    document.querySelector("#pauseButton").addEventListener("click", (event) => {
-	    	document.querySelector("#sampleVideo").pause();
-	    	document.querySelector("#sampleVideo1").pause();
-	    	document.querySelector("#sampleVideo2").pause();
-	    	document.querySelector("#sampleVideo3").pause();
-	    });
 
 		window.addEventListener( 'resize', onWindowResize, false );
 
@@ -1531,6 +1530,7 @@ define('scene',['threejs',
   		}
   		controls.update();
    		renderer.render( scene, camera );
+   		logoQuad.setLookAt(camera.position);
 	}
 
 	return {
