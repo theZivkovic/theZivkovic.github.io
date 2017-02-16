@@ -876,6 +876,33 @@ define('deviceInformator',[], () => {
 	}
 
 });
+define('videoManager',[], () => {
+
+	let VideoManager = function(videoElements){
+
+		let self = this;
+		let _videoElements = videoElements;
+
+		self.addVideoElement = (newVideoElement) => {
+			_videoElements.push(newVideoElement);
+		}
+
+		self.playVideoByID = (someID) => {
+
+			_videoElements.forEach((videoElement) => {
+
+				if (videoElement.id == someID)
+					videoElement.play();
+				else
+					videoElement.pause();
+			});
+		}
+	}
+
+
+
+	return VideoManager;
+});
 define('desktopCameraControl',['threejs'], (THREE) => {
 
 	let DesktopCameraControl = function(camera, sceneDomElement){
@@ -944,7 +971,10 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 		function _handleEndOfSingleMouseDown(event){
 				
 				if (_callbacksMap.hasOwnProperty("singleClick"))
-					_callbacksMap["singleClick"](event);
+					_callbacksMap["singleClick"]({
+						x: event.clientX,
+						y: event.clientY
+					});
 		}
 
 		function _handleEndOfDoubleMouseDown(event){
@@ -954,7 +984,10 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
 
 			if (_callbacksMap.hasOwnProperty("doubleClick"))
-					_callbacksMap["doubleClick"](event);
+					_callbacksMap["doubleClick"]({
+						x: event.clientX,
+						y: event.clientY
+					});
 		}
 
 		function _onMouseMove(event){
@@ -1050,7 +1083,10 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				}
 
 				if (_tappedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
-					_callbacksMap["doubleClick"](event);
+					_callbacksMap["doubleClick"]({
+						x: event.touches[0].pageX,
+						y: event.touches[0].pageY
+					});
 			}
 		}
 
@@ -1093,9 +1129,10 @@ define('androidCameraControl',['threejs'], (THREE) => {
 });
 define('quad',['threejs'], (THREE) => {
 
-	let Quad = function (scene, position, normal, sideLength) {
+	let Quad = function (id, scene, position, normal, sideLength) {
 
 		let self = this;
+		let _id = id;
 		let _plane = null;
 		let _geometry = null;
 		let _material = null;
@@ -1114,12 +1151,17 @@ define('quad',['threejs'], (THREE) => {
 			 										 });
 
 			_plane = new THREE.Mesh( _geometry, _material );
+			_plane.name = _id;
 			_plane.position.set(position.x, position.y, position.z);
 			_plane.lookAt(position.clone().add(normal));
 			scene.add( _plane );
 		}
 
 		self.initialize();
+
+		self.getID = () => {
+			return _id;
+		}
 
 		self.setMaterial = (someMaterial) => {
 			_plane.material = someMaterial;
@@ -1143,7 +1185,7 @@ define('quad',['threejs'], (THREE) => {
 });
 define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
-	let ImageQuad = function(scene, position, normal, sideLength, imageElement){
+	let ImageQuad = function(id, scene, position, normal, sideLength, imageElement){
 	
 		let _imageElement = null;
 		let _texture = null;
@@ -1153,7 +1195,7 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.initialize = () => {
 
-			_quad = new Quad(scene, position, normal, sideLength);
+			_quad = new Quad(id, scene, position, normal, sideLength);
 
 			_imageElement = imageElement;
 
@@ -1177,6 +1219,10 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.initialize();
 
+		self.getID = () => {
+			return _quad.getID();
+		}
+
         self.update = () => {
 			_texture.needsUpdate = true;
 		}
@@ -1191,7 +1237,7 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 });
 define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 
-	let VideoQuad = function(scene, position, normal, sideLength, videoElement){
+	let VideoQuad = function(id, scene, position, normal, sideLength, videoElement){
 	
 		let _videoElement = null;
 		let _texture = null;
@@ -1201,7 +1247,7 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.initialize = () => {
 
-			_quad = new Quad(scene, position, normal, sideLength);
+			_quad = new Quad(id, scene, position, normal, sideLength);
 
 			_videoElement = videoElement;
 
@@ -1225,14 +1271,21 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.initialize();
 
-        self.update = () => {
-			_texture.needsUpdate = true;
+		self.getID = () => {
+			return _quad.getID();
 		}
 
 		self.pushForward = (howMuch) => {
 			_quad.pushForward(howMuch);
 		}
 
+		self.update = () => {
+			_texture.needsUpdate = true;
+		}
+
+		self.getVideoElementID = () => {
+			return videoElement.id;
+		}
 	}
 	
 	return VideoQuad;
@@ -1278,9 +1331,9 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 			_validateSideAndItsInformation(side, sideInformation);
 
 			switch (sidesInformation[side].quadType){
-				case "EMPTY" : return new Quad(scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size);
-				case "VIDEO" : return new VideoQuad(scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.videoElement);
-				case "IMAGE" : return new ImageQuad(scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.imageElement);
+				case "EMPTY" : return new Quad(side, scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size);
+				case "VIDEO" : return new VideoQuad(side, scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.videoElement);
+				case "IMAGE" : return new ImageQuad(side, scene, _hardcodedSideInformation[side].position, _hardcodedSideInformation[side].normal, size, sideInformation.imageElement);
 			}
 		}
 
@@ -1308,6 +1361,10 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 	    		_quads[side].update();
 	    	});
 	    }
+
+	    self.getQuadAtSide = (side) => {
+	    	return _quads[side];
+	    }
 	}
 
 
@@ -1315,15 +1372,17 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad'], (THREE, Quad, Video
 });
 define('scene',['threejs',
 		'deviceInformator',
+		'videoManager',
 		'desktopCameraControl',
 		'androidCameraControl',
 		'imageQuad',
 		 'cube'
-		], (THREE, DeviceInformator, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube) => {
+		], (THREE, DeviceInformator, VideoManager, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube) => {
 	
-	var scene, camera, renderer;
+	let scene, camera, renderer;
 	let finishedCube, logoQuad, controls;
-	
+	let videoManager;
+
 	let windowHalfX = window.innerWidth / 2;
 	let windowHalfY = window.innerHeight / 2;
 
@@ -1333,19 +1392,26 @@ define('scene',['threejs',
 
 	    scene = new THREE.Scene();
 
-	    camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 10000 );
+	    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 	    camera.position.z = 1000;
 
 	    renderer = new THREE.WebGLRenderer();
 	    renderer.setSize( window.innerWidth, window.innerHeight );
 	    document.body.appendChild( renderer.domElement );
 
+	    videoManager = new VideoManager([
+	    									document.querySelector("#sampleVideo"),
+	    									document.querySelector("#sampleVideo1"),
+	    									document.querySelector("#sampleVideo2"),
+	    									document.querySelector("#sampleVideo3")
+	    								]);
+
 	    if (DeviceInformator.isMobile())
 	    	controls = new AndroidCameraControl(camera, renderer.domElement);
 	    else 
 	  		controls = new DesktopCameraControl(camera, renderer.domElement);
 
-	    controls.on('doubleClick', (event) => {
+	    controls.on('doubleClick', (customEvent) => {
 	    	if (shouldExpandTheCube)
 	    		finishedCube.expand(100);
 	    	else
@@ -1354,8 +1420,23 @@ define('scene',['threejs',
 	    	shouldExpandTheCube = !shouldExpandTheCube;	
 	    });
 
-	    controls.on('singleClick', (event) => {
-		 		console.log("SINGLE CLICK");
+	    controls.on('singleClick', (customEvent) => {
+		 	
+		 	let mouse = new THREE.Vector2();
+		 	mouse.x = ( customEvent.x / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( customEvent.y / window.innerHeight ) * 2 + 1;
+			let raycaster = new THREE.Raycaster();
+
+			raycaster.setFromCamera( mouse, camera );
+
+			let intersectionObjects = raycaster.intersectObjects( scene.children );
+			if (intersectionObjects.length == 0)
+				return;
+
+			let clickedSideID = intersectionObjects[0].object.name;
+			let clickedQuad = finishedCube.getQuadAtSide(clickedSideID);
+			videoManager.playVideoByID(clickedQuad.getVideoElementID());
+
 	    });
 	 
 	   	finishedCube = new Cube(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
@@ -1368,7 +1449,7 @@ define('scene',['threejs',
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
 
-	   	logoQuad = new ImageQuad(scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 400, document.querySelector("#mainLogoImage"));
+	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 400, document.querySelector("#mainLogoImage"));
 	    logoQuad.update();
 
 	    document.querySelector("#startButton").addEventListener("click", (event) => {
@@ -1396,7 +1477,6 @@ define('scene',['threejs',
 				camera.updateProjectionMatrix();
 
 				renderer.setSize( window.innerWidth, window.innerHeight );
-
 		}
 
 	}
