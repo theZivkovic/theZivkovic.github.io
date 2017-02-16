@@ -878,11 +878,24 @@ define('deviceInformator',[], () => {
 });
 define('videoManager',[], () => {
 
-	let VideoManager = function(videoElements){
+	let VideoManager = function(videosInfo){
 
 		let self = this;
-		let _videoElements = videoElements;
+		let _videoElements = [];
+		let _videosInfo = videosInfo;
 
+		self.initialize = () => {
+			_videosInfo.forEach((videoInfo) => {
+				let newVideoElement = document.createElement('video');
+				newVideoElement.src = videoInfo.src;
+				newVideoElement.loop = true;
+				newVideoElement.id = videoInfo.id;
+				_videoElements.push(newVideoElement);
+			});
+		}
+
+		self.initialize();
+		
 		self.addVideoElement = (newVideoElement) => {
 			_videoElements.push(newVideoElement);
 		}
@@ -896,6 +909,18 @@ define('videoManager',[], () => {
 				else
 					videoElement.pause();
 			});
+		}
+
+		self.getVideoByID = (someID) => {
+
+			let resultVideo = _videoElements.find((videoElement) => {
+				return videoElement.id == someID;
+			});
+
+			if (resultVideo == undefined)
+				throw "Video with id " + someID + " doesn't exist.";
+
+			return resultVideo;
 		}
 	}
 
@@ -1032,7 +1057,9 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
 
-
+			_targetRotationX += 0.003;
+			_targetRotationY -= 0.001;
+			
 			_camera.lookAt(new THREE.Vector3(0,0,0));
 			
 		}
@@ -1789,12 +1816,11 @@ define('scene',['threejs',
 	    
 	    cssRenderer.domElement = renderer.domElement;
 
-	    videoManager = new VideoManager([
-	    									document.querySelector("#sampleVideo"),
-	    									document.querySelector("#sampleVideo1"),
-	    									document.querySelector("#sampleVideo2"),
-	    									document.querySelector("#sampleVideo3")
-	    								]);
+	    videoManager = new VideoManager([{ "id": "sampleVideo", "src": "data/video/big_buck_bunny.mp4"},
+	    								 { "id": "sampleVideo1", "src": "data/video/robot.mp4"},
+	    								 { "id": "sampleVideo2", "src": "data/video/lotr.mp4"},
+	    								 { "id": "sampleVideo3", "src": "data/video/warhammer40k.mp4"}]);
+	    								
 
 	    if (DeviceInformator.isMobile())
 	    	controls = new AndroidCameraControl(camera, renderer.domElement);
@@ -1841,11 +1867,11 @@ define('scene',['threejs',
 
 	   	finishedCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
 	    				{
-	    					"BOTTOM" : { quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo")},
-	    					"REAR" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo1")},
-	    					"RIGHT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo2")},
-	    					"LEFT" : {  quadType: "VIDEO", videoElement: document.querySelector("#sampleVideo3")},
-	    					"FRONT" : { quadType: "HTML", htmlElement: div },
+	    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo")},
+	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
+	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
+	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
+	    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
 	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
 	    				});
 
@@ -1879,9 +1905,9 @@ define('scene',['threejs',
 
 		let video = document.getElementById("sampleVideo");
 
-	    if (video.readyState === video.HAVE_ENOUGH_DATA) {
+	    //if (video.readyState === video.HAVE_ENOUGH_DATA) {
   			finishedCube.update();
-  		}
+  		//}
   		controls.update();
    		
    		cssRenderer.render(cssScene, camera);
