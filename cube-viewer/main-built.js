@@ -928,6 +928,45 @@ define('videoManager',[], () => {
 
 	return VideoManager;
 });
+define('imageManager',[], () => {
+
+	let ImageManager = function(imagesInfo){
+
+		let self = this;
+		let _imageElements = [];
+		let _imagesInfo = imagesInfo;
+
+		self.initialize = () => {
+
+			_imagesInfo.forEach((imageInfo) => {
+				let newImageElement = document.createElement('img');
+				newImageElement.src = imageInfo.src;
+				newImageElement.id = imageInfo.id;
+				_imageElements.push(newImageElement);
+			});
+		}
+
+		self.initialize();
+		
+		self.addImageElement = (newImageElement) => {
+			_imageElements.push(newImageElement);
+		}
+
+		self.getImageByID = (someID) => {
+
+			let resultImage = _imageElements.find((imageElement) => {
+				return imageElement.id == someID;
+			});
+
+			if (resultImage == undefined)
+				throw "Image with id " + someID + " doesn't exist.";
+
+			return resultImage;
+		}
+	}
+
+	return ImageManager;
+});
 define('desktopCameraControl',['threejs'], (THREE) => {
 
 	let DesktopCameraControl = function(camera, sceneDomElement){
@@ -1773,16 +1812,18 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 define('scene',['threejs',
 		'deviceInformator',
 		'videoManager',
+		'imageManager',
 		'desktopCameraControl',
 		'androidCameraControl',
 		'imageQuad',
 		 'cube',
 		 'threejsCSS3D'
-		], (THREE, DeviceInformator, VideoManager, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube, THREECSS3D) => {
+		], (THREE, DeviceInformator, VideoManager, ImageManager, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube, THREECSS3D) => {
 	
 	let scene, cssScene, camera, renderer, cssRenderer;
 	let finishedCube, logoQuad, controls;
 	let videoManager;
+	let imageManager;
 
 	let windowHalfX = window.innerWidth / 2;
 	let windowHalfY = window.innerHeight / 2;
@@ -1820,6 +1861,9 @@ define('scene',['threejs',
 	    								 { "id": "sampleVideo1", "src": "data/video/robot.mp4"},
 	    								 { "id": "sampleVideo2", "src": "data/video/lotr.mp4"},
 	    								 { "id": "sampleVideo3", "src": "data/video/warhammer40k.mp4"}]);
+
+	    imageManager = new ImageManager([{ "id": "sampleImage", "src": "data/images/logo.gif"}, 
+	    								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 	    								
 
 	    if (DeviceInformator.isMobile())
@@ -1871,11 +1915,11 @@ define('scene',['threejs',
 	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
 	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
 	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
-	    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
-	    					"TOP": {  quadType: "IMAGE", imageElement: document.querySelector("#sampleImage")}
+	    					"BOTTOM" : { quadType: "EMPTY", htmlElement: div },
+	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("sampleImage")}
 	    				});
 
-	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), document.querySelector("#mainLogoImage"));
+	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), imageManager.getImageByID("mainLogoImage"));
 	    logoQuad.update();
 
 		window.addEventListener( 'resize', onWindowResize, false );
