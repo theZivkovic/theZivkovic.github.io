@@ -1133,7 +1133,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 		function _onTouchMove(event){
 
-			if ( event.touches.length === 1 && _currentTouchDownState == TouchDownState.ONCE ) {
+			if ( event.touches.length === 1 ) {
 
 				event.preventDefault();
 
