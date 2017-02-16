@@ -1825,9 +1825,6 @@ define('scene',['threejs',
 	let videoManager;
 	let imageManager;
 
-	let windowHalfX = window.innerWidth / 2;
-	let windowHalfY = window.innerHeight / 2;
-
 	let shouldExpandTheCube = true;
 
 	function _init() {
@@ -1835,27 +1832,9 @@ define('scene',['threejs',
 	    scene = new THREE.Scene();
 	    cssScene = new THREE.Scene();
 
-	    camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-	    camera.position.z = 1000;
-
-	    renderer = new THREE.WebGLRenderer({anitialiasing: true, alpha:true});
-	    renderer.setSize( window.innerWidth, window.innerHeight );
-	    renderer.setClearColor( 0xDDDDDD, 1 );
-	    renderer.domElement.style.position = 'absolute';
-	    renderer.domElement.style.zIndex = 1;
-	    renderer.domElement.style.top = 0;
-
-	    cssRenderer = new THREECSS3D.CSS3DRenderer();
-	    cssRenderer.setSize( window.innerWidth, window.innerHeight );
-	    cssRenderer.setClearColor(0xDDDDDD, 1);
-	    cssRenderer.domElement.style.position = 'absolute';
-		cssRenderer.domElement.style.top = 0;
-		cssRenderer.domElement.style.zIndex = 0;
-
-		document.body.appendChild( cssRenderer.domElement );
-	    document.body.appendChild( renderer.domElement );
-	    
-	    cssRenderer.domElement = renderer.domElement;
+	    _initializeCamera();
+	   	_initializeWebGLRenderer();
+	   	_initializeCSS3dRenderer();
 
 	    videoManager = new VideoManager([{ "id": "sampleVideo", "src": "data/video/big_buck_bunny.mp4"},
 	    								 { "id": "sampleVideo1", "src": "data/video/robot.mp4"},
@@ -1864,9 +1843,69 @@ define('scene',['threejs',
 
 	    imageManager = new ImageManager([{ "id": "sampleImage", "src": "data/images/logo.gif"}, 
 	    								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
-	    								
+	    _initializeCameraControls();						
+	    _initializeCube();
 
-	    if (DeviceInformator.isMobile())
+		window.addEventListener( 'resize', _onWindowResize, false );
+	}
+
+	function _initializeWebGLRenderer(){
+
+		renderer = new THREE.WebGLRenderer({anitialiasing: true, alpha:true});
+	    renderer.setSize( window.innerWidth, window.innerHeight );
+	    renderer.setClearColor( 0xDDDDDD, 1 );
+	    renderer.domElement.style.position = 'absolute';
+	    renderer.domElement.style.zIndex = 1;
+	    renderer.domElement.style.top = 0;
+
+	    document.body.appendChild( renderer.domElement );
+	}
+
+	function _initializeCSS3dRenderer(){
+		cssRenderer = new THREECSS3D.CSS3DRenderer();
+	    cssRenderer.setSize( window.innerWidth, window.innerHeight );
+	    cssRenderer.setClearColor(0xDDDDDD, 1);
+	    cssRenderer.domElement.style.position = 'absolute';
+		cssRenderer.domElement.style.top = 0;
+		cssRenderer.domElement.style.zIndex = 0;
+
+		document.body.appendChild( cssRenderer.domElement );
+	}
+
+	function _initializeCamera() {
+		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+	    camera.position.z = 1000;
+	}
+
+	function _initializeCube() {
+
+		var div = document.createElement( 'div' );
+		div.style.width = '500px';
+		div.style.height = '500px';
+		div.style.backgroundColor = '#444';
+		var h1 = document.createElement('h1');
+		h1.innerHTML = "Rendered text";
+		h1.style.color="#FFF";
+		h1.style.textAlign="center";
+		div.appendChild(h1);
+
+	   	finishedCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
+	    				{
+	    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo")},
+	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
+	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
+	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
+	    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
+	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("sampleImage")}
+	    				});
+
+	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), imageManager.getImageByID("mainLogoImage"));
+	    logoQuad.update();
+	}
+
+	function _initializeCameraControls() {
+
+		if (DeviceInformator.isMobile())
 	    	controls = new AndroidCameraControl(camera, renderer.domElement);
 	    else 
 	  		controls = new DesktopCameraControl(camera, renderer.domElement);
@@ -1898,44 +1937,18 @@ define('scene',['threejs',
 			videoManager.playVideoByID(clickedQuad.getVideoElementID());
 
 	    });
-	 
-	 	var div = document.createElement( 'div' );
-		div.style.width = '500px';
-		div.style.height = '500px';
-		div.style.backgroundColor = '#444';
-		var h1 = document.createElement('h1');
-		h1.innerHTML = "Rendered text";
-		h1.style.color="#FFF";
-		h1.style.textAlign="center";
-		div.appendChild(h1);
+	}
 
-	   	finishedCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
-	    				{
-	    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo")},
-	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
-	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
-	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
-	    					"BOTTOM" : { quadType: "EMPTY", htmlElement: div },
-	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("sampleImage")}
-	    				});
+	function _onWindowResize() {
 
-	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), imageManager.getImageByID("mainLogoImage"));
-	    logoQuad.update();
+		let windowHalfX = window.innerWidth / 2;
+		let windowHalfY = window.innerHeight / 2;
 
-		window.addEventListener( 'resize', onWindowResize, false );
+		camera.aspect = window.innerWidth / window.innerHeight;
+		camera.updateProjectionMatrix();
 
-		function onWindowResize() {
-
-				windowHalfX = window.innerWidth / 2;
-				windowHalfY = window.innerHeight / 2;
-
-				camera.aspect = window.innerWidth / window.innerHeight;
-				camera.updateProjectionMatrix();
-
-				renderer.setSize( window.innerWidth, window.innerHeight );
-				cssRenderer.setSize(window.innerWidth, window.innerHeight);
-		}
-
+		renderer.setSize( window.innerWidth, window.innerHeight );
+		cssRenderer.setSize(window.innerWidth, window.innerHeight);
 	}
 
 	function _animate() {
