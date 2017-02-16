@@ -1969,37 +1969,76 @@ requirejs.config({
 
 require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, scene, VideoManager, ImageManager) {
 
+	function getURLParameter(name) {
+  		return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+	}
 
-	videoManager = new VideoManager([{ "id": "sampleVideo", "src": "data/video/big_buck_bunny.mp4"},
-	    								 { "id": "sampleVideo1", "src": "data/video/robot.mp4"},
-	    								 { "id": "sampleVideo2", "src": "data/video/lotr.mp4"},
-	    								 { "id": "sampleVideo3", "src": "data/video/warhammer40k.mp4"}]);
+	let videoManager;
+	let imageManager;
+	let cubeSidesDetails;
 
-    imageManager = new ImageManager([{ "id": "sampleImage", "src": "data/images/logo.gif"}, 
+	let stage = getURLParameter("stage");
+
+	if (!stage)
+		return;
+	
+	if (stage == "started")
+	{
+		videoManager = new VideoManager([]);
+
+		imageManager = new ImageManager([{ "id": "start-side-1", "src": "data/images/Avatar2d.png"}, 
+    								 { "id": "start-side-2", "src": "data/images/Avatar3d.png"},
+    								 { "id": "start-side-3", "src": "data/images/Avatar4d.png"},
+    								 { "id": "start-side-4", "src": "data/images/Avatar6d.png"},
+    								 { "id": "start-top", "src": "data/images/TopSide.jpg"},
+    								 { "id": "start-bottom", "src" : "data/images/BottomSide.jpg"},
     								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
-    var div = document.createElement( 'div' );
-	div.style.width = '500px';
-	div.style.height = '500px';
-	div.style.backgroundColor = '#444';
-	var h1 = document.createElement('h1');
-	h1.innerHTML = "Rendered text";
-	h1.style.color="#FFF";
-	h1.style.textAlign="center";
-	div.appendChild(h1);
-		
-    cubeSidesDetails = {
-	    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo")},
-	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
-	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
-	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
-	    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
-	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("sampleImage")}
+		cubeSidesDetails = {
+	    					"FRONT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-1")},
+	    					"REAR" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-2")},
+	    					"RIGHT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-3")},
+	    					"LEFT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-4")},
+	    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-bottom")},
+	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-top")}
 	    				};
 
+	   
+	}
+	else if (stage == "finished")
+	{
+		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/big_buck_bunny.mp4"},
+	    								 { "id": "finished-side-2", "src": "data/video/robot.mp4"},
+	    								 { "id": "finished-side-3", "src": "data/video/lotr.mp4"},
+	    								 { "id": "finished-side-4", "src": "data/video/warhammer40k.mp4"}]);
+
+
+		imageManager = new ImageManager([{ "id": "start-top", "src": "data/images/TopSide.jpg"},
+    									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
+
+		var div = document.createElement( 'div' );
+		div.style.width = '500px';
+		div.style.height = '500px';
+		div.style.backgroundColor = '#444';
+		var h1 = document.createElement('h1');
+		h1.innerHTML = "Rendered text";
+		h1.style.color="#FFF";
+		h1.style.textAlign="center";
+		div.appendChild(h1);
+
+	    cubeSidesDetails = {
+		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
+		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
+		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
+		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
+		    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
+		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("mainLogoImage")}
+		    				};
+
+	}
+
 	scene.init(videoManager, imageManager, cubeSidesDetails);
-	scene.animate();
-	
+	scene.animate();	
 });
 define("main", function(){});
 
