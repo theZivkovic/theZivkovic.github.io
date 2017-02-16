@@ -931,7 +931,10 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 		let _clickedTwice = false;
 
 		const MouseDownStates = { "IDLE" : 0, "MOUSE_DOWN_ONCE" : 1, "MOUSE_DOWN_TWICE": 2 };
+		const MouseMoveStates = { "IDLE" : 0, "MOVING" : 1};
+
 		let _currentMouseDownState = MouseDownStates.IDLE;
+		let _currentMouseMoveState = MouseMoveStates.IDLE;
 
 		function _onMouseDown(event) {
 
@@ -939,7 +942,8 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 
 			if (_currentMouseDownState == MouseDownStates.IDLE){
 				setTimeout(() => {
-					if (_currentMouseDownState == MouseDownStates.ONCE)
+					if (_currentMouseDownState == MouseDownStates.ONCE &&
+						_currentMouseMoveState != MouseMoveStates.MOVING)
 						_handleEndOfSingleMouseDown(event);
 					_currentMouseDownState = MouseDownStates.IDLE;
 
@@ -992,6 +996,8 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 
 		function _onMouseMove(event){
 
+			_currentMouseMoveState = MouseMoveStates.MOVING;
+
 			let mouseX = event.clientX - _windowHalfX;
 			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
 
@@ -1002,6 +1008,8 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 
 		function _onMouseUp(event) {
 			
+			_currentMouseMoveState = MouseMoveStates.IDLE;
+
 			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
 			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
 			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
@@ -1064,7 +1072,10 @@ define('androidCameraControl',['threejs'], (THREE) => {
 		let _tappedTwice = false;
 
 		let TouchDownStates = { "IDLE" : 0, "ONCE" : 1, "TWICE" : 2 };
+		let TouchMoveStates = { "IDLE" : 0, "MOVING" : 1 };
+
 		let _currentTouchDownState = TouchDownStates.IDLE;
+		let _currentTouchMoveState = TouchMoveStates.IDLE;
 
 		function _onTouchStart( event ){
 
@@ -1074,7 +1085,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 				if (_currentTouchDownState == TouchDownStates.IDLE) {
 					setTimeout(() => {
-						if (_currentTouchDownState == TouchDownStates.ONCE){
+						if (_currentTouchDownState == TouchDownStates.ONCE &&
+							_currentTouchMoveState != TouchMoveStates.MOVING){
 
 							if (_callbacksMap.hasOwnProperty("singleClick"))
 								_callbacksMap["singleClick"]({
@@ -1101,39 +1113,15 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-				_targetRotationYOnMouseDown = _targetRotationY;	
-
-				// if (!_tappedTwice) {
-				// 	_tappedTwice = true;
-				// 	setTimeout(() => { _tappedTwice = false; }, 300);	
-
-				// 	_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
-				// 	_targetRotationXOnMouseDown = _targetRotationX;
-
-				// 	_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-				// 	_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-				// 	_targetRotationYOnMouseDown = _targetRotationY;
-
-				// 	if (_callbacksMap.hasOwnProperty("singleClick"))
-				// 	_callbacksMap["singleClick"]({
-				// 		x: event.touches[0].pageX,
-				// 		y: event.touches[0].pageY
-				// 	});
-
-				// 	return;
-				// }
-
-				// if (_tappedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
-				// 	_callbacksMap["doubleClick"]({
-				// 		x: event.touches[0].pageX,
-				// 		y: event.touches[0].pageY
-				// 	});
+				_targetRotationYOnMouseDown = _targetRotationY;
 			}
 		}
 
 		function _onTouchMove(event){
 
 			if ( event.touches.length === 1 ) {
+
+				_currentTouchMoveState = TouchMoveStates.MOVING;
 
 				event.preventDefault();
 
@@ -1146,9 +1134,14 @@ define('androidCameraControl',['threejs'], (THREE) => {
 			}
 		}
 
+		function _onTouchEnd(event){
+			_currentTouchMoveState = TouchMoveStates.IDLE;
+		}
+
 
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
 		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
+		sceneDomElement.addEventListener( 'touchend', _onTouchEnd, false);
 
 		self.update = () => {
 
