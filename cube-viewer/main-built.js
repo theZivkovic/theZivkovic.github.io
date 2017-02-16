@@ -1079,6 +1079,13 @@ define('androidCameraControl',['threejs'], (THREE) => {
 					_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 					_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 					_targetRotationYOnMouseDown = _targetRotationY;
+
+					if (_callbacksMap.hasOwnProperty("singleClick"))
+					_callbacksMap["singleClick"]({
+						x: event.touches[0].pageX,
+						y: event.touches[0].pageY
+					});
+
 					return;
 				}
 
