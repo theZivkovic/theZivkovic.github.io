@@ -1063,43 +1063,77 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 		let _tappedTwice = false;
 
+		let TouchDownStates = { "IDLE" : 0, "ONCE" : 1, "TWICE" : 2 };
+		let _currentTouchDownState = TouchDownState.IDLE;
+
 		function _onTouchStart( event ){
 
 			if ( event.touches.length === 1 ) {
 
 				event.preventDefault();
 
-				if (!_tappedTwice) {
-					_tappedTwice = true;
-					setTimeout(() => { _tappedTwice = false; }, 300);	
+				if (_currentTouchDownState == TouchDownState.IDLE) {
+					setTimeout(() => {
+						if (_currentTouchDownState == TouchDownState.ONCE){
 
-					_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
-					_targetRotationXOnMouseDown = _targetRotationX;
-
-					_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-					_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-					_targetRotationYOnMouseDown = _targetRotationY;
-
-					if (_callbacksMap.hasOwnProperty("singleClick"))
-					_callbacksMap["singleClick"]({
-						x: event.touches[0].pageX,
-						y: event.touches[0].pageY
-					});
-
-					return;
+							if (_callbacksMap.hasOwnProperty("singleClick"))
+								_callbacksMap["singleClick"]({
+									x: event.touches[0].pageX,
+									y: event.touches[0].pageY
+								});
+						}
+						_currentTouchDownState = TouchDownState.IDLE;
+					}, 300);
+					_currentTouchDownState = TouchDownState.ONCE;
+				}
+				else if (_currentTouchDownState == TouchDownState.ONCE)
+				{
+					if (_callbacksMap.hasOwnProperty("doubleClick"))
+						_callbacksMap["doubleClick"]({
+							x: event.clientX,
+							y: event.clientY
+						});
+					_currentTouchDownState = TouchDownState.IDLE;
 				}
 
-				if (_tappedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
-					_callbacksMap["doubleClick"]({
-						x: event.touches[0].pageX,
-						y: event.touches[0].pageY
-					});
+				_mouseXOnMouseDown = event.clientX - _windowHalfX;
+				_targetRotationXOnMouseDown = _targetRotationX;
+
+				_mouseYOnMouseDown = event.clientY - _windowHalfY;
+				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
+				_targetRotationYOnMouseDown = _targetRotationY;	
+				
+				// if (!_tappedTwice) {
+				// 	_tappedTwice = true;
+				// 	setTimeout(() => { _tappedTwice = false; }, 300);	
+
+				// 	_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
+				// 	_targetRotationXOnMouseDown = _targetRotationX;
+
+				// 	_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
+				// 	_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
+				// 	_targetRotationYOnMouseDown = _targetRotationY;
+
+				// 	if (_callbacksMap.hasOwnProperty("singleClick"))
+				// 	_callbacksMap["singleClick"]({
+				// 		x: event.touches[0].pageX,
+				// 		y: event.touches[0].pageY
+				// 	});
+
+				// 	return;
+				// }
+
+				// if (_tappedTwice && _callbacksMap.hasOwnProperty("doubleClick"))
+				// 	_callbacksMap["doubleClick"]({
+				// 		x: event.touches[0].pageX,
+				// 		y: event.touches[0].pageY
+				// 	});
 			}
 		}
 
 		function _onTouchMove(event){
 
-			if ( event.touches.length === 1 ) {
+			if ( event.touches.length === 1 && _currentTouchDownState == TouchDownState.ONCE ) {
 
 				event.preventDefault();
 
@@ -1114,7 +1148,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
-		//sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
+		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
 
 		self.update = () => {
 
