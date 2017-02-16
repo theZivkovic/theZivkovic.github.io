@@ -1822,8 +1822,9 @@ define('scene',['threejs',
 
 			let clickedSideID = intersectionObjects[0].object.name;
 			let clickedQuad = mainCube.getQuadAtSide(clickedSideID);
-			_videoManager.playVideoByID(clickedQuad.getVideoElementID());
 
+			if (clickedQuad.constructor.name == "VideoQuad")
+				_videoManager.playVideoByID(clickedQuad.getVideoElementID());
 	    });
 	}
 
@@ -2013,18 +2014,14 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 	    								 { "id": "finished-side-4", "src": "data/video/warhammer40k.mp4"}]);
 
 
-		imageManager = new ImageManager([{ "id": "start-top", "src": "data/images/TopSide.jpg"},
+		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/TopSide.jpg"},
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
-		var div = document.createElement( 'div' );
-		div.style.width = '500px';
-		div.style.height = '500px';
-		div.style.backgroundColor = '#444';
-		var h1 = document.createElement('h1');
-		h1.innerHTML = "Rendered text";
-		h1.style.color="#FFF";
-		h1.style.textAlign="center";
-		div.appendChild(h1);
+		let div = document.createElement('div');
+		let divHtml =  '<div style="width:500; height: 500; background-color: #AAAAAA; margin: 0; padding: 0">' +
+						'<button style="position:relative; top: 250; left:250; width:200px; height:150px;">Contact Us</button>' +
+						'</div>';
+		div.innerHTML = divHtml;
 
 	    cubeSidesDetails = {
 		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
@@ -2032,7 +2029,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
 		    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
-		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("mainLogoImage")}
+		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
 		    				};
 
 	}
