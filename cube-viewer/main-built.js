@@ -876,97 +876,6 @@ define('deviceInformator',[], () => {
 	}
 
 });
-define('videoManager',[], () => {
-
-	let VideoManager = function(videosInfo){
-
-		let self = this;
-		let _videoElements = [];
-		let _videosInfo = videosInfo;
-
-		self.initialize = () => {
-			_videosInfo.forEach((videoInfo) => {
-				let newVideoElement = document.createElement('video');
-				newVideoElement.src = videoInfo.src;
-				newVideoElement.loop = true;
-				newVideoElement.id = videoInfo.id;
-				_videoElements.push(newVideoElement);
-			});
-		}
-
-		self.initialize();
-		
-		self.addVideoElement = (newVideoElement) => {
-			_videoElements.push(newVideoElement);
-		}
-
-		self.playVideoByID = (someID) => {
-
-			_videoElements.forEach((videoElement) => {
-
-				if (videoElement.id == someID)
-					videoElement.play();
-				else
-					videoElement.pause();
-			});
-		}
-
-		self.getVideoByID = (someID) => {
-
-			let resultVideo = _videoElements.find((videoElement) => {
-				return videoElement.id == someID;
-			});
-
-			if (resultVideo == undefined)
-				throw "Video with id " + someID + " doesn't exist.";
-
-			return resultVideo;
-		}
-	}
-
-
-
-	return VideoManager;
-});
-define('imageManager',[], () => {
-
-	let ImageManager = function(imagesInfo){
-
-		let self = this;
-		let _imageElements = [];
-		let _imagesInfo = imagesInfo;
-
-		self.initialize = () => {
-
-			_imagesInfo.forEach((imageInfo) => {
-				let newImageElement = document.createElement('img');
-				newImageElement.src = imageInfo.src;
-				newImageElement.id = imageInfo.id;
-				_imageElements.push(newImageElement);
-			});
-		}
-
-		self.initialize();
-		
-		self.addImageElement = (newImageElement) => {
-			_imageElements.push(newImageElement);
-		}
-
-		self.getImageByID = (someID) => {
-
-			let resultImage = _imageElements.find((imageElement) => {
-				return imageElement.id == someID;
-			});
-
-			if (resultImage == undefined)
-				throw "Image with id " + someID + " doesn't exist.";
-
-			return resultImage;
-		}
-	}
-
-	return ImageManager;
-});
 define('desktopCameraControl',['threejs'], (THREE) => {
 
 	let DesktopCameraControl = function(camera, sceneDomElement){
@@ -1215,6 +1124,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
 
+			_targetRotationX += 0.003;
+			_targetRotationY -= 0.001;
 
 			_camera.lookAt(new THREE.Vector3(0,0,0));
 			
@@ -1811,23 +1722,26 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 });
 define('scene',['threejs',
 		'deviceInformator',
-		'videoManager',
-		'imageManager',
 		'desktopCameraControl',
 		'androidCameraControl',
 		'imageQuad',
 		 'cube',
 		 'threejsCSS3D'
-		], (THREE, DeviceInformator, VideoManager, ImageManager, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube, THREECSS3D) => {
+		], (THREE, DeviceInformator, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube, THREECSS3D) => {
 	
 	let scene, cssScene, camera, renderer, cssRenderer;
-	let finishedCube, logoQuad, controls;
-	let videoManager;
-	let imageManager;
+	let mainCube, logoQuad, controls;
+	let _videoManager;
+	let _imageManager;
+	let _cubeSidesDetails;
 
 	let shouldExpandTheCube = true;
 
-	function _init() {
+	function _init(videoManager, imageManager, cubeSidesDetails) {
+
+		_videoManager = videoManager;
+		_imageManager = imageManager;
+		_cubeSidesDetails = cubeSidesDetails;
 
 	    scene = new THREE.Scene();
 	    cssScene = new THREE.Scene();
@@ -1836,13 +1750,7 @@ define('scene',['threejs',
 	   	_initializeWebGLRenderer();
 	   	_initializeCSS3dRenderer();
 
-	    videoManager = new VideoManager([{ "id": "sampleVideo", "src": "data/video/big_buck_bunny.mp4"},
-	    								 { "id": "sampleVideo1", "src": "data/video/robot.mp4"},
-	    								 { "id": "sampleVideo2", "src": "data/video/lotr.mp4"},
-	    								 { "id": "sampleVideo3", "src": "data/video/warhammer40k.mp4"}]);
-
-	    imageManager = new ImageManager([{ "id": "sampleImage", "src": "data/images/logo.gif"}, 
-	    								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
+	   
 	    _initializeCameraControls();						
 	    _initializeCube();
 
@@ -1878,28 +1786,8 @@ define('scene',['threejs',
 	}
 
 	function _initializeCube() {
-
-		var div = document.createElement( 'div' );
-		div.style.width = '500px';
-		div.style.height = '500px';
-		div.style.backgroundColor = '#444';
-		var h1 = document.createElement('h1');
-		h1.innerHTML = "Rendered text";
-		h1.style.color="#FFF";
-		h1.style.textAlign="center";
-		div.appendChild(h1);
-
-	   	finishedCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500,
-	    				{
-	    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo")},
-	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
-	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
-	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
-	    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
-	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("sampleImage")}
-	    				});
-
-	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), imageManager.getImageByID("mainLogoImage"));
+	   	mainCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500, _cubeSidesDetails);
+	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), _imageManager.getImageByID("mainLogoImage"));
 	    logoQuad.update();
 	}
 
@@ -1912,9 +1800,9 @@ define('scene',['threejs',
 
 	    controls.on('doubleClick', (customEvent) => {
 	    	if (shouldExpandTheCube)
-	    		finishedCube.expand(100);
+	    		mainCube.expand(100);
 	    	else
-	    		finishedCube.expand(0);
+	    		mainCube.expand(0);
 
 	    	shouldExpandTheCube = !shouldExpandTheCube;	
 	    });
@@ -1933,8 +1821,8 @@ define('scene',['threejs',
 				return;
 
 			let clickedSideID = intersectionObjects[0].object.name;
-			let clickedQuad = finishedCube.getQuadAtSide(clickedSideID);
-			videoManager.playVideoByID(clickedQuad.getVideoElementID());
+			let clickedQuad = mainCube.getQuadAtSide(clickedSideID);
+			_videoManager.playVideoByID(clickedQuad.getVideoElementID());
 
 	    });
 	}
@@ -1962,9 +1850,7 @@ define('scene',['threejs',
 
 		let video = document.getElementById("sampleVideo");
 
-	    //if (video.readyState === video.HAVE_ENOUGH_DATA) {
-  			finishedCube.update();
-  		//}
+	    mainCube.update();
   		controls.update();
    		
    		cssRenderer.render(cssScene, camera);
@@ -1974,10 +1860,101 @@ define('scene',['threejs',
 
 	return {
 
-		init: () => { return _init(); },
+		init: (videoManager, imageManager, cubeSidesDetails) => { return _init(videoManager, imageManager, cubeSidesDetails); },
 		animate: () => { return _animate(); }
 	}
 
+});
+define('videoManager',[], () => {
+
+	let VideoManager = function(videosInfo){
+
+		let self = this;
+		let _videoElements = [];
+		let _videosInfo = videosInfo;
+
+		self.initialize = () => {
+			_videosInfo.forEach((videoInfo) => {
+				let newVideoElement = document.createElement('video');
+				newVideoElement.src = videoInfo.src;
+				newVideoElement.loop = true;
+				newVideoElement.id = videoInfo.id;
+				_videoElements.push(newVideoElement);
+			});
+		}
+
+		self.initialize();
+		
+		self.addVideoElement = (newVideoElement) => {
+			_videoElements.push(newVideoElement);
+		}
+
+		self.playVideoByID = (someID) => {
+
+			_videoElements.forEach((videoElement) => {
+
+				if (videoElement.id == someID)
+					videoElement.play();
+				else
+					videoElement.pause();
+			});
+		}
+
+		self.getVideoByID = (someID) => {
+
+			let resultVideo = _videoElements.find((videoElement) => {
+				return videoElement.id == someID;
+			});
+
+			if (resultVideo == undefined)
+				throw "Video with id " + someID + " doesn't exist.";
+
+			return resultVideo;
+		}
+	}
+
+
+
+	return VideoManager;
+});
+define('imageManager',[], () => {
+
+	let ImageManager = function(imagesInfo){
+
+		let self = this;
+		let _imageElements = [];
+		let _imagesInfo = imagesInfo;
+
+		self.initialize = () => {
+
+			_imagesInfo.forEach((imageInfo) => {
+				let newImageElement = document.createElement('img');
+				newImageElement.src = imageInfo.src;
+				newImageElement.id = imageInfo.id;
+				_imageElements.push(newImageElement);
+			});
+		}
+
+		self.initialize();
+		
+		self.addImageElement = (newImageElement) => {
+			_imageElements.push(newImageElement);
+		}
+
+		self.getImageByID = (someID) => {
+
+			let resultImage = _imageElements.find((imageElement) => {
+				return imageElement.id == someID;
+			});
+
+			if (resultImage == undefined)
+				throw "Image with id " + someID + " doesn't exist.";
+
+			return resultImage;
+		}
+	}
+
+	return ImageManager;
 });
 
 
@@ -1990,9 +1967,37 @@ requirejs.config({
     }
 });
 
-require(['scene'], function(scene){
+require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, scene, VideoManager, ImageManager) {
 
-	scene.init();
+
+	videoManager = new VideoManager([{ "id": "sampleVideo", "src": "data/video/big_buck_bunny.mp4"},
+	    								 { "id": "sampleVideo1", "src": "data/video/robot.mp4"},
+	    								 { "id": "sampleVideo2", "src": "data/video/lotr.mp4"},
+	    								 { "id": "sampleVideo3", "src": "data/video/warhammer40k.mp4"}]);
+
+    imageManager = new ImageManager([{ "id": "sampleImage", "src": "data/images/logo.gif"}, 
+    								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
+
+    var div = document.createElement( 'div' );
+	div.style.width = '500px';
+	div.style.height = '500px';
+	div.style.backgroundColor = '#444';
+	var h1 = document.createElement('h1');
+	h1.innerHTML = "Rendered text";
+	h1.style.color="#FFF";
+	h1.style.textAlign="center";
+	div.appendChild(h1);
+		
+    cubeSidesDetails = {
+	    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo")},
+	    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo1")},
+	    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo2")},
+	    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("sampleVideo3")},
+	    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
+	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("sampleImage")}
+	    				};
+
+	scene.init(videoManager, imageManager, cubeSidesDetails);
 	scene.animate();
 	
 });
