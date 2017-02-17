@@ -1062,7 +1062,12 @@ define('androidCameraControl',['threejs'], (THREE) => {
 					setTimeout(() => {
 						if (_currentTouchDownState == TouchDownStates.ONCE &&
 							_currentTouchMoveState != TouchMoveStates.MOVING){
-							_handleEndOfSingleTap(event);
+
+							if (_callbacksMap.hasOwnProperty("singleClick"))
+								_callbacksMap["singleClick"]({
+									x: event.touches[0].pageX,
+									y: event.touches[0].pageY
+								});
 						}
 						_currentTouchDownState = TouchDownStates.IDLE;
 					}, 300);
@@ -1070,55 +1075,27 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				}
 				else if (_currentTouchDownState == TouchDownStates.ONCE)
 				{
-					_handleEndOfDoubleTap(event);
+					if (_callbacksMap.hasOwnProperty("doubleClick"))
+						_callbacksMap["doubleClick"]({
+							x: event.clientX,
+							y: event.clientY
+						});
 					_currentTouchDownState = TouchDownStates.IDLE;
 				}
-				_handleEveryTap(event);
-				console.log("touchStart");
-			}
-		}
-
-		function _handleEveryTap(event) {
 
 				_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
 				_targetRotationXOnMouseDown = _targetRotationX;
 
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 				_targetRotationYOnMouseDown = _targetRotationY;
-
-				sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
-				sceneDomElement.addEventListener( 'touchend', _onTouchEnd, false);
-		}
-
-		function _handleEndOfSingleTap(event){
-			if (_callbacksMap.hasOwnProperty("singleClick"))
-				_callbacksMap["singleClick"]({
-					x: event.touches[0].pageX,
-					y: event.touches[0].pageY
-				});
-		}
-
-		function _handleEndOfDoubleTap(event){
-			if (_callbacksMap.hasOwnProperty("doubleClick"))
-						_callbacksMap["doubleClick"]({
-							x: event.clientX,
-							y: event.clientY
-						});
-
-			sceneDomElement.removeEventListener( 'touchmove', _onTouchMove, false );
-			sceneDomElement.removeEventListener( 'touchend', _onTouchEnd, false);
+			}
 		}
 
 		function _onTouchMove(event){
 
 			if ( event.touches.length === 1 ) {
 
-				// let mouseXOnMove = event.touches[0].pageX - _windowHalfX;
-				// let mouseYOnMove = event.touches[0].pageY - _windowHalfY;
-				// console.log(Math.abs(mouseYOnMove - _mouseYOnMouseDown));
-
 				_currentTouchMoveState = TouchMoveStates.MOVING;
-
 
 				event.preventDefault();
 
@@ -1128,22 +1105,17 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
 				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * ROTATION_SPEED;
 				_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-
-				console.log("touchMove");
 			}
 		}
 
 		function _onTouchEnd(event){
-
-			sceneDomElement.removeEventListener( 'touchmove', _onTouchMove, false );
-			sceneDomElement.removeEventListener( 'touchend', _onTouchEnd, false);
-
 			_currentTouchMoveState = TouchMoveStates.IDLE;
 		}
 
 
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
-		
+		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
+		sceneDomElement.addEventListener( 'touchend', _onTouchEnd, false);
 
 		self.update = () => {
 
@@ -2035,14 +2007,13 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 	}
 	else if (stage == "finished")
 	{
-		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/video1.mp4"},
-	    								 { "id": "finished-side-2", "src": "data/video/video2.mp4"},
-	    								 { "id": "finished-side-3", "src": "data/video/video3.mp4"},
-	    								 { "id": "finished-side-4", "src": "data/video/video4.mp4"}]);
+		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/big_buck_bunny.mp4"},
+	    								 { "id": "finished-side-2", "src": "data/video/robot.mp4"},
+	    								 { "id": "finished-side-3", "src": "data/video/lotr.mp4"},
+	    								 { "id": "finished-side-4", "src": "data/video/warhammer40k.mp4"}]);
 
 
-		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/FinishedTopSide.jpg"},
-										 { "id": "finished-bottom", "src": "data/images/FinishedBottomSide.jpg"},
+		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/TopSide.jpg"},
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		let div = document.createElement('div');
@@ -2056,7 +2027,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
 		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
-		    					"BOTTOM" : { quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
+		    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
 		    				};
 
