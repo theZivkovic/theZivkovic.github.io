@@ -1986,48 +1986,49 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 	{
 		videoManager = new VideoManager([]);
 
-		imageManager = new ImageManager([{ "id": "start-side-1", "src": "data/images/Avatar2d.png"}, 
-    								 { "id": "start-side-2", "src": "data/images/Avatar3d.png"},
-    								 { "id": "start-side-3", "src": "data/images/Avatar4d.png"},
-    								 { "id": "start-side-4", "src": "data/images/Avatar6d.png"},
-    								 { "id": "start-top", "src": "data/images/TopSide.jpg"},
-    								 { "id": "start-bottom", "src" : "data/images/BottomSide.jpg"},
+		imageManager = new ImageManager([{ "id": "initial-side-1", "src": "data/images/initial-side-1.png"}, 
+    								 { "id": "initial-side-2", "src": "data/images/initial-side-1.png"},
+    								 { "id": "initial-side-3", "src": "data/images/initial-side-1.png"},
+    								 { "id": "initial-side-4", "src": "data/images/initial-side-1.png"},
+    								 { "id": "initial-top", "src": "data/images/initial-top.jpg"},
+    								 { "id": "initial-bottom", "src" : "data/images/initial-top.jpg"},
     								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		cubeSidesDetails = {
-	    					"FRONT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-1")},
-	    					"REAR" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-2")},
-	    					"RIGHT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-3")},
-	    					"LEFT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-side-4")},
-	    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-bottom")},
-	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("start-top")}
+	    					"FRONT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("initial-side-1")},
+	    					"REAR" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("initial-side-2")},
+	    					"RIGHT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("initial-side-3")},
+	    					"LEFT" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("initial-side-4")},
+	    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("initial-bottom")},
+	    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("initial-top")}
 	    				};
 
 	   
 	}
 	else if (stage == "finished")
 	{
-		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/big_buck_bunny.mp4"},
-	    								 { "id": "finished-side-2", "src": "data/video/robot.mp4"},
-	    								 { "id": "finished-side-3", "src": "data/video/lotr.mp4"},
-	    								 { "id": "finished-side-4", "src": "data/video/warhammer40k.mp4"}]);
+		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/video1.mp4"},
+	    								 { "id": "finished-side-2", "src": "data/video/video2.mp4"},
+	    								 { "id": "finished-side-3", "src": "data/video/video3.mp4"},
+	    								 { "id": "finished-side-4", "src": "data/video/video4.mp4"}]);
 
 
-		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/TopSide.jpg"},
+		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/finished-top.jpg"},
+										 { "id": "finished-bottom", "src": "data/images/finished-bottom.jpg" },
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
-		let div = document.createElement('div');
-		let divHtml =  '<div style="width:500; height: 500; background-color: #AAAAAA; margin: 0; padding: 0">' +
-						'<button style="position:relative; top: 250; left:250; width:200px; height:150px;">Contact Us</button>' +
-						'</div>';
-		div.innerHTML = divHtml;
+		// let div = document.createElement('div');
+		// let divHtml =  '<div style="width:500; height: 500; background-color: #AAAAAA; margin: 0; padding: 0">' +
+		// 				'<button style="position:relative; top: 250; left:250; width:200px; height:150px;">Contact Us</button>' +
+		// 				'</div>';
+		// div.innerHTML = divHtml;
 
 	    cubeSidesDetails = {
 		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
 		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
-		    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
+		    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
 		    				};
 
