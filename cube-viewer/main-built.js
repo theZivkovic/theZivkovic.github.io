@@ -1114,7 +1114,12 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 			if ( event.touches.length === 1 ) {
 
+				let mouseXOnMove = event.touches[0].pageX - _windowHalfX;
+				let mouseYOnMove = event.touches[0].pageY - _windowHalfY;
+				console.log(Math.abs(mouseYOnMove - _mouseYOnMouseDown));
+
 				_currentTouchMoveState = TouchMoveStates.MOVING;
+
 
 				event.preventDefault();
 
