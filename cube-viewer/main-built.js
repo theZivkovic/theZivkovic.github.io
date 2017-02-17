@@ -1074,6 +1074,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 					_currentTouchDownState = TouchDownStates.IDLE;
 				}
 				_handleEveryTap(event);
+				console.log("touchStart");
 			}
 		}
 
@@ -1123,6 +1124,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
 				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * ROTATION_SPEED;
 				_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
+
+				console.log("touchMove");
 			}
 		}
 
@@ -1130,7 +1133,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 			sceneDomElement.removeEventListener( 'touchmove', _onTouchMove, false );
 			sceneDomElement.removeEventListener( 'touchend', _onTouchEnd, false);
-			
+
 			_currentTouchMoveState = TouchMoveStates.IDLE;
 		}
 
