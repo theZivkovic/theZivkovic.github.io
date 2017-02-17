@@ -2036,13 +2036,14 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 	}
 	else if (stage == "finished")
 	{
-		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/big_buck_bunny.mp4"},
-	    								 { "id": "finished-side-2", "src": "data/video/robot.mp4"},
-	    								 { "id": "finished-side-3", "src": "data/video/lotr.mp4"},
-	    								 { "id": "finished-side-4", "src": "data/video/warhammer40k.mp4"}]);
+		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/video1.mp4"},
+	    								 { "id": "finished-side-2", "src": "data/video/video2.mp4"},
+	    								 { "id": "finished-side-3", "src": "data/video/video3.mp4"},
+	    								 { "id": "finished-side-4", "src": "data/video/video4.mp4"}]);
 
 
-		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/TopSide.jpg"},
+		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/FinishedTopSide.jpg"},
+										 { "id": "finished-bottom", "src": "data/images/FinishedBottomSide.jpg"},
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		let div = document.createElement('div');
@@ -2056,7 +2057,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
 		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
-		    					"BOTTOM" : { quadType: "HTML", htmlElement: div },
+		    					"BOTTOM" : { quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
 		    				};
 
