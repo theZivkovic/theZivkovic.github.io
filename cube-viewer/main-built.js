@@ -897,8 +897,8 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 		let _targetRotationYOnMouseDown = 0;
 		let _targetRotationY = 0;
 
-		const ROTATION_Y_MIN_ANGLE = -1.2;
-		const ROTATION_Y_MAX_ANGLE = 1.2;
+		const ROTATION_Y_MIN_ANGLE = -Math.PI / 2 + 0.1;
+		const ROTATION_Y_MAX_ANGLE = Math.PI / 2 - 0.1;
 		const ROTATION_SPEED = 0.01;
 
 		let _clickedTwice = false;
@@ -1005,8 +1005,8 @@ define('desktopCameraControl',['threejs'], (THREE) => {
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
 
-			_targetRotationX += 0.003;
-			_targetRotationY -= 0.001;
+			_targetRotationX += 0.009;
+			_targetRotationY -= 0.003;
 			
 			_camera.lookAt(new THREE.Vector3(0,0,0));
 			
@@ -1040,8 +1040,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 		let _targetRotationYOnMouseDown = 0;
 		let _targetRotationY = 0;
 
-		const ROTATION_Y_MIN_ANGLE = -1.2;
-		const ROTATION_Y_MAX_ANGLE = 1.2;
+		const ROTATION_Y_MIN_ANGLE = -Math.PI / 2 + 0.1;
+		const ROTATION_Y_MAX_ANGLE = Math.PI / 2 - 0.1;
 		const ROTATION_SPEED = 0.01;
 
 		let _tappedTwice = false;
@@ -1123,8 +1123,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 								 1000 * Math.sin(_targetRotationY),
 								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
 
-			_targetRotationX += 0.003;
-			_targetRotationY -= 0.001;
+			_targetRotationX += 0.009;
+			_targetRotationY -= 0.003;
 
 			_camera.lookAt(new THREE.Vector3(0,0,0));
 			
@@ -1823,7 +1823,7 @@ define('scene',['threejs',
 			let clickedQuad = mainCube.getQuadAtSide(clickedSideID);
 
 			if (clickedQuad.constructor.name == "VideoQuad")
-				_videoManager.playVideoByID(clickedQuad.getVideoElementID());
+				_videoManager.toggleVideoByID(clickedQuad.getVideoElementID());
 	    });
 	}
 
@@ -1872,6 +1872,10 @@ define('videoManager',[], () => {
 		let self = this;
 		let _videoElements = [];
 		let _videosInfo = videosInfo;
+		let _currentVideo = {
+			id: null,
+			playing: false
+		}
 
 		self.initialize = () => {
 			_videosInfo.forEach((videoInfo) => {
@@ -1889,12 +1893,34 @@ define('videoManager',[], () => {
 			_videoElements.push(newVideoElement);
 		}
 
-		self.playVideoByID = (someID) => {
+		self.toggleVideoByID = (someID) => {
 
 			_videoElements.forEach((videoElement) => {
-
 				if (videoElement.id == someID)
-					videoElement.play();
+				{
+					if (_currentVideo.id == null) {
+						_currentVideo = {};
+						_currentVideo.id = videoElement.id;
+						_currentVideo.playing = true;
+						videoElement.play();
+					}
+					else if (_currentVideo.id == someID){
+
+						if (_currentVideo.playing) {
+							_currentVideo.playing = false;
+							videoElement.pause();
+						}
+						else {
+							_currentVideo.playing = true;
+							videoElement.play();
+						}
+					}
+					else {
+						_currentVideo.id = videoElement.id;
+						_currentVideo.playing = true;
+						videoElement.play();
+					}
+				}
 				else
 					videoElement.pause();
 			});
