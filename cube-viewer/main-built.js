@@ -1084,6 +1084,8 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				_targetRotationXOnMouseDown = _targetRotationX;
 
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
+				console.log("MOUSE_DOWN_Y: " + event.touches[0].pageY);
+
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;
 
@@ -1114,9 +1116,11 @@ define('androidCameraControl',['threejs'], (THREE) => {
 
 			if ( event.touches.length === 1 ) {
 
-				let mouseXOnMove = event.touches[0].pageX - _windowHalfX;
-				let mouseYOnMove = event.touches[0].pageY - _windowHalfY;
-				console.log(Math.abs(mouseYOnMove - _mouseYOnMouseDown));
+				// let mouseXOnMove = event.touches[0].pageX - _windowHalfX;
+				// let mouseYOnMove = event.touches[0].pageY - _windowHalfY;
+				// console.log(Math.abs(mouseYOnMove - _mouseYOnMouseDown));
+
+				console.log("MOUSE_MOVE_Y: " + event.touches[0].pageY);
 
 				_currentTouchMoveState = TouchMoveStates.MOVING;
 
