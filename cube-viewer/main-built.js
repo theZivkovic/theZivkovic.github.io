@@ -2013,9 +2013,9 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 		videoManager = new VideoManager([]);
 
 		imageManager = new ImageManager([{ "id": "initial-side-1", "src": "data/images/initial-side-1.png"}, 
-    								 { "id": "initial-side-2", "src": "data/images/initial-side-1.png"},
-    								 { "id": "initial-side-3", "src": "data/images/initial-side-1.png"},
-    								 { "id": "initial-side-4", "src": "data/images/initial-side-1.png"},
+    								 { "id": "initial-side-2", "src": "data/images/initial-side-2.png"},
+    								 { "id": "initial-side-3", "src": "data/images/initial-side-3.png"},
+    								 { "id": "initial-side-4", "src": "data/images/initial-side-4.png"},
     								 { "id": "initial-top", "src": "data/images/initial-top.jpg"},
     								 { "id": "initial-bottom", "src" : "data/images/initial-bottom.jpg"},
     								 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
