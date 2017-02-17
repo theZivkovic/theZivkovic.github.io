@@ -1062,12 +1062,7 @@ define('androidCameraControl',['threejs'], (THREE) => {
 					setTimeout(() => {
 						if (_currentTouchDownState == TouchDownStates.ONCE &&
 							_currentTouchMoveState != TouchMoveStates.MOVING){
-
-							if (_callbacksMap.hasOwnProperty("singleClick"))
-								_callbacksMap["singleClick"]({
-									x: event.touches[0].pageX,
-									y: event.touches[0].pageY
-								});
+							_handleEndOfSingleTap(event);
 						}
 						_currentTouchDownState = TouchDownStates.IDLE;
 					}, 300);
@@ -1075,13 +1070,14 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				}
 				else if (_currentTouchDownState == TouchDownStates.ONCE)
 				{
-					if (_callbacksMap.hasOwnProperty("doubleClick"))
-						_callbacksMap["doubleClick"]({
-							x: event.clientX,
-							y: event.clientY
-						});
+					_handleEndOfDoubleTap(event);
 					_currentTouchDownState = TouchDownStates.IDLE;
 				}
+				_handleEveryTap(event);
+			}
+		}
+
+		function _handleEveryTap(event) {
 
 				_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
 				_targetRotationXOnMouseDown = _targetRotationX;
@@ -1089,7 +1085,28 @@ define('androidCameraControl',['threejs'], (THREE) => {
 				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
 				_mouseYOnMouseDown = THREE.Math.clamp(_mouseYOnMouseDown, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
 				_targetRotationYOnMouseDown = _targetRotationY;
-			}
+
+				sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
+				sceneDomElement.addEventListener( 'touchend', _onTouchEnd, false);
+		}
+
+		function _handleEndOfSingleTap(event){
+			if (_callbacksMap.hasOwnProperty("singleClick"))
+				_callbacksMap["singleClick"]({
+					x: event.touches[0].pageX,
+					y: event.touches[0].pageY
+				});
+		}
+
+		function _handleEndOfDoubleTap(event){
+			if (_callbacksMap.hasOwnProperty("doubleClick"))
+						_callbacksMap["doubleClick"]({
+							x: event.clientX,
+							y: event.clientY
+						});
+
+			sceneDomElement.removeEventListener( 'touchmove', _onTouchMove, false );
+			sceneDomElement.removeEventListener( 'touchend', _onTouchEnd, false);
 		}
 
 		function _onTouchMove(event){
@@ -1110,13 +1127,16 @@ define('androidCameraControl',['threejs'], (THREE) => {
 		}
 
 		function _onTouchEnd(event){
+
+			sceneDomElement.removeEventListener( 'touchmove', _onTouchMove, false );
+			sceneDomElement.removeEventListener( 'touchend', _onTouchEnd, false);
+			
 			_currentTouchMoveState = TouchMoveStates.IDLE;
 		}
 
 
 		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
-		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
-		sceneDomElement.addEventListener( 'touchend', _onTouchEnd, false);
+		
 
 		self.update = () => {
 
