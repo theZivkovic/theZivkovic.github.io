@@ -1664,6 +1664,7 @@ define('videoManager',[], () => {
 				newVideoElement.src = videoInfo.src;
 				newVideoElement.loop = true;
 				newVideoElement.id = videoInfo.id;
+				newVideoElement.playsinline = true;
 				_videoElements.push(newVideoElement);
 			});
 		}
@@ -1824,14 +1825,13 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 										 { "id": "finished-bottom", "src": "data/images/finished-bottom.jpg" },
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
-		// let div = document.createElement('div');
-		// let divHtml =  '<div style="width:500; height: 500; background-color: #AAAAAA; margin: 0; padding: 0">' +
-		// 				'<button style="position:relative; top: 250; left:250; width:200px; height:150px;">Contact Us</button>' +
-		// 				'</div>';
-		// div.innerHTML = divHtml;
+		let div = document.createElement('div');
+		let divHtml =  '<h1>AAAAA AAAA</h1>';
+		div.innerHTML = divHtml;
 
 	    cubeSidesDetails = {
-		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
+	    						"FRONT" : { quadType: "HTML", htmlElement: div },
+		    					//"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
 		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
