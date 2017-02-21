@@ -876,267 +876,6 @@ define('deviceInformator',[], () => {
 	}
 
 });
-define('desktopCameraControl',['threejs'], (THREE) => {
-
-	let DesktopCameraControl = function(camera, sceneDomElement){
-
-		let self = this;
-
-		let _camera = camera;
-
-		let _callbacksMap = {};
-
-		let _windowHalfX = window.innerWidth / 2;
-		let _windowHalfY = window.innerHeight / 2;
-
-		let _mouseXOnMouseDown = 0;
-		let _targetRotationXOnMouseDown = 0;
-		let _targetRotationX = 0;
-
-		let _mouseYOnMouseDown = 0;
-		let _targetRotationYOnMouseDown = 0;
-		let _targetRotationY = 0;
-
-		const ROTATION_Y_MIN_ANGLE = -Math.PI / 2 + 0.1;
-		const ROTATION_Y_MAX_ANGLE = Math.PI / 2 - 0.1;
-		const ROTATION_SPEED = 0.01;
-
-		let _clickedTwice = false;
-
-		const MouseDownStates = { "IDLE" : 0, "MOUSE_DOWN_ONCE" : 1, "MOUSE_DOWN_TWICE": 2 };
-		const MouseMoveStates = { "IDLE" : 0, "MOVING" : 1};
-
-		let _currentMouseDownState = MouseDownStates.IDLE;
-		let _currentMouseMoveState = MouseMoveStates.IDLE;
-
-		function _onMouseDown(event) {
-
-			event.preventDefault();
-
-			if (_currentMouseDownState == MouseDownStates.IDLE){
-				setTimeout(() => {
-					if (_currentMouseDownState == MouseDownStates.ONCE &&
-						_currentMouseMoveState != MouseMoveStates.MOVING)
-						_handleEndOfSingleMouseDown(event);
-					_currentMouseDownState = MouseDownStates.IDLE;
-
-				}, 300);
-				_currentMouseDownState = MouseDownStates.ONCE;
-			}
-			else if (_currentMouseDownState == MouseDownStates.ONCE)
-			{
-				_handleEndOfDoubleMouseDown(event);
-				_currentMouseDownState = MouseDownStates.IDLE;
-			}
-
-			_handleEveryMouseDown(event);
-		}
-
-		function _handleEveryMouseDown(event){
-
-			_mouseXOnMouseDown = event.clientX - _windowHalfX;
-			_targetRotationXOnMouseDown = _targetRotationX;
-
-			_mouseYOnMouseDown = event.clientY - _windowHalfY;
-			_targetRotationYOnMouseDown = _targetRotationY;	
-
-			sceneDomElement.addEventListener( 'mousemove', _onMouseMove, false );
-			sceneDomElement.addEventListener( 'mouseup', _onMouseUp, false );
-			sceneDomElement.addEventListener( 'mouseout', _onMouseOut, false );
-		}
-
-		function _handleEndOfSingleMouseDown(event){
-				
-				if (_callbacksMap.hasOwnProperty("singleClick"))
-					_callbacksMap["singleClick"]({
-						x: event.clientX,
-						y: event.clientY
-					});
-		}
-
-		function _handleEndOfDoubleMouseDown(event){
-
-			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
-			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
-			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
-
-			if (_callbacksMap.hasOwnProperty("doubleClick"))
-					_callbacksMap["doubleClick"]({
-						x: event.clientX,
-						y: event.clientY
-					});
-		}
-
-		function _onMouseMove(event){
-
-			_currentMouseMoveState = MouseMoveStates.MOVING;
-
-			let mouseX = event.clientX - _windowHalfX;
-			_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
-
-			let mouseY = event.clientY - _windowHalfY;
-			_targetRotationY = _targetRotationYOnMouseDown + (mouseY - _mouseYOnMouseDown) * ROTATION_SPEED;
-			_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-		}
-
-		function _onMouseUp(event) {
-			
-			_currentMouseMoveState = MouseMoveStates.IDLE;
-
-			sceneDomElement.removeEventListener( 'mousemove', _onMouseMove, false );
-			sceneDomElement.removeEventListener( 'mouseup', _onMouseUp, false );
-			sceneDomElement.removeEventListener( 'mouseout', _onMouseOut, false );
-		}
-
-		function _onMouseOut( event ) {
-
-			sceneDomElement.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-			sceneDomElement.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-			sceneDomElement.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-
-		}
-
-		sceneDomElement.addEventListener( 'mousedown', _onMouseDown, false );
-
-		self.update = () => {
-
-			
-			_camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
-								 1000 * Math.sin(_targetRotationY),
-								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
-
-			_targetRotationX += 0.009;
-			_targetRotationY -= 0.003;
-			
-			_camera.lookAt(new THREE.Vector3(0,0,0));
-			
-		}
-
-		self.on = (eventName, callback) => {
-			_callbacksMap[eventName] = callback;
-		}
-	}
-
-	return DesktopCameraControl;
-});
-define('androidCameraControl',['threejs'], (THREE) => {
-
-	let AndroidCameraControl = function(camera, sceneDomElement){
-
-		let self = this;
-
-		let _camera = camera;
-
-		let _callbacksMap = {};
-
-		let _windowHalfX = window.innerWidth / 2;
-		let _windowHalfY = window.innerHeight / 2;
-
-		let _mouseXOnMouseDown = 0;
-		let _targetRotationXOnMouseDown = 0;
-		let _targetRotationX = 0;
-
-		let _mouseYOnMouseDown = 0;
-		let _targetRotationYOnMouseDown = 0;
-		let _targetRotationY = 0;
-
-		const ROTATION_Y_MIN_ANGLE = -Math.PI / 2 + 0.1;
-		const ROTATION_Y_MAX_ANGLE = Math.PI / 2 - 0.1;
-		const ROTATION_SPEED = 0.01;
-
-		let _tappedTwice = false;
-
-		let TouchDownStates = { "IDLE" : 0, "ONCE" : 1, "TWICE" : 2 };
-		let TouchMoveStates = { "IDLE" : 0, "MOVING" : 1 };
-
-		let _currentTouchDownState = TouchDownStates.IDLE;
-		let _currentTouchMoveState = TouchMoveStates.IDLE;
-
-		function _onTouchStart( event ){
-
-			if ( event.touches.length === 1 ) {
-
-				event.preventDefault();
-
-				if (_currentTouchDownState == TouchDownStates.IDLE) {
-					setTimeout(() => {
-						if (_currentTouchDownState == TouchDownStates.ONCE &&
-							_currentTouchMoveState != TouchMoveStates.MOVING){
-
-							if (_callbacksMap.hasOwnProperty("singleClick"))
-								_callbacksMap["singleClick"]({
-									x: event.touches[0].pageX,
-									y: event.touches[0].pageY
-								});
-						}
-						_currentTouchDownState = TouchDownStates.IDLE;
-					}, 300);
-					_currentTouchDownState = TouchDownStates.ONCE;
-				}
-				else if (_currentTouchDownState == TouchDownStates.ONCE)
-				{
-					if (_callbacksMap.hasOwnProperty("doubleClick"))
-						_callbacksMap["doubleClick"]({
-							x: event.clientX,
-							y: event.clientY
-						});
-					_currentTouchDownState = TouchDownStates.IDLE;
-				}
-
-				_mouseXOnMouseDown = event.touches[0].pageX - _windowHalfX;
-				_targetRotationXOnMouseDown = _targetRotationX;
-
-				_mouseYOnMouseDown = event.touches[0].pageY - _windowHalfY;
-				_targetRotationYOnMouseDown = _targetRotationY;
-			}
-		}
-
-		function _onTouchMove(event){
-
-			if ( event.touches.length === 1 ) {
-
-				_currentTouchMoveState = TouchMoveStates.MOVING;
-
-				event.preventDefault();
-
-				let mouseX = event.touches[ 0 ].pageX - _windowHalfX;
-				_targetRotationX = _targetRotationXOnMouseDown + ( mouseX - _mouseXOnMouseDown ) * ROTATION_SPEED;
-
-				let mouseY = event.touches[ 0 ].pageY - _windowHalfY;
-				_targetRotationY = _targetRotationYOnMouseDown + ( mouseY - _mouseYOnMouseDown ) * ROTATION_SPEED;
-				_targetRotationY = THREE.Math.clamp(_targetRotationY, ROTATION_Y_MIN_ANGLE, ROTATION_Y_MAX_ANGLE);
-			}
-		}
-
-		function _onTouchEnd(event){
-			_currentTouchMoveState = TouchMoveStates.IDLE;
-		}
-
-
-		sceneDomElement.addEventListener( 'touchstart', _onTouchStart, false );
-		sceneDomElement.addEventListener( 'touchmove', _onTouchMove, false );
-		sceneDomElement.addEventListener( 'touchend', _onTouchEnd, false);
-
-		self.update = () => {
-
-			_camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
-								 1000 * Math.sin(_targetRotationY),
-								 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
-
-			_targetRotationX += 0.009;
-			_targetRotationY -= 0.003;
-
-			_camera.lookAt(new THREE.Vector3(0,0,0));
-			
-		}
-
-		self.on = (eventName, callback) => {
-			_callbacksMap[eventName] = callback;
-		}
-	}
-
-	return AndroidCameraControl;
-});
 define('quad',['threejs'], (THREE) => {
 
 	let Quad = function (id, scene, position, normal, sideLength) {
@@ -1153,7 +892,7 @@ define('quad',['threejs'], (THREE) => {
 
 			_initialPosition = position; 
 			_geometry = new THREE.PlaneGeometry( sideLength, sideLength, 1, 1 );
-			 _material = new THREE.MeshBasicMaterial({
+			_material = new THREE.MeshBasicMaterial({
 			 										  side: THREE.DoubleSide,
 			 										  color: "#999999",
 			 										  transparent: true,
@@ -1164,7 +903,6 @@ define('quad',['threejs'], (THREE) => {
 			_plane.name = _id;
 			_plane.position.set(position.x, position.y, position.z);
 			_plane.lookAt(position.clone().add(normal));
-			scene.add( _plane );
 		}
 
 		self.initialize();
@@ -1173,6 +911,7 @@ define('quad',['threejs'], (THREE) => {
 			return _id;
 		}
 
+		self.getMesh = () => { return _plane; }
 		self.getPosition = () => { return _plane.position; }
 		self.getRotation = () => { return _plane.rotation; }
 
@@ -1240,6 +979,8 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 			return _quad.getID();
 		}
 
+		self.getMesh = () => { return _quad.getMesh(); }
+
         self.update = () => {
 			_texture.needsUpdate = true;
 		}
@@ -1295,6 +1036,8 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 		self.getID = () => {
 			return _quad.getID();
 		}
+
+		self.getMesh = () => { return _quad.getMesh(); }
 
 		self.pushForward = (howMuch) => {
 			_quad.pushForward(howMuch);
@@ -1616,6 +1359,8 @@ define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D)
 			return _quad.getID();
 		}
 
+		self.getMesh = () => { return _quad.getMesh(); }
+
         self.update = () => {
 			
 		}
@@ -1644,6 +1389,7 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 		let _downVec = upVec.clone().negate();
 
 		let _quads = {};
+		let _group;
 
 		let _hardcodedSideInformation = {
 			"FRONT" : { position: position.clone().addScaledVector(frontVec, size / 2), normal: frontVec },
@@ -1688,12 +1434,19 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 
 		function _initialize() {
 
+			_group = new THREE.Object3D();
 			_quads["FRONT"] = _createCubeSide("FRONT", sidesInformation["FRONT"]);
 			_quads["REAR"] = _createCubeSide("REAR", sidesInformation["REAR"]);
 			_quads["RIGHT"] = _createCubeSide("RIGHT", sidesInformation["RIGHT"]);
 			_quads["LEFT"] = _createCubeSide("LEFT", sidesInformation["LEFT"]);
 			_quads["TOP"] = _createCubeSide("TOP", sidesInformation["TOP"]);
 			_quads["BOTTOM"] = _createCubeSide("BOTTOM", sidesInformation["BOTTOM"]);
+
+			Object.keys(_quads).forEach((side) => {
+				_group.add(_quads[side].getMesh());
+			});
+
+			scene.add(_group);
 		}
 
 
@@ -1705,6 +1458,14 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    	});
 	    }
 
+	    self.rotateX = (howMuch) => {
+	    	_group.rotation.y += howMuch;
+	    }
+
+	    self.rotateY = (howMuch) => {
+	    	_group.rotation.x += howMuch;
+	    }
+
 	    self.update = () => {
 	    	Object.keys(_quads).forEach((side) => {
 	    		_quads[side].update();
@@ -1714,22 +1475,35 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    self.getQuadAtSide = (side) => {
 	    	return _quads[side];
 	    }
+
+	    self.getQuadMeshesArray = () => {
+	    	return Object.keys(_quads).map((side) => {
+	    		return _quads[side].getMesh();
+	    	});
+
+	    }
 	}
 
 
 	return Cube;
 });
+/*! Hammer.JS - v2.0.8 - 2016-04-23
+ * http://hammerjs.github.io/
+ *
+ * Copyright (c) 2016 Jorik Tangelder;
+ * Licensed under the MIT license */
+!function(a,b,c,d){"use strict";function e(a,b,c){return setTimeout(j(a,c),b)}function f(a,b,c){return Array.isArray(a)?(g(a,c[b],c),!0):!1}function g(a,b,c){var e;if(a)if(a.forEach)a.forEach(b,c);else if(a.length!==d)for(e=0;e<a.length;)b.call(c,a[e],e,a),e++;else for(e in a)a.hasOwnProperty(e)&&b.call(c,a[e],e,a)}function h(b,c,d){var e="DEPRECATED METHOD: "+c+"\n"+d+" AT \n";return function(){var c=new Error("get-stack-trace"),d=c&&c.stack?c.stack.replace(/^[^\(]+?[\n$]/gm,"").replace(/^\s+at\s+/gm,"").replace(/^Object.<anonymous>\s*\(/gm,"{anonymous}()@"):"Unknown Stack Trace",f=a.console&&(a.console.warn||a.console.log);return f&&f.call(a.console,e,d),b.apply(this,arguments)}}function i(a,b,c){var d,e=b.prototype;d=a.prototype=Object.create(e),d.constructor=a,d._super=e,c&&la(d,c)}function j(a,b){return function(){return a.apply(b,arguments)}}function k(a,b){return typeof a==oa?a.apply(b?b[0]||d:d,b):a}function l(a,b){return a===d?b:a}function m(a,b,c){g(q(b),function(b){a.addEventListener(b,c,!1)})}function n(a,b,c){g(q(b),function(b){a.removeEventListener(b,c,!1)})}function o(a,b){for(;a;){if(a==b)return!0;a=a.parentNode}return!1}function p(a,b){return a.indexOf(b)>-1}function q(a){return a.trim().split(/\s+/g)}function r(a,b,c){if(a.indexOf&&!c)return a.indexOf(b);for(var d=0;d<a.length;){if(c&&a[d][c]==b||!c&&a[d]===b)return d;d++}return-1}function s(a){return Array.prototype.slice.call(a,0)}function t(a,b,c){for(var d=[],e=[],f=0;f<a.length;){var g=b?a[f][b]:a[f];r(e,g)<0&&d.push(a[f]),e[f]=g,f++}return c&&(d=b?d.sort(function(a,c){return a[b]>c[b]}):d.sort()),d}function u(a,b){for(var c,e,f=b[0].toUpperCase()+b.slice(1),g=0;g<ma.length;){if(c=ma[g],e=c?c+f:b,e in a)return e;g++}return d}function v(){return ua++}function w(b){var c=b.ownerDocument||b;return c.defaultView||c.parentWindow||a}function x(a,b){var c=this;this.manager=a,this.callback=b,this.element=a.element,this.target=a.options.inputTarget,this.domHandler=function(b){k(a.options.enable,[a])&&c.handler(b)},this.init()}function y(a){var b,c=a.options.inputClass;return new(b=c?c:xa?M:ya?P:wa?R:L)(a,z)}function z(a,b,c){var d=c.pointers.length,e=c.changedPointers.length,f=b&Ea&&d-e===0,g=b&(Ga|Ha)&&d-e===0;c.isFirst=!!f,c.isFinal=!!g,f&&(a.session={}),c.eventType=b,A(a,c),a.emit("hammer.input",c),a.recognize(c),a.session.prevInput=c}function A(a,b){var c=a.session,d=b.pointers,e=d.length;c.firstInput||(c.firstInput=D(b)),e>1&&!c.firstMultiple?c.firstMultiple=D(b):1===e&&(c.firstMultiple=!1);var f=c.firstInput,g=c.firstMultiple,h=g?g.center:f.center,i=b.center=E(d);b.timeStamp=ra(),b.deltaTime=b.timeStamp-f.timeStamp,b.angle=I(h,i),b.distance=H(h,i),B(c,b),b.offsetDirection=G(b.deltaX,b.deltaY);var j=F(b.deltaTime,b.deltaX,b.deltaY);b.overallVelocityX=j.x,b.overallVelocityY=j.y,b.overallVelocity=qa(j.x)>qa(j.y)?j.x:j.y,b.scale=g?K(g.pointers,d):1,b.rotation=g?J(g.pointers,d):0,b.maxPointers=c.prevInput?b.pointers.length>c.prevInput.maxPointers?b.pointers.length:c.prevInput.maxPointers:b.pointers.length,C(c,b);var k=a.element;o(b.srcEvent.target,k)&&(k=b.srcEvent.target),b.target=k}function B(a,b){var c=b.center,d=a.offsetDelta||{},e=a.prevDelta||{},f=a.prevInput||{};b.eventType!==Ea&&f.eventType!==Ga||(e=a.prevDelta={x:f.deltaX||0,y:f.deltaY||0},d=a.offsetDelta={x:c.x,y:c.y}),b.deltaX=e.x+(c.x-d.x),b.deltaY=e.y+(c.y-d.y)}function C(a,b){var c,e,f,g,h=a.lastInterval||b,i=b.timeStamp-h.timeStamp;if(b.eventType!=Ha&&(i>Da||h.velocity===d)){var j=b.deltaX-h.deltaX,k=b.deltaY-h.deltaY,l=F(i,j,k);e=l.x,f=l.y,c=qa(l.x)>qa(l.y)?l.x:l.y,g=G(j,k),a.lastInterval=b}else c=h.velocity,e=h.velocityX,f=h.velocityY,g=h.direction;b.velocity=c,b.velocityX=e,b.velocityY=f,b.direction=g}function D(a){for(var b=[],c=0;c<a.pointers.length;)b[c]={clientX:pa(a.pointers[c].clientX),clientY:pa(a.pointers[c].clientY)},c++;return{timeStamp:ra(),pointers:b,center:E(b),deltaX:a.deltaX,deltaY:a.deltaY}}function E(a){var b=a.length;if(1===b)return{x:pa(a[0].clientX),y:pa(a[0].clientY)};for(var c=0,d=0,e=0;b>e;)c+=a[e].clientX,d+=a[e].clientY,e++;return{x:pa(c/b),y:pa(d/b)}}function F(a,b,c){return{x:b/a||0,y:c/a||0}}function G(a,b){return a===b?Ia:qa(a)>=qa(b)?0>a?Ja:Ka:0>b?La:Ma}function H(a,b,c){c||(c=Qa);var d=b[c[0]]-a[c[0]],e=b[c[1]]-a[c[1]];return Math.sqrt(d*d+e*e)}function I(a,b,c){c||(c=Qa);var d=b[c[0]]-a[c[0]],e=b[c[1]]-a[c[1]];return 180*Math.atan2(e,d)/Math.PI}function J(a,b){return I(b[1],b[0],Ra)+I(a[1],a[0],Ra)}function K(a,b){return H(b[0],b[1],Ra)/H(a[0],a[1],Ra)}function L(){this.evEl=Ta,this.evWin=Ua,this.pressed=!1,x.apply(this,arguments)}function M(){this.evEl=Xa,this.evWin=Ya,x.apply(this,arguments),this.store=this.manager.session.pointerEvents=[]}function N(){this.evTarget=$a,this.evWin=_a,this.started=!1,x.apply(this,arguments)}function O(a,b){var c=s(a.touches),d=s(a.changedTouches);return b&(Ga|Ha)&&(c=t(c.concat(d),"identifier",!0)),[c,d]}function P(){this.evTarget=bb,this.targetIds={},x.apply(this,arguments)}function Q(a,b){var c=s(a.touches),d=this.targetIds;if(b&(Ea|Fa)&&1===c.length)return d[c[0].identifier]=!0,[c,c];var e,f,g=s(a.changedTouches),h=[],i=this.target;if(f=c.filter(function(a){return o(a.target,i)}),b===Ea)for(e=0;e<f.length;)d[f[e].identifier]=!0,e++;for(e=0;e<g.length;)d[g[e].identifier]&&h.push(g[e]),b&(Ga|Ha)&&delete d[g[e].identifier],e++;return h.length?[t(f.concat(h),"identifier",!0),h]:void 0}function R(){x.apply(this,arguments);var a=j(this.handler,this);this.touch=new P(this.manager,a),this.mouse=new L(this.manager,a),this.primaryTouch=null,this.lastTouches=[]}function S(a,b){a&Ea?(this.primaryTouch=b.changedPointers[0].identifier,T.call(this,b)):a&(Ga|Ha)&&T.call(this,b)}function T(a){var b=a.changedPointers[0];if(b.identifier===this.primaryTouch){var c={x:b.clientX,y:b.clientY};this.lastTouches.push(c);var d=this.lastTouches,e=function(){var a=d.indexOf(c);a>-1&&d.splice(a,1)};setTimeout(e,cb)}}function U(a){for(var b=a.srcEvent.clientX,c=a.srcEvent.clientY,d=0;d<this.lastTouches.length;d++){var e=this.lastTouches[d],f=Math.abs(b-e.x),g=Math.abs(c-e.y);if(db>=f&&db>=g)return!0}return!1}function V(a,b){this.manager=a,this.set(b)}function W(a){if(p(a,jb))return jb;var b=p(a,kb),c=p(a,lb);return b&&c?jb:b||c?b?kb:lb:p(a,ib)?ib:hb}function X(){if(!fb)return!1;var b={},c=a.CSS&&a.CSS.supports;return["auto","manipulation","pan-y","pan-x","pan-x pan-y","none"].forEach(function(d){b[d]=c?a.CSS.supports("touch-action",d):!0}),b}function Y(a){this.options=la({},this.defaults,a||{}),this.id=v(),this.manager=null,this.options.enable=l(this.options.enable,!0),this.state=nb,this.simultaneous={},this.requireFail=[]}function Z(a){return a&sb?"cancel":a&qb?"end":a&pb?"move":a&ob?"start":""}function $(a){return a==Ma?"down":a==La?"up":a==Ja?"left":a==Ka?"right":""}function _(a,b){var c=b.manager;return c?c.get(a):a}function aa(){Y.apply(this,arguments)}function ba(){aa.apply(this,arguments),this.pX=null,this.pY=null}function ca(){aa.apply(this,arguments)}function da(){Y.apply(this,arguments),this._timer=null,this._input=null}function ea(){aa.apply(this,arguments)}function fa(){aa.apply(this,arguments)}function ga(){Y.apply(this,arguments),this.pTime=!1,this.pCenter=!1,this._timer=null,this._input=null,this.count=0}function ha(a,b){return b=b||{},b.recognizers=l(b.recognizers,ha.defaults.preset),new ia(a,b)}function ia(a,b){this.options=la({},ha.defaults,b||{}),this.options.inputTarget=this.options.inputTarget||a,this.handlers={},this.session={},this.recognizers=[],this.oldCssProps={},this.element=a,this.input=y(this),this.touchAction=new V(this,this.options.touchAction),ja(this,!0),g(this.options.recognizers,function(a){var b=this.add(new a[0](a[1]));a[2]&&b.recognizeWith(a[2]),a[3]&&b.requireFailure(a[3])},this)}function ja(a,b){var c=a.element;if(c.style){var d;g(a.options.cssProps,function(e,f){d=u(c.style,f),b?(a.oldCssProps[d]=c.style[d],c.style[d]=e):c.style[d]=a.oldCssProps[d]||""}),b||(a.oldCssProps={})}}function ka(a,c){var d=b.createEvent("Event");d.initEvent(a,!0,!0),d.gesture=c,c.target.dispatchEvent(d)}var la,ma=["","webkit","Moz","MS","ms","o"],na=b.createElement("div"),oa="function",pa=Math.round,qa=Math.abs,ra=Date.now;la="function"!=typeof Object.assign?function(a){if(a===d||null===a)throw new TypeError("Cannot convert undefined or null to object");for(var b=Object(a),c=1;c<arguments.length;c++){var e=arguments[c];if(e!==d&&null!==e)for(var f in e)e.hasOwnProperty(f)&&(b[f]=e[f])}return b}:Object.assign;var sa=h(function(a,b,c){for(var e=Object.keys(b),f=0;f<e.length;)(!c||c&&a[e[f]]===d)&&(a[e[f]]=b[e[f]]),f++;return a},"extend","Use `assign`."),ta=h(function(a,b){return sa(a,b,!0)},"merge","Use `assign`."),ua=1,va=/mobile|tablet|ip(ad|hone|od)|android/i,wa="ontouchstart"in a,xa=u(a,"PointerEvent")!==d,ya=wa&&va.test(navigator.userAgent),za="touch",Aa="pen",Ba="mouse",Ca="kinect",Da=25,Ea=1,Fa=2,Ga=4,Ha=8,Ia=1,Ja=2,Ka=4,La=8,Ma=16,Na=Ja|Ka,Oa=La|Ma,Pa=Na|Oa,Qa=["x","y"],Ra=["clientX","clientY"];x.prototype={handler:function(){},init:function(){this.evEl&&m(this.element,this.evEl,this.domHandler),this.evTarget&&m(this.target,this.evTarget,this.domHandler),this.evWin&&m(w(this.element),this.evWin,this.domHandler)},destroy:function(){this.evEl&&n(this.element,this.evEl,this.domHandler),this.evTarget&&n(this.target,this.evTarget,this.domHandler),this.evWin&&n(w(this.element),this.evWin,this.domHandler)}};var Sa={mousedown:Ea,mousemove:Fa,mouseup:Ga},Ta="mousedown",Ua="mousemove mouseup";i(L,x,{handler:function(a){var b=Sa[a.type];b&Ea&&0===a.button&&(this.pressed=!0),b&Fa&&1!==a.which&&(b=Ga),this.pressed&&(b&Ga&&(this.pressed=!1),this.callback(this.manager,b,{pointers:[a],changedPointers:[a],pointerType:Ba,srcEvent:a}))}});var Va={pointerdown:Ea,pointermove:Fa,pointerup:Ga,pointercancel:Ha,pointerout:Ha},Wa={2:za,3:Aa,4:Ba,5:Ca},Xa="pointerdown",Ya="pointermove pointerup pointercancel";a.MSPointerEvent&&!a.PointerEvent&&(Xa="MSPointerDown",Ya="MSPointerMove MSPointerUp MSPointerCancel"),i(M,x,{handler:function(a){var b=this.store,c=!1,d=a.type.toLowerCase().replace("ms",""),e=Va[d],f=Wa[a.pointerType]||a.pointerType,g=f==za,h=r(b,a.pointerId,"pointerId");e&Ea&&(0===a.button||g)?0>h&&(b.push(a),h=b.length-1):e&(Ga|Ha)&&(c=!0),0>h||(b[h]=a,this.callback(this.manager,e,{pointers:b,changedPointers:[a],pointerType:f,srcEvent:a}),c&&b.splice(h,1))}});var Za={touchstart:Ea,touchmove:Fa,touchend:Ga,touchcancel:Ha},$a="touchstart",_a="touchstart touchmove touchend touchcancel";i(N,x,{handler:function(a){var b=Za[a.type];if(b===Ea&&(this.started=!0),this.started){var c=O.call(this,a,b);b&(Ga|Ha)&&c[0].length-c[1].length===0&&(this.started=!1),this.callback(this.manager,b,{pointers:c[0],changedPointers:c[1],pointerType:za,srcEvent:a})}}});var ab={touchstart:Ea,touchmove:Fa,touchend:Ga,touchcancel:Ha},bb="touchstart touchmove touchend touchcancel";i(P,x,{handler:function(a){var b=ab[a.type],c=Q.call(this,a,b);c&&this.callback(this.manager,b,{pointers:c[0],changedPointers:c[1],pointerType:za,srcEvent:a})}});var cb=2500,db=25;i(R,x,{handler:function(a,b,c){var d=c.pointerType==za,e=c.pointerType==Ba;if(!(e&&c.sourceCapabilities&&c.sourceCapabilities.firesTouchEvents)){if(d)S.call(this,b,c);else if(e&&U.call(this,c))return;this.callback(a,b,c)}},destroy:function(){this.touch.destroy(),this.mouse.destroy()}});var eb=u(na.style,"touchAction"),fb=eb!==d,gb="compute",hb="auto",ib="manipulation",jb="none",kb="pan-x",lb="pan-y",mb=X();V.prototype={set:function(a){a==gb&&(a=this.compute()),fb&&this.manager.element.style&&mb[a]&&(this.manager.element.style[eb]=a),this.actions=a.toLowerCase().trim()},update:function(){this.set(this.manager.options.touchAction)},compute:function(){var a=[];return g(this.manager.recognizers,function(b){k(b.options.enable,[b])&&(a=a.concat(b.getTouchAction()))}),W(a.join(" "))},preventDefaults:function(a){var b=a.srcEvent,c=a.offsetDirection;if(this.manager.session.prevented)return void b.preventDefault();var d=this.actions,e=p(d,jb)&&!mb[jb],f=p(d,lb)&&!mb[lb],g=p(d,kb)&&!mb[kb];if(e){var h=1===a.pointers.length,i=a.distance<2,j=a.deltaTime<250;if(h&&i&&j)return}return g&&f?void 0:e||f&&c&Na||g&&c&Oa?this.preventSrc(b):void 0},preventSrc:function(a){this.manager.session.prevented=!0,a.preventDefault()}};var nb=1,ob=2,pb=4,qb=8,rb=qb,sb=16,tb=32;Y.prototype={defaults:{},set:function(a){return la(this.options,a),this.manager&&this.manager.touchAction.update(),this},recognizeWith:function(a){if(f(a,"recognizeWith",this))return this;var b=this.simultaneous;return a=_(a,this),b[a.id]||(b[a.id]=a,a.recognizeWith(this)),this},dropRecognizeWith:function(a){return f(a,"dropRecognizeWith",this)?this:(a=_(a,this),delete this.simultaneous[a.id],this)},requireFailure:function(a){if(f(a,"requireFailure",this))return this;var b=this.requireFail;return a=_(a,this),-1===r(b,a)&&(b.push(a),a.requireFailure(this)),this},dropRequireFailure:function(a){if(f(a,"dropRequireFailure",this))return this;a=_(a,this);var b=r(this.requireFail,a);return b>-1&&this.requireFail.splice(b,1),this},hasRequireFailures:function(){return this.requireFail.length>0},canRecognizeWith:function(a){return!!this.simultaneous[a.id]},emit:function(a){function b(b){c.manager.emit(b,a)}var c=this,d=this.state;qb>d&&b(c.options.event+Z(d)),b(c.options.event),a.additionalEvent&&b(a.additionalEvent),d>=qb&&b(c.options.event+Z(d))},tryEmit:function(a){return this.canEmit()?this.emit(a):void(this.state=tb)},canEmit:function(){for(var a=0;a<this.requireFail.length;){if(!(this.requireFail[a].state&(tb|nb)))return!1;a++}return!0},recognize:function(a){var b=la({},a);return k(this.options.enable,[this,b])?(this.state&(rb|sb|tb)&&(this.state=nb),this.state=this.process(b),void(this.state&(ob|pb|qb|sb)&&this.tryEmit(b))):(this.reset(),void(this.state=tb))},process:function(a){},getTouchAction:function(){},reset:function(){}},i(aa,Y,{defaults:{pointers:1},attrTest:function(a){var b=this.options.pointers;return 0===b||a.pointers.length===b},process:function(a){var b=this.state,c=a.eventType,d=b&(ob|pb),e=this.attrTest(a);return d&&(c&Ha||!e)?b|sb:d||e?c&Ga?b|qb:b&ob?b|pb:ob:tb}}),i(ba,aa,{defaults:{event:"pan",threshold:10,pointers:1,direction:Pa},getTouchAction:function(){var a=this.options.direction,b=[];return a&Na&&b.push(lb),a&Oa&&b.push(kb),b},directionTest:function(a){var b=this.options,c=!0,d=a.distance,e=a.direction,f=a.deltaX,g=a.deltaY;return e&b.direction||(b.direction&Na?(e=0===f?Ia:0>f?Ja:Ka,c=f!=this.pX,d=Math.abs(a.deltaX)):(e=0===g?Ia:0>g?La:Ma,c=g!=this.pY,d=Math.abs(a.deltaY))),a.direction=e,c&&d>b.threshold&&e&b.direction},attrTest:function(a){return aa.prototype.attrTest.call(this,a)&&(this.state&ob||!(this.state&ob)&&this.directionTest(a))},emit:function(a){this.pX=a.deltaX,this.pY=a.deltaY;var b=$(a.direction);b&&(a.additionalEvent=this.options.event+b),this._super.emit.call(this,a)}}),i(ca,aa,{defaults:{event:"pinch",threshold:0,pointers:2},getTouchAction:function(){return[jb]},attrTest:function(a){return this._super.attrTest.call(this,a)&&(Math.abs(a.scale-1)>this.options.threshold||this.state&ob)},emit:function(a){if(1!==a.scale){var b=a.scale<1?"in":"out";a.additionalEvent=this.options.event+b}this._super.emit.call(this,a)}}),i(da,Y,{defaults:{event:"press",pointers:1,time:251,threshold:9},getTouchAction:function(){return[hb]},process:function(a){var b=this.options,c=a.pointers.length===b.pointers,d=a.distance<b.threshold,f=a.deltaTime>b.time;if(this._input=a,!d||!c||a.eventType&(Ga|Ha)&&!f)this.reset();else if(a.eventType&Ea)this.reset(),this._timer=e(function(){this.state=rb,this.tryEmit()},b.time,this);else if(a.eventType&Ga)return rb;return tb},reset:function(){clearTimeout(this._timer)},emit:function(a){this.state===rb&&(a&&a.eventType&Ga?this.manager.emit(this.options.event+"up",a):(this._input.timeStamp=ra(),this.manager.emit(this.options.event,this._input)))}}),i(ea,aa,{defaults:{event:"rotate",threshold:0,pointers:2},getTouchAction:function(){return[jb]},attrTest:function(a){return this._super.attrTest.call(this,a)&&(Math.abs(a.rotation)>this.options.threshold||this.state&ob)}}),i(fa,aa,{defaults:{event:"swipe",threshold:10,velocity:.3,direction:Na|Oa,pointers:1},getTouchAction:function(){return ba.prototype.getTouchAction.call(this)},attrTest:function(a){var b,c=this.options.direction;return c&(Na|Oa)?b=a.overallVelocity:c&Na?b=a.overallVelocityX:c&Oa&&(b=a.overallVelocityY),this._super.attrTest.call(this,a)&&c&a.offsetDirection&&a.distance>this.options.threshold&&a.maxPointers==this.options.pointers&&qa(b)>this.options.velocity&&a.eventType&Ga},emit:function(a){var b=$(a.offsetDirection);b&&this.manager.emit(this.options.event+b,a),this.manager.emit(this.options.event,a)}}),i(ga,Y,{defaults:{event:"tap",pointers:1,taps:1,interval:300,time:250,threshold:9,posThreshold:10},getTouchAction:function(){return[ib]},process:function(a){var b=this.options,c=a.pointers.length===b.pointers,d=a.distance<b.threshold,f=a.deltaTime<b.time;if(this.reset(),a.eventType&Ea&&0===this.count)return this.failTimeout();if(d&&f&&c){if(a.eventType!=Ga)return this.failTimeout();var g=this.pTime?a.timeStamp-this.pTime<b.interval:!0,h=!this.pCenter||H(this.pCenter,a.center)<b.posThreshold;this.pTime=a.timeStamp,this.pCenter=a.center,h&&g?this.count+=1:this.count=1,this._input=a;var i=this.count%b.taps;if(0===i)return this.hasRequireFailures()?(this._timer=e(function(){this.state=rb,this.tryEmit()},b.interval,this),ob):rb}return tb},failTimeout:function(){return this._timer=e(function(){this.state=tb},this.options.interval,this),tb},reset:function(){clearTimeout(this._timer)},emit:function(){this.state==rb&&(this._input.tapCount=this.count,this.manager.emit(this.options.event,this._input))}}),ha.VERSION="2.0.8",ha.defaults={domEvents:!1,touchAction:gb,enable:!0,inputTarget:null,inputClass:null,preset:[[ea,{enable:!1}],[ca,{enable:!1},["rotate"]],[fa,{direction:Na}],[ba,{direction:Na},["swipe"]],[ga],[ga,{event:"doubletap",taps:2},["tap"]],[da]],cssProps:{userSelect:"none",touchSelect:"none",touchCallout:"none",contentZooming:"none",userDrag:"none",tapHighlightColor:"rgba(0,0,0,0)"}};var ub=1,vb=2;ia.prototype={set:function(a){return la(this.options,a),a.touchAction&&this.touchAction.update(),a.inputTarget&&(this.input.destroy(),this.input.target=a.inputTarget,this.input.init()),this},stop:function(a){this.session.stopped=a?vb:ub},recognize:function(a){var b=this.session;if(!b.stopped){this.touchAction.preventDefaults(a);var c,d=this.recognizers,e=b.curRecognizer;(!e||e&&e.state&rb)&&(e=b.curRecognizer=null);for(var f=0;f<d.length;)c=d[f],b.stopped===vb||e&&c!=e&&!c.canRecognizeWith(e)?c.reset():c.recognize(a),!e&&c.state&(ob|pb|qb)&&(e=b.curRecognizer=c),f++}},get:function(a){if(a instanceof Y)return a;for(var b=this.recognizers,c=0;c<b.length;c++)if(b[c].options.event==a)return b[c];return null},add:function(a){if(f(a,"add",this))return this;var b=this.get(a.options.event);return b&&this.remove(b),this.recognizers.push(a),a.manager=this,this.touchAction.update(),a},remove:function(a){if(f(a,"remove",this))return this;if(a=this.get(a)){var b=this.recognizers,c=r(b,a);-1!==c&&(b.splice(c,1),this.touchAction.update())}return this},on:function(a,b){if(a!==d&&b!==d){var c=this.handlers;return g(q(a),function(a){c[a]=c[a]||[],c[a].push(b)}),this}},off:function(a,b){if(a!==d){var c=this.handlers;return g(q(a),function(a){b?c[a]&&c[a].splice(r(c[a],b),1):delete c[a]}),this}},emit:function(a,b){this.options.domEvents&&ka(a,b);var c=this.handlers[a]&&this.handlers[a].slice();if(c&&c.length){b.type=a,b.preventDefault=function(){b.srcEvent.preventDefault()};for(var d=0;d<c.length;)c[d](b),d++}},destroy:function(){this.element&&ja(this,!1),this.handlers={},this.session={},this.input.destroy(),this.element=null}},la(ha,{INPUT_START:Ea,INPUT_MOVE:Fa,INPUT_END:Ga,INPUT_CANCEL:Ha,STATE_POSSIBLE:nb,STATE_BEGAN:ob,STATE_CHANGED:pb,STATE_ENDED:qb,STATE_RECOGNIZED:rb,STATE_CANCELLED:sb,STATE_FAILED:tb,DIRECTION_NONE:Ia,DIRECTION_LEFT:Ja,DIRECTION_RIGHT:Ka,DIRECTION_UP:La,DIRECTION_DOWN:Ma,DIRECTION_HORIZONTAL:Na,DIRECTION_VERTICAL:Oa,DIRECTION_ALL:Pa,Manager:ia,Input:x,TouchAction:V,TouchInput:P,MouseInput:L,PointerEventInput:M,TouchMouseInput:R,SingleTouchInput:N,Recognizer:Y,AttrRecognizer:aa,Tap:ga,Pan:ba,Swipe:fa,Pinch:ca,Rotate:ea,Press:da,on:m,off:n,each:g,merge:ta,extend:sa,assign:la,inherit:i,bindFn:j,prefixed:u});var wb="undefined"!=typeof a?a:"undefined"!=typeof self?self:{};wb.Hammer=ha,"function"==typeof define&&define.amd?define('Hammer',[],function(){return ha}):"undefined"!=typeof module&&module.exports?module.exports=ha:a[c]=ha}(window,document,"Hammer");
+//# sourceMappingURL=hammer.min.js.map;
 define('scene',['threejs',
 		'deviceInformator',
-		'desktopCameraControl',
-		'androidCameraControl',
 		'imageQuad',
 		 'cube',
-		 'threejsCSS3D'
-		], (THREE, DeviceInformator, DesktopCameraControl, AndroidCameraControl, ImageQuad, Cube, THREECSS3D) => {
+		 'threejsCSS3D',
+		 'Hammer'
+		], (THREE, DeviceInformator, ImageQuad, Cube, THREECSS3D, Hammer) => {
 	
 	let scene, cssScene, camera, renderer, cssRenderer;
-	let mainCube, logoQuad, controls;
+	let mainCube, logoQuad;
 	let _videoManager;
 	let _imageManager;
 	let _cubeSidesDetails;
@@ -1749,9 +1523,8 @@ define('scene',['threejs',
 	   	_initializeWebGLRenderer();
 	   	_initializeCSS3dRenderer();
 
-	   
-	    _initializeCameraControls();						
-	    _initializeCube();
+	    _initializeCube();					
+	    _initializeHammerCallbacks();
 
 		window.addEventListener( 'resize', _onWindowResize, false );
 	}
@@ -1788,34 +1561,41 @@ define('scene',['threejs',
 	   	mainCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 500, _cubeSidesDetails);
 	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 500 / Math.sqrt(2), _imageManager.getImageByID("mainLogoImage"));
 	    logoQuad.update();
+	    scene.add(logoQuad.getMesh());
 	}
 
-	function _initializeCameraControls() {
+	function _initializeHammerCallbacks(){
+		
+		let hammertime = new Hammer(renderer.domElement, {direction: Hammer.DIRECTION_ALL });
+		
+		hammertime.on('swipe', function(event) {
+			let x =  event.deltaX / event.deltaTime;
+			let y = event.deltaY / event.deltaTime;
 
-		if (DeviceInformator.isMobile())
-	    	controls = new AndroidCameraControl(camera, renderer.domElement);
-	    else 
-	  		controls = new DesktopCameraControl(camera, renderer.domElement);
+			console.log("Swipe: " + x + " - " + y);
+		});
 
-	    controls.on('doubleClick', (customEvent) => {
-	    	if (shouldExpandTheCube)
-	    		mainCube.expand(100);
-	    	else
-	    		mainCube.expand(0);
+		hammertime.on('doubletap', function(event){
+			if (shouldExpandTheCube)
+	   			mainCube.expand(100);
+			else
+	     		mainCube.expand(0);
 
-	    	shouldExpandTheCube = !shouldExpandTheCube;	
-	    });
+	     	shouldExpandTheCube = !shouldExpandTheCube;
+		});
 
-	    controls.on('singleClick', (customEvent) => {
-		 	
-		 	let mouse = new THREE.Vector2();
-		 	mouse.x = ( customEvent.x / window.innerWidth ) * 2 - 1;
-			mouse.y = - ( customEvent.y / window.innerHeight ) * 2 + 1;
+		hammertime.on('tap', function(event){
+
+			let tapPosition = new THREE.Vector2(event.center.x, event.center.y);
+			
+	 		let mouse = new THREE.Vector2();
+		 	mouse.x = ( tapPosition.x / window.innerWidth ) * 2 - 1;
+			mouse.y = - ( tapPosition.y / window.innerHeight ) * 2 + 1;
 			let raycaster = new THREE.Raycaster();
 
 			raycaster.setFromCamera( mouse, camera );
 
-			let intersectionObjects = raycaster.intersectObjects( scene.children );
+			let intersectionObjects = raycaster.intersectObjects( mainCube.getQuadMeshesArray() );
 			if (intersectionObjects.length == 0)
 				return;
 
@@ -1824,7 +1604,7 @@ define('scene',['threejs',
 
 			if (clickedQuad.constructor.name == "VideoQuad")
 				_videoManager.toggleVideoByID(clickedQuad.getVideoElementID());
-	    });
+		});
 	}
 
 	function _onWindowResize() {
@@ -1839,23 +1619,24 @@ define('scene',['threejs',
 		cssRenderer.setSize(window.innerWidth, window.innerHeight);
 	}
 
+	let _lastTime = new Date();
+
 	function _animate() {
 
 	   requestAnimationFrame( _animate );
-	   _render();
+
+	   let currentTime = new Date();
+	   let deltaTime = currentTime - _lastTime
+	   _render(deltaTime);
+	   _lastTime =  currentTime;
 
 	}
 
-	function _render() {
-
-		let video = document.getElementById("sampleVideo");
-
-	    mainCube.update();
-  		controls.update();
-   		
+	function _render(deltaTime) {
+	    mainCube.rotateX(deltaTime / 1000.0);
+	    mainCube.update(deltaTime);   		
    		cssRenderer.render(cssScene, camera);
    		renderer.render( scene, camera );
-   		logoQuad.setLookAt(camera.position);
 	}
 
 	return {
