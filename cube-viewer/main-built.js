@@ -1329,13 +1329,9 @@ define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D)
 		let self = this;
 
 		function _updateCSSObjectPositionAndRotation(){
-			_cssObject.position.x = _quad.getPosition().x;
-			_cssObject.position.y = _quad.getPosition().y;
-			_cssObject.position.z = _quad.getPosition().z;
-
-			_cssObject.rotation.x = _quad.getRotation().x;
-			_cssObject.rotation.y = _quad.getRotation().y;
-			_cssObject.rotation.z = _quad.getRotation().z;
+			_cssObject.position.copy(_quad.getMesh().getWorldPosition());
+			_cssObject.rotation.copy(_quad.getMesh().getWorldRotation());
+			_cssObject.scale.copy(_quad.getMesh().getWorldScale());
 		}
 
 		self.initialize = () => {
@@ -1362,7 +1358,7 @@ define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D)
 		self.getMesh = () => { return _quad.getMesh(); }
 
         self.update = () => {
-			
+			_updateCSSObjectPositionAndRotation();
 		}
 
 		self.pushForward = (howMuch) => {
@@ -1435,6 +1431,7 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 		function _initialize() {
 
 			_group = new THREE.Object3D();
+			_group.name = "CubeGroup";
 			_quads["FRONT"] = _createCubeSide("FRONT", sidesInformation["FRONT"]);
 			_quads["REAR"] = _createCubeSide("REAR", sidesInformation["REAR"]);
 			_quads["RIGHT"] = _createCubeSide("RIGHT", sidesInformation["RIGHT"]);
@@ -1508,8 +1505,8 @@ define('scene',['threejs',
 	let _imageManager;
 	let _cubeSidesDetails;
 	let cubeCamera;
-	let _plane;
-	let _material;
+	let reflectionPlane;
+	let relectionMaterial;
 	let shouldExpandTheCube = true;
 
 	function _init(videoManager, imageManager, cubeSidesDetails) {
@@ -1522,33 +1519,12 @@ define('scene',['threejs',
 	    cssScene = new THREE.Scene();
 
 	    _initializeCamera();
+	    _initializeReflectionCameraAndPlane();
 	   	_initializeWebGLRenderer();
 	   	_initializeCSS3dRenderer();
 
 	    _initializeCube();					
 	    _initializeHammerCallbacks();
-
-	    // make plane
-	    cubeCamera = new THREE.CubeCamera( 1, 1000, 1024 );
-	    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
-		scene.add( cubeCamera );
-
-	    let _geometry = new THREE.PlaneGeometry( 200, 200, 200, 200 );
-		_material = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, 
-				envMap: cubeCamera.renderTarget.texture,
-                reflectivity: 1,
-                shininess: 100,
-                shading: THREE.SmoothShading, //THREE.FlatShading,
-                blending: THREE.NormalBlending,
-                side: THREE.DoubleSide});
-
-		_plane = new THREE.Mesh( _geometry, _material );
-		
-		_plane.quaternion.setFromAxisAngle(new THREE.Vector3(-1,0,0), Math.PI / 2);
-		_plane.position.set(0.0, -55, 100);
-		scene.add(_plane);
-
-		cubeCamera.position.copy( _plane.position );
 
 		window.addEventListener( 'resize', _onWindowResize, false );
 	}
@@ -1580,7 +1556,32 @@ define('scene',['threejs',
 		camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
 	   	camera.position.z = 300;
 	   	camera.position.y= 200;
-	   	camera.lookAt(new THREE.Vector3(0.0, -50, 0.0));
+	   	camera.lookAt(new THREE.Vector3(0.0, 0, 100.0));
+	}
+
+	function _initializeReflectionCameraAndPlane() {
+
+ 		cubeCamera = new THREE.CubeCamera( 1, 1000, 1024 );
+	    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
+		scene.add( cubeCamera );
+
+	    let planeGeometry = new THREE.PlaneGeometry( 600, 600, 200, 200 );
+		relectionMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, 
+				envMap: cubeCamera.renderTarget.texture,
+                reflectivity: 1,
+                shininess: 100,
+                shading: THREE.SmoothShading, //THREE.FlatShading,
+                blending: THREE.NormalBlending,
+                side: THREE.DoubleSide,
+            	transparent: true,
+            	opacity: 0.5});
+
+		reflectionPlane = new THREE.Mesh( planeGeometry, relectionMaterial );
+		reflectionPlane.quaternion.setFromAxisAngle(new THREE.Vector3(-1,0,0), Math.PI / 2);
+		reflectionPlane.position.set(0.0, -250.0, 100);
+		scene.add(reflectionPlane);
+
+		cubeCamera.position.copy( reflectionPlane.position );
 	}
 
 	function _initializeCube() {
@@ -1592,8 +1593,15 @@ define('scene',['threejs',
 
 	function _initializeHammerCallbacks(){
 		
-		let hammertime = new Hammer(renderer.domElement, {direction: Hammer.DIRECTION_ALL });
-		
+		let hammertime = new Hammer.Manager(renderer.domElement, {});
+		let singleTap = new Hammer.Tap({event: 'singletap' });
+		let doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2, interval: 300});
+
+		hammertime.add([doubleTap, singleTap]);
+
+		doubleTap.recognizeWith(singleTap);
+		singleTap.requireFailure([doubleTap]);
+
 		hammertime.on('swipe', function(event) {
 			let x =  event.deltaX / event.deltaTime;
 			let y = event.deltaY / event.deltaTime;
@@ -1608,7 +1616,7 @@ define('scene',['threejs',
 	     	shouldExpandTheCube = !shouldExpandTheCube;
 		});
 
-		hammertime.on('tap', function(event){
+		hammertime.on('singletap', function(event){
 
 			let tapPosition = new THREE.Vector2(event.center.x, event.center.y);
 			
@@ -1656,30 +1664,29 @@ define('scene',['threejs',
 
 	}
 
-	let _targetRotationX = 0;
-	let _targetRotationY = 0;
+	// let _targetRotationX = 0;
+	// let _targetRotationY = 0;
 
 	function _render(deltaTime) {
 	    mainCube.rotateX(deltaTime / 1000.0);
-	    // mainCube.rotateY(deltaTime / 2000.0);
+	    
 	    mainCube.update(deltaTime);   		
    		cssRenderer.render(cssScene, camera);
 
    		//Update the render target cube
-		_plane.visible = false;
-
+		reflectionPlane.visible = false;
 		cubeCamera.updateCubeMap( renderer, scene );
-		_material.envMap = cubeCamera.renderTarget.texture;
-		_plane.visible = true;
+		relectionMaterial.envMap = cubeCamera.renderTarget.texture;
+		reflectionPlane.visible = true;
 
-
+		// render the scene
    		renderer.render( scene, camera );
 
-  //  		camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
+ 		// camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
 		// 						 1000 * Math.sin(_targetRotationY),
 		// 						 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
 
-		// 	//_targetRotationX += 0.009;
+		// 	_targetRotationX += 0.009;
 		// 	_targetRotationY -= 0.009;
 
 		// camera.lookAt(new THREE.Vector3(0,0,0));
@@ -1872,7 +1879,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		let div = document.createElement('div');
-		let divHtml =  '<h1>AAAAA AAAA</h1>';
+		let divHtml =  '<p>Rendered text</p>';
 		div.innerHTML = divHtml;
 
 	    cubeSidesDetails = {
