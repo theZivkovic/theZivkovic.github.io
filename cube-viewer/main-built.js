@@ -876,7 +876,32 @@ define('deviceInformator',[], () => {
 	}
 
 });
-define('quad',['threejs'], (THREE) => {
+define('triangle',['threejs'], (THREE) => {
+
+	let Triangle = function(vertA, vertB, vertC) {
+
+		let self = this;
+
+		let _geom = new THREE.Geometry();
+
+		_geom.vertices.push(vertA);
+		_geom.vertices.push(vertB);
+		_geom.vertices.push(vertC);
+
+		_geom.faces.push( new THREE.Face3( 0, 1, 2 ) );
+		_geom.computeFaceNormals();
+
+		let _mesh = new THREE.Mesh( _geom, new THREE.MeshNormalMaterial() );
+
+		self.getMesh = () => {
+			return _mesh;
+		}
+	}
+
+	return Triangle;
+});
+
+define('quad',['threejs', 'triangle'], (THREE, Triangle) => {
 
 	let Quad = function (id, scene, position, normal, sideLength) {
 
@@ -887,6 +912,7 @@ define('quad',['threejs'], (THREE) => {
 		let _material = null;
 		let _texture = null;
 		let _initialPosition = null;
+		let _triangle = null;
 
 		self.initialize = () => {
 
@@ -1574,7 +1600,6 @@ define('cubeExpander',['threejs'], () => {
 			_active = true;
 		}
 
-
 		self.update = (deltaTime) => {
 
 			if (!_active)
@@ -1790,15 +1815,11 @@ define('scene',['threejs',
 
 	}
 
-	// let _targetRotationX = 0;
-	// let _targetRotationY = 0;
-
 	function _render(deltaTime) {
 	    
 	    cubeExpander.update(deltaTime);
 	    cubeRotator.update(deltaTime);
 	    mainCube.update(deltaTime);   		
-   		cssRenderer.render(cssScene, camera);
 
    		//Update the render target cube
 		reflectionPlane.visible = false;
@@ -1807,16 +1828,9 @@ define('scene',['threejs',
 		reflectionPlane.visible = true;
 
 		// render the scene
+
+   		cssRenderer.render(cssScene, camera);
    		renderer.render( scene, camera );
-
- 		// camera.position.set(1000 * Math.cos(_targetRotationX) * Math.cos(_targetRotationY),
-		// 						 1000 * Math.sin(_targetRotationY),
-		// 						 1000 * Math.sin(_targetRotationX) * Math.cos(_targetRotationY));
-
-		// 	_targetRotationX += 0.009;
-		// 	_targetRotationY -= 0.009;
-
-		// camera.lookAt(new THREE.Vector3(0,0,0));
 	}
 
 	return {
@@ -2014,12 +2028,13 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 										 { "id": "finished-bottom", "src": "data/images/finished-bottom.jpg" },
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
-		let div = document.createElement('div');
-		let divHtml =  '<p>Rendered text</p>';
-		div.innerHTML = divHtml;
+		var element	= document.createElement('iframe')
+		element.src	= 'http://thezivkovic.github.io/'
+		element.style.width = '100px';
+		element.style.height = '100px';
 
 	    cubeSidesDetails = {
-	    						"FRONT" : { quadType: "HTML", htmlElement: div },
+	    						"FRONT" : { quadType: "HTML", htmlElement: element },
 		    					//"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
 		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
