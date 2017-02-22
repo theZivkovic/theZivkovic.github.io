@@ -1387,6 +1387,12 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 		let _quads = {};
 		let _group;
 
+		let _initialVelocity = new THREE.Vector2();
+		let _dragAcceleration = new THREE.Vector2();
+		let _forceActive = false;
+		let _timeFromForceApplied = 0.0;
+		let _lastDeltaVelocity = 0.0;
+
 		let _hardcodedSideInformation = {
 			"FRONT" : { position: position.clone().addScaledVector(frontVec, size / 2), normal: frontVec },
 			"REAR" : { position: position.clone().addScaledVector(_rearVec, size / 2), normal: _rearVec },
@@ -1463,10 +1469,26 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    	_group.rotation.x += howMuch;
 	    }
 
-	    self.update = () => {
+	    self.update = (deltaTime) => {
 	    	Object.keys(_quads).forEach((side) => {
 	    		_quads[side].update();
 	    	});
+
+	    	if (_forceActive)
+	    	{
+	    		let deltaVelocity = _initialVelocity.clone().addScaledVector(_dragAcceleration,  -_timeFromForceApplied);
+	    	
+	    		if (_lastDeltaVelocity.length() != 0 && deltaVelocity.length() > _lastDeltaVelocity.length())
+	    		{
+	    			_forceActive = false;
+	    			return;
+	    		}
+
+	    		_group.rotation.y += deltaVelocity.x;
+	    		_group.rotation.x += deltaVelocity.y;
+	    		_lastDeltaVelocity.copy(deltaVelocity);
+	    		_timeFromForceApplied += deltaTime / 1000.0;
+	    	}
 	    }
 
 	    self.getQuadAtSide = (side) => {
@@ -1477,7 +1499,18 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    	return Object.keys(_quads).map((side) => {
 	    		return _quads[side].getMesh();
 	    	});
+	    }
 
+	    self.applyForce = (initialVelocity, dragAcceleration) => {
+	    	_initialVelocity = initialVelocity;
+	    	_dragAcceleration = dragAcceleration;
+	    	_timeFromForceApplied = 0.0;
+	    	_forceActive = true;
+	    	_lastDeltaVelocity = new THREE.Vector2();
+	    }
+
+	    self.decelerateQuickly = () => {
+	    	_dragAcceleration.multiplyScalar(5.0);
 	    }
 	}
 
@@ -1596,15 +1629,21 @@ define('scene',['threejs',
 		let hammertime = new Hammer.Manager(renderer.domElement, {});
 		let singleTap = new Hammer.Tap({event: 'singletap' });
 		let doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2, interval: 300});
+		let swipe = new Hammer.Swipe({event: 'swipe'});
 
-		hammertime.add([doubleTap, singleTap]);
+		hammertime.add([doubleTap, singleTap, swipe]);
 
 		doubleTap.recognizeWith(singleTap);
 		singleTap.requireFailure([doubleTap]);
 
 		hammertime.on('swipe', function(event) {
-			let x =  event.deltaX / event.deltaTime;
-			let y = event.deltaY / event.deltaTime;
+			let x =  event.deltaX / window.innerWidth;
+			let y = event.deltaY / window.innerHeight;
+			
+			let initialVelocity = new THREE.Vector2(x, y);	// -- this value will always be in [0..1]
+			let dragAcceleration = initialVelocity.clone().multiplyScalar(0.75);
+			
+			mainCube.applyForce(initialVelocity, dragAcceleration);
 		});
 
 		hammertime.on('doubletap', function(event){
@@ -1617,6 +1656,8 @@ define('scene',['threejs',
 		});
 
 		hammertime.on('singletap', function(event){
+
+			mainCube.decelerateQuickly();
 
 			let tapPosition = new THREE.Vector2(event.center.x, event.center.y);
 			
@@ -1668,7 +1709,6 @@ define('scene',['threejs',
 	// let _targetRotationY = 0;
 
 	function _render(deltaTime) {
-	    mainCube.rotateX(deltaTime / 1000.0);
 	    
 	    mainCube.update(deltaTime);   		
    		cssRenderer.render(cssScene, camera);
