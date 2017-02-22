@@ -1559,16 +1559,18 @@ define('cubeRotator',['threejs'], (THREE) => {
 });
 define('cubeExpander',['threejs'], () => {
 
-	let CubeExpander = function(cube, expandingSpeed){
+	let CubeExpander = function(cube, desiredTime, easeFunction){
 
 		let self = this;
 		let _initialExpansion = 0.0;
 		let _desiredExpansion = 0.0;
 		let _currentExpansion = 0.0;
+		let _timeSpent = 0.0;
 		let _active = false;
 
 		self.expandTo = (expansion) => {
 			_desiredExpansion = expansion;
+			_timeSpent = 0.0;
 			_active = true;
 		}
 
@@ -1578,19 +1580,18 @@ define('cubeExpander',['threejs'], () => {
 			if (!_active)
 				return;
 
-			let sign = _desiredExpansion - _initialExpansion > 0 ? 1 : -1;
-			
-			if ((_desiredExpansion - _currentExpansion) * sign < 0)
+			if (_timeSpent > desiredTime)
 			{
-				cube.expand(_desiredExpansion);
-				_initialExpansion = _currentExpansion;
 				_active = false;
+				_initialExpansion = _currentExpansion;
+				cube.expand(_desiredExpansion);
 				return;
 			}
+
+			_currentExpansion = _initialExpansion + (_desiredExpansion - _initialExpansion) * easeFunction(_timeSpent / desiredTime);
 			cube.expand(_currentExpansion);
-			_currentExpansion += sign * expandingSpeed * deltaTime / 1000.0;
-
-
+			_timeSpent += deltaTime / 1000;
+			
 		}
 	}
 
@@ -1706,7 +1707,8 @@ define('scene',['threejs',
 	    scene.add(logoQuad.getMesh());
 
 	    cubeRotator = new CubeRotator(mainCube);
-	    cubeExpander = new CubeExpander(mainCube, 50);
+	    let cubeExpansionEaseFunc = (x) => { return x*x; };
+	    cubeExpander = new CubeExpander(mainCube, 0.5, cubeExpansionEaseFunc);
 	}
 
 	function _initializeHammerCallbacks(){
