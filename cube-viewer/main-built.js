@@ -1387,12 +1387,6 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 		let _quads = {};
 		let _group;
 
-		let _initialVelocity = new THREE.Vector2();
-		let _dragAcceleration = new THREE.Vector2();
-		let _forceActive = false;
-		let _timeFromForceApplied = 0.0;
-		let _lastDeltaVelocity = 0.0;
-
 		let _hardcodedSideInformation = {
 			"FRONT" : { position: position.clone().addScaledVector(frontVec, size / 2), normal: frontVec },
 			"REAR" : { position: position.clone().addScaledVector(_rearVec, size / 2), normal: _rearVec },
@@ -1452,7 +1446,6 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 			scene.add(_group);
 		}
 
-
 		_initialize();
 
 	    self.expand = (howMuch) => {
@@ -1481,23 +1474,6 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    	Object.keys(_quads).forEach((side) => {
 	    		_quads[side].update();
 	    	});
-
-	    	if (_forceActive)
-	    	{
-
-	    		let deltaVelocity = _initialVelocity.clone().addScaledVector(_dragAcceleration,  -_timeFromForceApplied);
-	    		
-	    		if (_lastDeltaVelocity.length() != 0 && deltaVelocity.length() > _lastDeltaVelocity.length())
-	    		{
-	    			_forceActive = false;
-	    			return;
-	    		}
-
-	    		_group.rotation.y += deltaVelocity.x;
-	    		_group.rotation.x += deltaVelocity.y;
-	    		_lastDeltaVelocity.copy(deltaVelocity);
-	    		_timeFromForceApplied += deltaTime / 1000.0;
-	    	}
 	    }
 
 	    self.getQuadAtSide = (side) => {
@@ -1509,8 +1485,48 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    		return _quads[side].getMesh();
 	    	});
 	    }
+	}
 
-	    self.applyForce = (initialVelocity, dragAcceleration) => {
+
+	return Cube;
+});
+define('cubeRotator',['threejs'], (THREE) => {
+
+	let CubeRotator = function(cube){
+
+		let self = this;
+		let _cube = cube;
+		let _lastRotation = new THREE.Vector2();
+		let _lastSpeed = new THREE.Vector2();
+
+		let _initialVelocity = new THREE.Vector2();
+		let _dragAcceleration = new THREE.Vector2();
+		let _forceActive = false;
+		let _timeFromForceApplied = 0.0;
+		let _lastDeltaVelocity = 0.0;
+
+		self.startTheRotation = (newStartRotation) => {
+			_lastRotation.copy(newStartRotation);
+		}
+
+		self.doTheRotation = (currentRotation) => {
+
+			_lastSpeed = currentRotation.clone().sub(_lastRotation);
+
+			_cube.rotateX(_lastSpeed.x);
+			_cube.rotateY(_lastSpeed.y);
+
+			_lastRotation.copy(currentRotation);
+		}
+
+		self.finishTheRotation = () => {
+
+			let initialVelocity = new THREE.Vector2().copy(_lastSpeed);
+			let dragAcceleration = initialVelocity.clone().multiplyScalar(2.0);
+			self.applyForce(initialVelocity, dragAcceleration);
+		}
+
+		self.applyForce = (initialVelocity, dragAcceleration) => {
 	    	_initialVelocity = initialVelocity;
 	    	_dragAcceleration = dragAcceleration;
 	    	_timeFromForceApplied = 0.0;
@@ -1518,13 +1534,68 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    	_lastDeltaVelocity = new THREE.Vector2();
 	    }
 
-	    self.decelerateQuickly = () => {
-	    	_dragAcceleration.multiplyScalar(5.0);
+	    self.update = (deltaTime) => {
+
+	    	if (_forceActive)
+	    	{
+	    		let deltaVelocity = _initialVelocity.clone().addScaledVector(_dragAcceleration,  -_timeFromForceApplied);
+	    		
+	    		if (_lastDeltaVelocity.length() != 0 && deltaVelocity.length() > _lastDeltaVelocity.length())
+	    		{
+	    			_forceActive = false;
+	    			return;
+	    		}
+
+	    		cube.rotateX(deltaVelocity.x);
+	    		cube.rotateY(deltaVelocity.y);
+	    		
+	    		_lastDeltaVelocity.copy(deltaVelocity);
+	    		_timeFromForceApplied += deltaTime / 1000.0;
+	    	}
 	    }
 	}
 
+	return CubeRotator;
+});
+define('cubeExpander',['threejs'], () => {
 
-	return Cube;
+	let CubeExpander = function(cube, expandingSpeed){
+
+		let self = this;
+		let _initialExpansion = 0.0;
+		let _desiredExpansion = 0.0;
+		let _currentExpansion = 0.0;
+		let _active = false;
+
+		self.expandTo = (expansion) => {
+			_desiredExpansion = expansion;
+			_active = true;
+		}
+
+
+		self.update = (deltaTime) => {
+
+			if (!_active)
+				return;
+
+			let sign = _desiredExpansion - _initialExpansion > 0 ? 1 : -1;
+			
+			if ((_desiredExpansion - _currentExpansion) * sign < 0)
+			{
+				cube.expand(_desiredExpansion);
+				_initialExpansion = _currentExpansion;
+				_active = false;
+				return;
+			}
+			cube.expand(_currentExpansion);
+			_currentExpansion += sign * expandingSpeed * deltaTime / 1000.0;
+
+
+		}
+	}
+
+	return CubeExpander;
+
 });
 /*! Hammer.JS - v2.0.8 - 2016-04-23
  * http://hammerjs.github.io/
@@ -1537,12 +1608,14 @@ define('scene',['threejs',
 		'deviceInformator',
 		'imageQuad',
 		 'cube',
+		 'cubeRotator',
+		 'cubeExpander',
 		 'threejsCSS3D',
 		 'Hammer'
-		], (THREE, DeviceInformator, ImageQuad, Cube, THREECSS3D, Hammer) => {
+		], (THREE, DeviceInformator, ImageQuad, Cube, CubeRotator, CubeExpander, THREECSS3D, Hammer) => {
 	
 	let scene, cssScene, camera, renderer, cssRenderer;
-	let mainCube, logoQuad;
+	let mainCube, cubeRotator, cubeExpander, logoQuad;
 	let _videoManager;
 	let _imageManager;
 	let _cubeSidesDetails;
@@ -1631,55 +1704,43 @@ define('scene',['threejs',
 	   	logoQuad = new ImageQuad("LOGO", scene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(0.0, 0.0, 1.0), 100 / Math.sqrt(2), _imageManager.getImageByID("mainLogoImage"));
 	    logoQuad.update();
 	    scene.add(logoQuad.getMesh());
+
+	    cubeRotator = new CubeRotator(mainCube);
+	    cubeExpander = new CubeExpander(mainCube, 50);
 	}
 
 	function _initializeHammerCallbacks(){
 
 		let hammertime = new Hammer(renderer.domElement, {});
-		let _lastPanPosition = new THREE.Vector2();
-		let _lastPanSpeed = new THREE.Vector2();
 
 		hammertime.on('panstart', function(event){
-			_lastPanPosition.x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
-			_lastPanPosition.y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
+			let x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
+			let y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
+			cubeRotator.startTheRotation(new THREE.Vector2(x, y));
 		});
 
 		hammertime.on('panmove', function(event) {
 
 			let x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
 			let y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
-
-			mainCube.rotateX(x - _lastPanPosition.x);
-			mainCube.rotateY(y - _lastPanPosition.y);
-			
-			_lastPanSpeed.x = x - _lastPanPosition.x;
-			_lastPanSpeed.y = y - _lastPanPosition.y;
-
-			_lastPanPosition.x = x;
-			_lastPanPosition.y = y;
-
+			cubeRotator.doTheRotation(new THREE.Vector2(x, y));
 		});
 
 		hammertime.on('panend', function (event) {
 			
-			let initialVelocity = new THREE.Vector2().copy(_lastPanSpeed);
-			let dragAcceleration = initialVelocity.clone().multiplyScalar(2.0);
-			
-			mainCube.applyForce(initialVelocity, dragAcceleration);
+			cubeRotator.finishTheRotation();
 		})
 
 		hammertime.on('doubletap', function(event){
 			if (shouldExpandTheCube)
-	   			mainCube.expand(20);
+	   			cubeExpander.expandTo(20);
 			else
-	     		mainCube.expand(0);
+	   			cubeExpander.expandTo(0);
 
 	     	shouldExpandTheCube = !shouldExpandTheCube;
 		});
 
 		hammertime.on('tap', function(event){
-
-			mainCube.decelerateQuickly();
 
 			let tapPosition = new THREE.Vector2(event.center.x, event.center.y);
 			
@@ -1732,6 +1793,8 @@ define('scene',['threejs',
 
 	function _render(deltaTime) {
 	    
+	    cubeExpander.update(deltaTime);
+	    cubeRotator.update(deltaTime);
 	    mainCube.update(deltaTime);   		
    		cssRenderer.render(cssScene, camera);
 
