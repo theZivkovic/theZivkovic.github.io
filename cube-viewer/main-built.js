@@ -1469,6 +1469,14 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 	    	_group.rotation.x += howMuch;
 	    }
 
+		self.setRotationX = (howMuch) => {
+	    	_group.rotation.y = howMuch;
+	    }
+
+	    self.setRotationY = (howMuch) => {
+	    	_group.rotation.x = howMuch;
+	    }	    
+
 	    self.update = (deltaTime) => {
 	    	Object.keys(_quads).forEach((side) => {
 	    		_quads[side].update();
@@ -1476,8 +1484,9 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 
 	    	if (_forceActive)
 	    	{
+
 	    		let deltaVelocity = _initialVelocity.clone().addScaledVector(_dragAcceleration,  -_timeFromForceApplied);
-	    	
+	    		
 	    		if (_lastDeltaVelocity.length() != 0 && deltaVelocity.length() > _lastDeltaVelocity.length())
 	    		{
 	    			_forceActive = false;
@@ -1625,26 +1634,39 @@ define('scene',['threejs',
 	}
 
 	function _initializeHammerCallbacks(){
-		
-		let hammertime = new Hammer.Manager(renderer.domElement, {});
-		let singleTap = new Hammer.Tap({event: 'singletap' });
-		let doubleTap = new Hammer.Tap({event: 'doubletap', taps: 2, interval: 300});
-		let swipe = new Hammer.Swipe({event: 'swipe'});
 
-		hammertime.add([doubleTap, singleTap, swipe]);
+		let hammertime = new Hammer(renderer.domElement, {});
+		let _lastPanPosition = new THREE.Vector2();
+		let _lastPanSpeed = new THREE.Vector2();
 
-		doubleTap.recognizeWith(singleTap);
-		singleTap.requireFailure([doubleTap]);
+		hammertime.on('panstart', function(event){
+			_lastPanPosition.x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
+			_lastPanPosition.y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
+		});
 
-		hammertime.on('swipe', function(event) {
-			let x =  event.deltaX / window.innerWidth;
-			let y = event.deltaY / window.innerHeight;
+		hammertime.on('panmove', function(event) {
+
+			let x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
+			let y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
+
+			mainCube.rotateX(x - _lastPanPosition.x);
+			mainCube.rotateY(y - _lastPanPosition.y);
 			
-			let initialVelocity = new THREE.Vector2(x, y);	// -- this value will always be in [0..1]
-			let dragAcceleration = initialVelocity.clone().multiplyScalar(0.75);
+			_lastPanSpeed.x = x - _lastPanPosition.x;
+			_lastPanSpeed.y = y - _lastPanPosition.y;
+
+			_lastPanPosition.x = x;
+			_lastPanPosition.y = y;
+
+		});
+
+		hammertime.on('panend', function (event) {
+			
+			let initialVelocity = new THREE.Vector2().copy(_lastPanSpeed);
+			let dragAcceleration = initialVelocity.clone().multiplyScalar(2.0);
 			
 			mainCube.applyForce(initialVelocity, dragAcceleration);
-		});
+		})
 
 		hammertime.on('doubletap', function(event){
 			if (shouldExpandTheCube)
@@ -1655,7 +1677,7 @@ define('scene',['threejs',
 	     	shouldExpandTheCube = !shouldExpandTheCube;
 		});
 
-		hammertime.on('singletap', function(event){
+		hammertime.on('tap', function(event){
 
 			mainCube.decelerateQuickly();
 
