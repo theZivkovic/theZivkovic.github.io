@@ -1780,6 +1780,15 @@ define('videoManager',[], () => {
 				newVideoElement.loop = true;
 				newVideoElement.id = videoInfo.id;
 				newVideoElement.playsinline = true;
+
+				// ios hack - begin
+				newVideoElement.addEventListener("contextmenu", function (e) { e.preventDefault(); e.stopPropagation(); }, false);
+		        if (newVideoElement.hasAttribute("controls")) {
+		            newVideoElement.removeAttribute("controls")   
+		        }
+		        // ios hack - end
+
+
 				_videoElements.push(newVideoElement);
 			});
 		}
