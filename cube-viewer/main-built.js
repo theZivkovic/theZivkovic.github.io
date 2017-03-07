@@ -1368,8 +1368,8 @@ define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D)
 
 		self.initialize = () => {
 
-			_otherQuad = new Quad(id, scene, position, normal, sideLength);
-			 _quad= new Quad(id + "1", scene, position.clone().addScaledVector(normal, -1), normal.clone().negate(), sideLength);
+			 _otherQuad = new Quad(id, scene, position, normal, sideLength);
+			 _quad = new Quad(id + "1", scene, position.clone().addScaledVector(normal, -1), normal.clone().negate(), sideLength);
 
 			_cssObject = new THREECSS3D.Object3D(htmlElement);
 			_otherCssObject = new THREECSS3D.Object3D(htmlElement);
@@ -2548,6 +2548,8 @@ define('scene',['threejs',
 			let x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
 			let y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
 			cubeRotator.startTheRotation(new THREE.Vector2(x, y));
+
+			// for experimental iframes
 			Array.from(document.getElementsByTagName("iframe")).forEach((iframe) => {
 				iframe.style.pointerEvents = "none";
 			});
@@ -2564,6 +2566,7 @@ define('scene',['threejs',
 			
 			cubeRotator.finishTheRotation();
 
+			// for experimental iframes
 			Array.from(document.getElementsByTagName("iframe")).forEach((iframe) => {
 				iframe.style.pointerEvents = "all";
 			});
@@ -2841,15 +2844,15 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		var element	= document.createElement('iframe')
-		element.src	= 'http://thezivkovic.github.io/'
-		element.style.width = '100px';
-		element.style.height = '100px';
+		element.src	= 'https://responsivedesign.is/'
+		element.style.width = '200px';
+		element.style.height = '200px';
+		element.style.opacity = 0.9;
 
 	    cubeSidesDetails = {
-	    						//"FRONT" : { quadType: "HTML", htmlElement: element },
 		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
-		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
+		    					"RIGHT" : {  quadType: "HTML", htmlElement: element },
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
 		    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
