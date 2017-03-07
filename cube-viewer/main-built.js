@@ -2450,6 +2450,7 @@ define('scene',['threejs',
 	    renderer.domElement.style.top = 0;
 
 	    document.body.appendChild( renderer.domElement );
+	    renderer.domElement.style.pointerEvents = "none";
 	}
 
 	function _initializeCSS3dRenderer(){
@@ -2541,12 +2542,15 @@ define('scene',['threejs',
 
 	function _initializeHammerCallbacks(){
 
-		let hammertime = new Hammer(renderer.domElement, {});
+		let hammertime = new Hammer(cssRenderer.domElement, {});
 
 		hammertime.on('panstart', function(event){
 			let x = (((event.center.x) / window.innerWidth) * 2.0 - 1) * Math.PI * 2;
 			let y = (((event.center.y) / window.innerHeight) * 2.0 - 1) *  Math.PI * 2;
 			cubeRotator.startTheRotation(new THREE.Vector2(x, y));
+			Array.from(document.getElementsByTagName("iframe")).forEach((iframe) => {
+				iframe.style.pointerEvents = "none";
+			});
 		});
 
 		hammertime.on('panmove', function(event) {
@@ -2559,6 +2563,10 @@ define('scene',['threejs',
 		hammertime.on('panend', function (event) {
 			
 			cubeRotator.finishTheRotation();
+
+			Array.from(document.getElementsByTagName("iframe")).forEach((iframe) => {
+				iframe.style.pointerEvents = "all";
+			});
 		})
 
 		hammertime.on('doubletap', function(event){
@@ -2833,21 +2841,67 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		var element	= document.createElement('iframe')
-		element.src	= 'https://www.youtube.com/embed/OpVyP21kY7o'
-		element.style.width = '200px';
-		element.style.height = '200px';
-		element.style.opacity = '0.9';
+		element.src	= 'http://thezivkovic.github.io/'
+		element.style.width = '100px';
+		element.style.height = '100px';
 
 	    cubeSidesDetails = {
-	    						"RIGHT" : { quadType: "HTML", htmlElement: element },
-		    					//"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
+	    						//"FRONT" : { quadType: "HTML", htmlElement: element },
+		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
-		    					"FRONT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
+		    					"RIGHT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3")},
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
 		    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
 		    				};
 
+	}
+	else if (stage == "experimental"){
+
+		videoManager = new VideoManager([{ "id": "finished-side-1", "src": "data/video/video1.mp4"},
+	    								 { "id": "finished-side-2", "src": "data/video/video2.mp4"},
+	    								 { "id": "finished-side-3", "src": "data/video/video3.mp4"},
+	    								 { "id": "finished-side-4", "src": "data/video/video4.mp4"}]);
+
+
+		imageManager = new ImageManager([{ "id": "finished-top", "src": "data/images/finished-top.jpg"},
+										 { "id": "finished-bottom", "src": "data/images/finished-bottom.jpg" },
+    									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
+
+		var element	= document.createElement('iframe')
+		element.src	= 'https://www.youtube.com/embed/OpVyP21kY7o'
+		element.style.width = '200px';
+		element.style.height = '200px';
+		element.style.opacity = '0.9';
+		
+		var element1	= document.createElement('iframe')
+		element1.src	= 'https://www.youtube.com/embed/OpVyP21kY7o'
+		element1.style.width = '200px';
+		element1.style.height = '200px';
+		element1.style.opacity = '0.9';
+		
+
+		var element2	= document.createElement('iframe')
+		element2.src	= 'https://www.youtube.com/embed/OpVyP21kY7o'
+		element2.style.width = '200px';
+		element2.style.height = '200px';
+		element2.style.opacity = '0.9';
+		
+
+		var element3	= document.createElement('iframe')
+		element3.src	= 'https://www.youtube.com/embed/OpVyP21kY7o'
+		element3.style.width = '200px';
+		element3.style.height = '200px';
+		element3.style.opacity = '0.9';
+		
+	    cubeSidesDetails = {
+	    						"RIGHT" : { quadType: "HTML", htmlElement: element },
+		    					"REAR" : {  quadType: "HTML", htmlElement: element3},
+		    					"FRONT" : {  quadType: "HTML", htmlElement: element2},
+		    					"LEFT" : {  quadType: "HTML", htmlElement: element1},
+		    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
+		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
+		    				};
 	}
 
 	scene.init(videoManager, imageManager, cubeSidesDetails);
