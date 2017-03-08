@@ -2673,6 +2673,7 @@ define('videoManager',[], () => {
 				newVideoElement.loop = true;
 				newVideoElement.id = videoInfo.id;
 				newVideoElement.playsinline = true;
+				enableInlineVideo(newVideoElement);
 
 				// ios hack - begin
 				newVideoElement.addEventListener("contextmenu", function (e) { e.preventDefault(); e.stopPropagation(); }, false);
