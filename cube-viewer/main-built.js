@@ -2859,9 +2859,9 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 		element.style.opacity = 0.9;
 
 	    cubeSidesDetails = {
-		    					"FRONT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
+		    					"RIGHT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
-		    					"RIGHT" : {  quadType: "HTML", htmlElement: element },
+		    					"FRONT" : {  quadType: "HTML", htmlElement: element },
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
 		    					"BOTTOM" : {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-bottom") },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
