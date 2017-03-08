@@ -2680,7 +2680,7 @@ define('videoManager',[], () => {
 				newVideoElement.loop = true;
 				newVideoElement.id = videoInfo.id;
 				newVideoElement.playsinline = true;
-				enableInlineVideo(newVideoElement);
+				enableInlineVideo(newVideoElement, {everywhere: true});
 
 				// ios hack - begin
 				newVideoElement.addEventListener("contextmenu", function (e) { e.preventDefault(); e.stopPropagation(); }, false);
@@ -2798,7 +2798,7 @@ requirejs.config({
         "threejsCSS3D"	: "../libs/threejs/three.css3DObject",
         "threeObjLoader": "../libs/threejs/threeObjLoader",
         "orbitControls" : "../libs/orbitcontrols/OrbitControls",
-        "iphoneInline"	: "../libs/iphone-inline-video-master/dist/iphone-inline-video.min"
+        "iphoneInline"	: "../libs/iphone-inline-video-master/dist/iphone-inline-video"
     }
 });
 
