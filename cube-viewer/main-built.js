@@ -2844,18 +2844,21 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 										 { "id": "finished-bottom", "src": "data/images/finished-bottom.jpg" },
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
+		var wrapper = document.createElement('div');
+		wrapper.className += "scroll-wrapper";
 		var element	= document.createElement('iframe')
 		element.src	= 'http://credwall.com/'
 		element.style.width = '200px';
 		element.style.height = '200px';
 		element.style.opacity = 0.9;
-
+		wrapper.appendChild(element);
+		console.log(wrapper);
 	    cubeSidesDetails = {
 		    					"RIGHT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
 		    					"FRONT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-3") },
 		    					"LEFT" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-4")},
-		    					"BOTTOM" : {  quadType: "HTML", htmlElement: element },
+		    					"BOTTOM" : {  quadType: "HTML", htmlElement: wrapper },
 		    					"TOP": {  quadType: "IMAGE", imageElement: imageManager.getImageByID("finished-top")}
 		    				};
 
