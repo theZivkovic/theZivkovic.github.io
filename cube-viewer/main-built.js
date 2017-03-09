@@ -2413,8 +2413,6 @@ define('scene',['threejs',
 	let _videoManager;
 	let _imageManager;
 	let _cubeSidesDetails;
-	let cubeCamera;
-	let reflectionPlane;
 	let relectionMaterial;
 	let shouldExpandTheCube = true;
 
@@ -2429,7 +2427,6 @@ define('scene',['threejs',
 
 	    _initializeCamera();
 	    _initializeLights();
-	    _initializeReflectionCameraAndPlane();
 	   	_initializeWebGLRenderer();
 	   	_initializeCSS3dRenderer();
 
@@ -2478,33 +2475,8 @@ define('scene',['threejs',
 	    scene.add(dirLight);
 	}
 
-	function _initializeReflectionCameraAndPlane() {
-
- 		cubeCamera = new THREE.CubeCamera( 1, 1000, 1024 );
-	    cubeCamera.renderTarget.texture.minFilter = THREE.LinearMipMapLinearFilter;
-		scene.add( cubeCamera );
-
-	    let planeGeometry = new THREE.PlaneGeometry( 600, 600, 200, 200 );
-		relectionMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, 
-				envMap: cubeCamera.renderTarget.texture,
-                reflectivity: 1,
-                shininess: 100,
-                shading: THREE.SmoothShading, //THREE.FlatShading,
-                blending: THREE.NormalBlending,
-                side: THREE.DoubleSide,
-            	transparent: true,
-            	opacity: 0.5});
-
-		reflectionPlane = new THREE.Mesh( planeGeometry, relectionMaterial );
-		reflectionPlane.quaternion.setFromAxisAngle(new THREE.Vector3(-1,0,0), Math.PI / 2);
-		reflectionPlane.position.set(0.0, -200.0, 100);
-		scene.add(reflectionPlane);
-
-		cubeCamera.position.set(reflectionPlane.position.x, reflectionPlane.position.y - 150, reflectionPlane.position.z);
-	}
-
 	function _initializeCube() {
-	   	mainCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 200, _cubeSidesDetails);
+	   	mainCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 250, _cubeSidesDetails);
 	    cubeRotator = new CubeRotator(mainCube);
 	    let cubeExpansionEaseFunc = (x) => { return x*x; };
 	    cubeExpander = new CubeExpander(mainCube, 0.5, cubeExpansionEaseFunc);
@@ -2633,13 +2605,7 @@ define('scene',['threejs',
 	    
 	    cubeExpander.update(deltaTime);
 	    cubeRotator.update(deltaTime);
-	    mainCube.update(deltaTime);   		
-
-   		//Update the render target cube
-		reflectionPlane.visible = false;
-		cubeCamera.updateCubeMap( renderer, scene );
-		relectionMaterial.envMap = cubeCamera.renderTarget.texture;
-		reflectionPlane.visible = true;
+	    mainCube.update(deltaTime);
 
 		// render the scene
    		cssRenderer.render(cssScene, camera);
@@ -2845,14 +2811,24 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
     									 { "id": "mainLogoImage", "src": "data/images/mainLogo.png"}]);
 
 		var wrapper = document.createElement('div');
-		wrapper.className += "scroll-wrapper";
-		var element	= document.createElement('iframe')
-		element.src	= 'http://credwall.com/'
-		element.style.width = '200px';
-		element.style.height = '200px';
-		element.style.opacity = 0.9;
-		wrapper.appendChild(element);
+		wrapper.style.width = '250px';
+		wrapper.style.height = '250px';
+		wrapper.style.opacity = 0.9;
+		var button = document.createElement('button');
+			button.className = "contactButton";
+			button.innerHTML = "Contact us";
+			button.style.position = "relative";
+			button.style.top = "50%";
+			button.style.left = "50%";
+			button.style.marginLeft = "-75px";
+			button.style.marginTop = "-60px";
+			button.style.width = "150px";
+			button.style.height = "120px";
+			button.style.backgroundColor = "#0070BB";
+			button.style.color = "#FFF";
+		wrapper.appendChild(button);
 		console.log(wrapper);
+
 	    cubeSidesDetails = {
 		    					"RIGHT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
