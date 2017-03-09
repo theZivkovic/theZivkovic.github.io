@@ -2679,8 +2679,10 @@ define('videoManager',[], () => {
 				newVideoElement.src = videoInfo.src;
 				newVideoElement.loop = true;
 				newVideoElement.id = videoInfo.id;
-				newVideoElement.playsinline = true;
-				enableInlineVideo(newVideoElement, {everywhere: true});
+				newVideoElement.setAttribute('playsinline', 'true');
+				newVideoElement.setAttribute('webkit-playsinline', 'true');
+				console.log(newVideoElement);
+				//enableInlineVideo(newVideoElement, {everywhere: true});
 
 				// ios hack - begin
 				newVideoElement.addEventListener("contextmenu", function (e) { e.preventDefault(); e.stopPropagation(); }, false);
