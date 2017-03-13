@@ -2741,7 +2741,7 @@ define('imageManager',[], function(){
 
 		self.getImageByID = function(someID) {
 
-			let resultImage = null;
+			var resultImage = null;
 
 			for (var i = 0 ; i < _imageElements.length; i++){
 				if (_imageElements[i].id == someID)
