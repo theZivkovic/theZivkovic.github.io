@@ -876,7 +876,7 @@ define('deviceInformator',[],function(){
 	}
 
 });
-define('triangle',['threejs'], (THREE) => {
+define('triangle',['threejs'], function(THREE){
 
 	let Triangle = function(vertA, vertB, vertC) {
 
@@ -893,7 +893,7 @@ define('triangle',['threejs'], (THREE) => {
 
 		let _mesh = new THREE.Mesh( _geom, new THREE.MeshNormalMaterial() );
 
-		self.getMesh = () => {
+		self.getMesh = function() {
 			return _mesh;
 		}
 	}
@@ -901,7 +901,7 @@ define('triangle',['threejs'], (THREE) => {
 	return Triangle;
 });
 
-define('quad',['threejs', 'triangle'], (THREE, Triangle) => {
+define('quad',['threejs', 'triangle'], function(THREE, Triangle) {
 
 	let Quad = function (id, scene, position, normal, sideLength) {
 
@@ -914,7 +914,7 @@ define('quad',['threejs', 'triangle'], (THREE, Triangle) => {
 		let _initialPosition = null;
 		let _triangle = null;
 
-		self.initialize = () => {
+		self.initialize = function() {
 
 			_initialPosition = position; 
 			_geometry = new THREE.PlaneGeometry( sideLength, sideLength, 1, 1 );
@@ -933,39 +933,39 @@ define('quad',['threejs', 'triangle'], (THREE, Triangle) => {
 
 		self.initialize();
 
-		self.getID = () => {
+		self.getID = function() {
 			return _id;
 		}
 
-		self.getMesh = () => { return _plane; }
-		self.getPosition = () => { return _plane.position; }
-		self.getRotation = () => { return _plane.rotation; }
+		self.getMesh = function() { return _plane; }
+		self.getPosition = function() { return _plane.position; }
+		self.getRotation = function() { return _plane.rotation; }
 
-		self.setMaterial = (someMaterial) => {
+		self.setMaterial = function(someMaterial) {
 			_plane.material = someMaterial;
 		}
 
-		self.setMaterialColor = (someColor) => {
+		self.setMaterialColor = function(someColor) {
 			_plane.material.color.setHex(someColor);
 		}
 
-		self.pushForward = (howMuch) => {
+		self.pushForward = function(howMuch) {
 			let newPosition = _initialPosition.clone().addScaledVector(normal, howMuch);
 			_plane.position.set(newPosition.x, newPosition.y, newPosition.z);
 		}
 
-		self.update = () => {
+		self.update = function(){
 			// do nothing for now
 		}
 
-		self.setLookAt = (newLookAt) => {
+		self.setLookAt = function(newLookAt) {
 			_plane.lookAt(newLookAt);
 		}
 	}
 
 	return Quad;
 });
-define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
+define('imageQuad',['threejs', 'quad'], function(THREE, Quad) {
 
 	let ImageQuad = function(id, scene, position, normal, sideLength, imageElement){
 	
@@ -975,7 +975,7 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		let self = this;
 
-		self.initialize = () => {
+		self.initialize = function() {
 
 			_quad = new Quad(id, scene, position, normal, sideLength);
 
@@ -1001,21 +1001,21 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.initialize();
 
-		self.getID = () => {
+		self.getID = function() {
 			return _quad.getID();
 		}
 
-		self.getMesh = () => { return _quad.getMesh(); }
+		self.getMesh = function() { return _quad.getMesh(); }
 
-        self.update = () => {
+        self.update = function() {
 			_texture.needsUpdate = true;
 		}
 
-		self.pushForward = (howMuch) => {
+		self.pushForward = function(howMuch) {
 			_quad.pushForward(howMuch);
 		}
 
-		self.setLookAt = (newLookAt) => {
+		self.setLookAt = function(newLookAt) {
 			_quad.setLookAt(newLookAt);
 		}
 
@@ -1023,7 +1023,7 @@ define('imageQuad',['threejs', 'quad'], (THREE, Quad) => {
 	
 	return ImageQuad;
 });
-define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
+define('videoQuad',['threejs', 'quad'], function(THREE, Quad) {
 
 	let VideoQuad = function(id, scene, position, normal, sideLength, videoElement){
 	
@@ -1033,7 +1033,7 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		let self = this;
 
-		self.initialize = () => {
+		self.initialize = function() {
 
 			_quad = new Quad(id, scene, position, normal, sideLength);
 
@@ -1059,32 +1059,32 @@ define('videoQuad',['threejs', 'quad'], (THREE, Quad) => {
 
 		self.initialize();
 
-		self.getID = () => {
+		self.getID = function() {
 			return _quad.getID();
 		}
 
-		self.getMesh = () => { return _quad.getMesh(); }
+		self.getMesh = function() { return _quad.getMesh(); }
 
-		self.pushForward = (howMuch) => {
+		self.pushForward = function(howMuch) {
 			_quad.pushForward(howMuch);
 		}
 
-		self.update = () => {
+		self.update = function() {
 			_texture.needsUpdate = true;
 		}
 
-		self.getVideoElementID = () => {
+		self.getVideoElementID = function() {
 			return videoElement.id;
 		}
 
-		self.setLookAt = (newLookAt) => {
+		self.setLookAt = function(newLookAt) {
 			_quad.setLookAt(newLookAt);
 		}
 	}
 	
 	return VideoQuad;
 });
-define('threejsCSS3D',['threejs'], (THREE) => {
+define('threejsCSS3D',['threejs'], function(THREE) {
 
 	THREE.CSS3DObject = function ( element ) {
 
@@ -1343,7 +1343,7 @@ define('threejsCSS3D',['threejs'], (THREE) => {
 });
 
 
-define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D) => {
+define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], function(THREE, Quad, THREECSS3D) {
 
 
 	
@@ -1366,7 +1366,7 @@ define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D)
 			_otherCssObject.scale.copy(_otherQuad.getMesh().getWorldScale());
 		}
 
-		self.initialize = () => {
+		self.initialize = function() {
 
 			 _otherQuad = new Quad(id, scene, position, normal, sideLength);
 			 _quad = new Quad(id + "1", scene, position.clone().addScaledVector(normal, -1), normal.clone().negate(), sideLength);
@@ -1388,31 +1388,31 @@ define('htmlQuad',['threejs', 'quad', 'threejsCSS3D'], (THREE, Quad, THREECSS3D)
 
 		self.initialize();
 
-		self.getID = () => {
+		self.getID = function() {
 			return _quad.getID();
 		}
 
-		self.getMesh = () => { return _quad.getMesh(); }
-		self.getOtherMesh = () => { return _otherQuad.getMesh(); }
+		self.getMesh = function() { return _quad.getMesh(); }
+		self.getOtherMesh = function() { return _otherQuad.getMesh(); }
 
-        self.update = () => {
+        self.update = function() {
 			_updateCSSObjectPositionAndRotation();
 		}
 
-		self.pushForward = (howMuch) => {
+		self.pushForward = function(howMuch) {
 			_quad.pushForward(-howMuch);
 			_otherQuad.pushForward(howMuch);
 			_updateCSSObjectPositionAndRotation();
 		}
 
-		self.setLookAt = (newLookAt) => {
+		self.setLookAt = function(newLookAt) {
 			_quad.setLookAt(newLookAt);
 		}
 	}
 
 	return HTMLQuad;
 });
-define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE, Quad, VideoQuad, ImageQuad, HTMLQuad) => {
+define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], function(THREE, Quad, VideoQuad, ImageQuad, HTMLQuad) {
 
 	function Cube(scene, cssScene, position, frontVec, upVec, size, sidesInformation) {
 
@@ -1478,7 +1478,7 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 			_quads["TOP"] = _createCubeSide("TOP", sidesInformation["TOP"]);
 			_quads["BOTTOM"] = _createCubeSide("BOTTOM", sidesInformation["BOTTOM"]);
 
-			Object.keys(_quads).forEach((side) => {
+			Object.keys(_quads).forEach(function(side) {
 				_group.add(_quads[side].getMesh());
 
 				if (_quads[side].getOtherMesh)
@@ -1490,40 +1490,40 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 
 		_initialize();
 
-	    self.expand = (howMuch) => {
-	    	Object.keys(_quads).forEach((side) => {
+	    self.expand = function(howMuch) {
+	    	Object.keys(_quads).forEach(function(side) {
 	    		_quads[side].pushForward(howMuch);
 	    	});
 	    }
 
-	    self.rotateX = (howMuch) => {
+	    self.rotateX = function(howMuch) {
 	    	_group.rotation.y += howMuch;
 	    }
 
-	    self.rotateY = (howMuch) => {
+	    self.rotateY = function(howMuch) {
 	    	_group.rotation.x += howMuch;
 	    }
 
-		self.setRotationX = (howMuch) => {
+		self.setRotationX = function(howMuch) {
 	    	_group.rotation.y = howMuch;
 	    }
 
-	    self.setRotationY = (howMuch) => {
+	    self.setRotationY = function(howMuch) {
 	    	_group.rotation.x = howMuch;
 	    }	    
 
-	    self.update = (deltaTime) => {
-	    	Object.keys(_quads).forEach((side) => {
+	    self.update = function(deltaTime)  {
+	    	Object.keys(_quads).forEach(function(side) {
 	    		_quads[side].update();
 	    	});
 	    }
 
-	    self.getQuadAtSide = (side) => {
+	    self.getQuadAtSide = function(side) {
 	    	return _quads[side];
 	    }
 
-	    self.getQuadMeshesArray = () => {
-	    	return Object.keys(_quads).map((side) => {
+	    self.getQuadMeshesArray = function() {
+	    	return Object.keys(_quads).map(function(side) {
 	    		return _quads[side].getMesh();
 	    	});
 	    }
@@ -1532,7 +1532,7 @@ define('cube',['threejs', 'quad', 'videoQuad', 'imageQuad', 'htmlQuad'], (THREE,
 
 	return Cube;
 });
-define('cubeRotator',['threejs'], (THREE) => {
+define('cubeRotator',['threejs'], function(THREE) {
 
 	let CubeRotator = function(cube){
 
@@ -1547,11 +1547,11 @@ define('cubeRotator',['threejs'], (THREE) => {
 		let _timeFromForceApplied = 0.0;
 		let _lastDeltaVelocity = 0.0;
 
-		self.startTheRotation = (newStartRotation) => {
+		self.startTheRotation = function(newStartRotation) {
 			_lastRotation.copy(newStartRotation);
 		}
 
-		self.doTheRotation = (currentRotation) => {
+		self.doTheRotation = function(currentRotation) {
 
 			_lastSpeed = currentRotation.clone().sub(_lastRotation);
 
@@ -1561,14 +1561,14 @@ define('cubeRotator',['threejs'], (THREE) => {
 			_lastRotation.copy(currentRotation);
 		}
 
-		self.finishTheRotation = () => {
+		self.finishTheRotation = function() {
 
 			let initialVelocity = new THREE.Vector2().copy(_lastSpeed);
 			let dragAcceleration = initialVelocity.clone().multiplyScalar(2.0);
 			self.applyForce(initialVelocity, dragAcceleration);
 		}
 
-		self.applyForce = (initialVelocity, dragAcceleration) => {
+		self.applyForce = function(initialVelocity, dragAcceleration) {
 	    	_initialVelocity = initialVelocity;
 	    	_dragAcceleration = dragAcceleration;
 	    	_timeFromForceApplied = 0.0;
@@ -1576,7 +1576,7 @@ define('cubeRotator',['threejs'], (THREE) => {
 	    	_lastDeltaVelocity = new THREE.Vector2();
 	    }
 
-	    self.update = (deltaTime) => {
+	    self.update = function(deltaTime) {
 
 	    	if (_forceActive)
 	    	{
@@ -1599,7 +1599,7 @@ define('cubeRotator',['threejs'], (THREE) => {
 
 	return CubeRotator;
 });
-define('cubeExpander',['threejs'], () => {
+define('cubeExpander',['threejs'], function() {
 
 	let CubeExpander = function(cube, desiredTime, easeFunction){
 
@@ -1610,13 +1610,13 @@ define('cubeExpander',['threejs'], () => {
 		let _timeSpent = 0.0;
 		let _active = false;
 
-		self.expandTo = (expansion) => {
+		self.expandTo = function(expansion) {
 			_desiredExpansion = expansion;
 			_timeSpent = 0.0;
 			_active = true;
 		}
 
-		self.update = (deltaTime) => {
+		self.update = function(deltaTime) {
 
 			if (!_active)
 				return;
@@ -2406,7 +2406,7 @@ define('scene',['threejs',
 		 'threejsCSS3D',
 		 'threeObjLoader',
 		 'Hammer'
-		], (THREE, DeviceInformator, ImageQuad, Cube, CubeRotator, CubeExpander, THREECSS3D, THREEObjLoader, Hammer) => {
+		], function(THREE, DeviceInformator, ImageQuad, Cube, CubeRotator, CubeExpander, THREECSS3D, THREEObjLoader, Hammer) {
 	
 	let scene, cssScene, camera, renderer, cssRenderer;
 	let mainCube, cubeRotator, cubeExpander, logo3DQuad;
@@ -2478,7 +2478,7 @@ define('scene',['threejs',
 	function _initializeCube() {
 	   	mainCube = new Cube(scene, cssScene, new THREE.Vector3(0.0, 0.0, 0.0), new THREE.Vector3(1.0, 0.0, 0.0), new THREE.Vector3(0.0, 1.0, 0.0), 250, _cubeSidesDetails);
 	    cubeRotator = new CubeRotator(mainCube);
-	    let cubeExpansionEaseFunc = (x) => { return x*x; };
+	    let cubeExpansionEaseFunc = function(x) { return x*x; };
 	    cubeExpander = new CubeExpander(mainCube, 0.5, cubeExpansionEaseFunc);
 	}
 
@@ -2491,7 +2491,7 @@ define('scene',['threejs',
 			object.scale.z = 200;
 
 			let colors = [0x0070BB, 0x0070BB, 0x222222]
-			object.children.forEach((childMesh, index) => { 
+			object.children.forEach(function(childMesh, index) { 
 
 				childMesh.material = new THREE.MeshPhongMaterial({
 				side: THREE.DoubleSide,
@@ -2518,7 +2518,7 @@ define('scene',['threejs',
 			cubeRotator.startTheRotation(new THREE.Vector2(x, y));
 
 			// for experimental iframes
-			Array.from(document.getElementsByTagName("iframe")).forEach((iframe) => {
+			Array.from(document.getElementsByTagName("iframe")).forEach(function(iframe) {
 				iframe.style.pointerEvents = "none";
 			});
 		});
@@ -2535,7 +2535,7 @@ define('scene',['threejs',
 			cubeRotator.finishTheRotation();
 
 			// for experimental iframes
-			Array.from(document.getElementsByTagName("iframe")).forEach((iframe) => {
+			Array.from(document.getElementsByTagName("iframe")).forEach(function(iframe) {
 				iframe.style.pointerEvents = "all";
 			});
 		})
@@ -2614,12 +2614,12 @@ define('scene',['threejs',
 
 	return {
 
-		init: (videoManager, imageManager, cubeSidesDetails) => { return _init(videoManager, imageManager, cubeSidesDetails); },
-		animate: () => { return _animate(); }
+		init: function(videoManager, imageManager, cubeSidesDetails) { return _init(videoManager, imageManager, cubeSidesDetails); },
+		animate: function() { return _animate(); }
 	}
 
 });
-define('videoManager',[], () => {
+define('videoManager',[], function() {
 
 	let VideoManager = function(videosInfo){
 
@@ -2631,8 +2631,8 @@ define('videoManager',[], () => {
 			playing: false
 		}
 
-		self.initialize = () => {
-			_videosInfo.forEach((videoInfo) => {
+		self.initialize = function()  {
+			_videosInfo.forEach(function(videoInfo) {
 				let newVideoElement = document.createElement('video');
 				newVideoElement.src = videoInfo.src;
 				newVideoElement.loop = true;
@@ -2656,13 +2656,13 @@ define('videoManager',[], () => {
 
 		self.initialize();
 		
-		self.addVideoElement = (newVideoElement) => {
+		self.addVideoElement = function(newVideoElement) {
 			_videoElements.push(newVideoElement);
 		}
 
-		self.toggleVideoByID = (someID) => {
+		self.toggleVideoByID = function(someID) {
 
-			_videoElements.forEach((videoElement) => {
+			_videoElements.forEach(function(videoElement) {
 				if (videoElement.id == someID)
 				{
 					if (_currentVideo.id == null) {
@@ -2693,9 +2693,9 @@ define('videoManager',[], () => {
 			});
 		}
 
-		self.getVideoByID = (someID) => {
+		self.getVideoByID = function(someID) {
 
-			let resultVideo = _videoElements.find((videoElement) => {
+			let resultVideo = _videoElements.find(function(videoElement) {
 				return videoElement.id == someID;
 			});
 
@@ -2710,7 +2710,7 @@ define('videoManager',[], () => {
 
 	return VideoManager;
 });
-define('imageManager',[], () => {
+define('imageManager',[], function(){
 
 	let ImageManager = function(imagesInfo){
 
@@ -2718,9 +2718,9 @@ define('imageManager',[], () => {
 		let _imageElements = [];
 		let _imagesInfo = imagesInfo;
 
-		self.initialize = () => {
+		self.initialize = function() {
 
-			_imagesInfo.forEach((imageInfo) => {
+			_imagesInfo.forEach(function(imageInfo) {
 				let newImageElement = document.createElement('img');
 				newImageElement.src = imageInfo.src;
 				newImageElement.id = imageInfo.id;
@@ -2730,13 +2730,13 @@ define('imageManager',[], () => {
 
 		self.initialize();
 		
-		self.addImageElement = (newImageElement) => {
+		self.addImageElement = function(newImageElement) {
 			_imageElements.push(newImageElement);
 		}
 
-		self.getImageByID = (someID) => {
+		self.getImageByID = function(someID) {
 
-			let resultImage = _imageElements.find((imageElement) => {
+			let resultImage = _imageElements.find(function(imageElement) {
 				return imageElement.id == someID;
 			});
 
