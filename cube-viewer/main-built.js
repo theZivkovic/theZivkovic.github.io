@@ -2695,11 +2695,16 @@ define('videoManager',[], function() {
 
 		self.getVideoByID = function(someID) {
 
-			var resultVideo = _videoElements.find(function(videoElement) {
-				return videoElement.id == someID;
-			});
+			var resultVideo = null;
 
-			if (resultVideo == undefined)
+			for (var i = 0; i < _videoElements.length; i++){
+				if (_videoElements[i].id == someID){
+					resultVideo = _videoElements[i];
+					break;
+				}
+			}
+
+			if (resultVideo == null)
 				throw "Video with id " + someID + " doesn't exist.";
 
 			return resultVideo;
@@ -2736,11 +2741,17 @@ define('imageManager',[], function(){
 
 		self.getImageByID = function(someID) {
 
-			var resultImage = _imageElements.find(function(imageElement) {
-				return imageElement.id == someID;
-			});
+			let resultImage = null;
 
-			if (resultImage == undefined)
+			for (var i = 0 ; i < _imageElements.length; i++){
+				if (_imageElements[i].id == someID)
+				{
+					resultImage = _imageElements[i];
+					break;
+				}
+			}
+
+			if (resultImage == null)
 				throw "Image with id " + someID + " doesn't exist.";
 
 			return resultImage;
