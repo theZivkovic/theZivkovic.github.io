@@ -2485,7 +2485,7 @@ define('scene',['threejs',
 	function _initializeLogo() {
 		var loader = new THREEObjLoader();
 		loader.load( "./data/models/logo_cred_3d_model_triangulated.obj", function ( object ) {
-			console.log(object);
+			
 			object.scale.x = 200;
 			object.scale.y = 200;
 			object.scale.z = 200;
@@ -2634,13 +2634,12 @@ define('videoManager',[], function() {
 		self.initialize = function()  {
 			_videosInfo.forEach(function(videoInfo) {
 				var newVideoElement = document.createElement('video');
-				newVideoElement.src = videoInfo.src;
 				newVideoElement.loop = true;
 				newVideoElement.id = videoInfo.id;
 				newVideoElement.setAttribute('playsinline', 'true');
 				newVideoElement.setAttribute('webkit-playsinline', 'true');
-				console.log(newVideoElement);
-				//enableInlineVideo(newVideoElement, {everywhere: true});
+				newVideoElement.setAttribute('src', videoInfo.src);
+				
 
 				// ios hack - begin
 				newVideoElement.addEventListener("contextmenu", function (e) { e.preventDefault(); e.stopPropagation(); }, false);
@@ -2649,7 +2648,8 @@ define('videoManager',[], function() {
 		        }
 		        // ios hack - end
 
-
+		        newVideoElement.load();
+		        newVideoElement.pause();
 				_videoElements.push(newVideoElement);
 			});
 		}
@@ -2838,8 +2838,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager'], function(THREE, sc
 			button.style.backgroundColor = "#0070BB";
 			button.style.color = "#FFF";
 		wrapper.appendChild(button);
-		console.log(wrapper);
-
+	
 	    cubeSidesDetails = {
 		    					"RIGHT" : { quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-1")},
 		    					"REAR" : {  quadType: "VIDEO", videoElement: videoManager.getVideoByID("finished-side-2")},
