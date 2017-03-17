@@ -2567,8 +2567,8 @@ define('scene',['threejs',
 			var clickedSideID = intersectionObjects[0].object.name;
 			var clickedQuad = mainCube.getQuadAtSide(clickedSideID);
 
-			// if (clickedQuad.constructor.name == "VideoQuad")
-			// 	_videoManager.toggleVideoByID(clickedQuad.getVideoElementID());
+			if (clickedQuad && clickedQuad.constructor.name == "VideoQuad")
+				_videoManager.toggleVideoByID(clickedQuad.getVideoElementID());
 		});
 
 		window.addEventListener( 'touchmove', function(e) {
@@ -12508,7 +12508,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element.style.opacity = '0.9';
 		element.src = "data/video/video1.mp4";
 		var player = new MediaElementPlayer(element);
-		console.log(player);
+		player.container[0].style.opacity = 0.9;
 
 		var element1	= document.createElement('video')
 		element1.style.width = '250px';
@@ -12516,6 +12516,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element1.style.opacity = '0.9';
 		element1.src = "data/video/video2.mp4";
 		var player1 = new MediaElementPlayer(element1);
+		player1.container[0].style.opacity = 0.9;
 		console.log(player1);
 		
 
@@ -12526,6 +12527,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element2.src = "data/video/video3.mp4";
 		element2.id = "aaa"
 		var player2 = new MediaElementPlayer(element2);
+		player2.container[0].style.opacity = 0.9;
 		console.log(player2);
 		
 
@@ -12535,6 +12537,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element3.style.opacity = '0.9';
 		element3.src = "data/video/video4.mp4";
 		var player3 = new MediaElementPlayer(element3);
+		player3.container[0].style.opacity = 0.9;
 		console.log(player3);
 		
 	    cubeSidesDetails = {
