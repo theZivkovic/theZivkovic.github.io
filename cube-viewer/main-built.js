@@ -12507,7 +12507,7 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element.style.height = '250px';
 		element.style.opacity = '0.9';
 		element.src = "data/video/video1.mp4";
-		var player = new MediaElementPlayer(element);
+		var player = new MediaElementPlayer(element, {features : ["playpause", "progress", "current", "duration", "tracks", "volume"]});
 		player.container[0].style.opacity = 0.9;
 
 		var element1	= document.createElement('video')
@@ -12515,9 +12515,8 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element1.style.height = '250px';
 		element1.style.opacity = '0.9';
 		element1.src = "data/video/video2.mp4";
-		var player1 = new MediaElementPlayer(element1);
+		var player1 = new MediaElementPlayer(element1, {features : ["playpause", "progress", "current", "duration", "tracks", "volume"]});
 		player1.container[0].style.opacity = 0.9;
-		console.log(player1);
 		
 
 		var element2	= document.createElement('video')
@@ -12526,9 +12525,8 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element2.style.opacity = '0.9';
 		element2.src = "data/video/video3.mp4";
 		element2.id = "aaa"
-		var player2 = new MediaElementPlayer(element2);
+		var player2 = new MediaElementPlayer(element2, {features : ["playpause", "progress", "current", "duration", "tracks", "volume"]});
 		player2.container[0].style.opacity = 0.9;
-		console.log(player2);
 		
 
 		var element3	= document.createElement('video')
@@ -12536,9 +12534,8 @@ require(['threejs', 'scene', 'videoManager', 'imageManager',"mediaelement", "jqu
 		element3.style.height = '250px';
 		element3.style.opacity = '0.9';
 		element3.src = "data/video/video4.mp4";
-		var player3 = new MediaElementPlayer(element3);
+		var player3 = new MediaElementPlayer(element3, {features : ["playpause", "progress", "current", "duration", "tracks", "volume"]});
 		player3.container[0].style.opacity = 0.9;
-		console.log(player3);
 		
 	    cubeSidesDetails = {
 	    						"RIGHT" : { quadType: "HTML", htmlElement: player.container[0] },
