@@ -33,7 +33,7 @@ gulp.task('clean', () => {
 });
 
 gulp.task('build', ['minifyScripts'], () => {
-	return gulp.src(['css/style.css', 'javascripts/bundle.min.js', 'index.html'], { base: './'})
+	return gulp.src(['css/style.css', 'javascripts/bundle.min.js', 'index.html', 'libs/normalize-css/normalize.css'], { base: './'})
 		.pipe(gulp.dest('dist'));
 });
 

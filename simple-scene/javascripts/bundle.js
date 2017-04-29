@@ -2076,6 +2076,15 @@ function setupLogic() {
   }
 };
 
+window.addEventListener( 'resize', onWindowResize, false );
+
+function onWindowResize(){
+    camera.aspect = WIDTH / HEIGHT;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
+
+}
+
 function update() {
   renderer.render(scene, camera);
   requestAnimationFrame(update);
