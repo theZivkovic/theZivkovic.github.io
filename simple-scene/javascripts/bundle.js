@@ -1964,6 +1964,7 @@ function initializeEverything() {
   setupLogic();
 };
 
+
 function initializeRenderereAndContainer() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(WIDTH, HEIGHT);
