@@ -2,6 +2,9 @@
 
 const WIDTH = window.innerWidth;
 const HEIGHT = window.innerHeight;
+const colorChooserWidth = WIDTH / 8.0;
+const colorChooserHeight = HEIGHT / 8.0;
+
 let renderer, camera, controls, scene, raycaster;
 const sceneObjects = [];
 const firstColor = new THREE.Color(1, 1, 0);
@@ -101,6 +104,7 @@ let setupLogic = () => {
   window.addEventListener('click', onCanvasClick, false);
 
   function onCanvasClick(event) {
+    
     let mouse = new THREE.Vector2();
     mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
     mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
@@ -108,8 +112,19 @@ let setupLogic = () => {
     var intersects = raycaster.intersectObjects( sceneObjects );
     if (intersects.length > 0) {
        chosenObject = intersects[0].object;
-       colorChooserCont.style.top = event.clientY + "px";
-       colorChooserCont.style.left = event.clientX + "px";
+       let newColorChooserPosition = new THREE.Vector2();
+       if (event.clientX + colorChooserWidth > WIDTH)
+          newColorChooserPosition.x = WIDTH - colorChooserWidth;
+        else
+          newColorChooserPosition.x = event.clientX;
+
+       if (event.clientY + colorChooserHeight > HEIGHT)
+          newColorChooserPosition.y = HEIGHT - colorChooserHeight;
+        else
+          newColorChooserPosition.y = event.clientY; 
+
+       colorChooserCont.style.top = newColorChooserPosition.y + "px";
+       colorChooserCont.style.left = newColorChooserPosition.x + "px";
        colorChooserCont.style.visibility = "visible";
        controls.enabled = false;
     }
