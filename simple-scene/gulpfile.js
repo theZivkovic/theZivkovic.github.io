@@ -7,6 +7,7 @@ const uglify = require("gulp-uglify");
 const rename = require("gulp-rename");
 const del = require("del");
 const inject = require("gulp-inject");
+const watch = require("gulp-watch");
 
 gulp.task("concatScripts", () => {
 	return gulp.src([
@@ -37,6 +38,11 @@ gulp.task('build', ['minifyScripts'], () => {
 		.pipe(gulp.dest('dist'));
 });
 
+gulp.task('watchFiles', () => {
+	gulp.watch(['javascripts/app.js', 'javascripts/factory.js'], ['concatScripts']);
+});
+
 gulp.task('default', ['clean'], () => {
 	gulp.start('build');
 });
+

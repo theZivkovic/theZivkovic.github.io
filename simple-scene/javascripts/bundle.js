@@ -1960,6 +1960,7 @@ function initializeEverything() {
   initializeCameraWithControls();
   initializeRaycaster();
   initializeSceneObjects();
+  initializeResizeHandler();
   setupLogic();
 };
 
@@ -1971,8 +1972,8 @@ function initializeRenderereAndContainer() {
 function initializeDomElements() {
   var container = document.getElementById('container');
   container.appendChild(renderer.domElement);
-  document.getElementById('colorChooser').style.width = colorChooserWidth;
-  document.getElementById('colorChooser').style.height = colorChooserHeight;
+  document.getElementById('colorChooser').style.width = colorChooserWidth + "px";
+  document.getElementById('colorChooser').style.height = colorChooserHeight + "px";
 }
 
 function initializeCameraWithControls() {
@@ -2029,6 +2030,18 @@ function initializePickableObjects() {
   }
 };
 
+function initializeResizeHandler() {
+
+    window.addEventListener( 'resize', onWindowResize, false );
+
+    function onWindowResize(){
+        camera.aspect = WIDTH / HEIGHT;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+
+    }
+}
+
 function setupLogic() {
 
   var chosenObject = null;
@@ -2065,11 +2078,11 @@ function setupLogic() {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
     var intersects = raycaster.intersectObjects(sceneObjects);
-    if (intersects.length > 0) {
+    
+    if (intersects.length > 0) 
+    {
       chosenObject = intersects[0].object;
       var newColorChooserPosition = new THREE.Vector2();
-      
-      console.log(event.clientX, colorChooserWidth, WIDTH);
       
       if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth; 
       else if (event.clientX < 0) newColorChooserPosition.x = 0;
@@ -2083,20 +2096,13 @@ function setupLogic() {
       colorChooserCont.style.left = newColorChooserPosition.x + "px";
       colorChooserCont.style.visibility = "visible";
       controls.enabled = false;
-    } else {
+    }
+    else 
+    {
       colorChooserCont.style.visibility = "hidden";
     }
   }
 };
-
-window.addEventListener( 'resize', onWindowResize, false );
-
-function onWindowResize(){
-    camera.aspect = WIDTH / HEIGHT;
-    camera.updateProjectionMatrix();
-    renderer.setSize( window.innerWidth, window.innerHeight );
-
-}
 
 function update() {
   renderer.render(scene, camera);
