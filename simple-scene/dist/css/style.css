@@ -1,0 +1,32 @@
+html, body 
+{
+      padding: 0;
+      margin: 0;
+      overflow: hidden;
+}
+
+#colorChooser {
+	background-color: gray;
+	border: 3px solid white;
+	position: absolute;
+	visibility: hidden;
+	z-index: 10;
+}
+
+#colorChooser p {
+	text-align: center
+}
+
+#firstColor, #secondColor {
+	width: 50%;
+	height: 20px;
+	display: inline-block;
+	opacity: 0.75;
+	float: left;
+}
+
+#firstColor:hover, #secondColor:hover {
+	opacity: 1;
+	cursor: pointer;
+	
+}
