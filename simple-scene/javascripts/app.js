@@ -68,7 +68,12 @@ function initializePickableObjects() {
   for (var i = 0; i < 9; i++) {
     for (var j = 0; j < 9; j++) {
       if (randomChoice(0.25)) {
-        var randomGeomType = randomChoice(0.5) ? "SPHERE" : "CUBE";
+        var randomGeomType;
+        switch(Math.floor(Math.random() * 3)){
+          case 0: randomGeomType = "SPHERE"; break;
+          case 1: randomGeomType = "CUBE"; break;
+          case 2: randomGeomType = "CYLINDER"; break;
+        }
         var newMesh = Factory.makeMesh(randomGeomType);
         newMesh.position.x = i * 100 - 450;
         newMesh.position.z = j * 100 - 450;

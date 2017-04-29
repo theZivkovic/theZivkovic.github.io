@@ -14,6 +14,8 @@ var Factory = function () {
 				return new THREE.BoxGeometry(defaultDimension, defaultDimension, defaultDimension);
 			case "SPHERE":
 				return new THREE.SphereGeometry(defaultDimension / 2.0, 32, 32);
+			case "CYLINDER":
+				return new THREE.CylinderGeometry(defaultDimension / 2.0, defaultDimension / 2.0, defaultDimension, 100, 10);
 			default:
 				throw "Error in _makeGeometry: " + geometryType + " is invalid type";
 		}

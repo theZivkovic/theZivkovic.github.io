@@ -1920,6 +1920,8 @@ var Factory = function () {
 				return new THREE.BoxGeometry(defaultDimension, defaultDimension, defaultDimension);
 			case "SPHERE":
 				return new THREE.SphereGeometry(defaultDimension / 2.0, 32, 32);
+			case "CYLINDER":
+				return new THREE.CylinderGeometry(defaultDimension / 2.0, defaultDimension / 2.0, defaultDimension, 100, 10);
 			default:
 				throw "Error in _makeGeometry: " + geometryType + " is invalid type";
 		}
@@ -2005,7 +2007,12 @@ function initializePickableObjects() {
   for (var i = 0; i < 9; i++) {
     for (var j = 0; j < 9; j++) {
       if (randomChoice(0.25)) {
-        var randomGeomType = randomChoice(0.5) ? "SPHERE" : "CUBE";
+        var randomGeomType;
+        switch(Math.floor(Math.random() * 3)){
+          case 0: randomGeomType = "SPHERE"; break;
+          case 1: randomGeomType = "CUBE"; break;
+          case 2: randomGeomType = "CYLINDER"; break;
+        }
         var newMesh = Factory.makeMesh(randomGeomType);
         newMesh.position.x = i * 100 - 450;
         newMesh.position.z = j * 100 - 450;
@@ -2056,9 +2063,9 @@ function setupLogic() {
       chosenObject = intersects[0].object;
       var newColorChooserPosition = new THREE.Vector2();
       if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth;else newColorChooserPosition.x = event.clientX;
-
+      if (event.clientX - colorChooserWidth < 0) newColorChooserPosition.x = 0;
       if (event.clientY + colorChooserHeight > HEIGHT) newColorChooserPosition.y = HEIGHT - colorChooserHeight;else newColorChooserPosition.y = event.clientY;
-
+      if (event.clientY - colorChooserHeight < 0) newColorChooserPosition.y = 0;
       colorChooserCont.style.top = newColorChooserPosition.y + "px";
       colorChooserCont.style.left = newColorChooserPosition.x + "px";
       colorChooserCont.style.visibility = "visible";

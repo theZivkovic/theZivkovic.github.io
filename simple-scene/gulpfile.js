@@ -6,6 +6,7 @@ const maps = require("gulp-sourcemaps");
 const uglify = require("gulp-uglify");
 const rename = require("gulp-rename");
 const del = require("del");
+const inject = require("gulp-inject");
 
 gulp.task("concatScripts", () => {
 	return gulp.src([
@@ -27,15 +28,27 @@ gulp.task('minifyScripts', ['concatScripts'], () => {
 		.pipe(gulp.dest("javascripts"));
 });
 
+gulp.task('injectScriptsForDev', ['minifyScripts'], () => {
+	return gulp.src('index.html')
+		.pipe(inject(gulp.src(['javascripts/bundle.js'])), {read: false })
+		.pipe(gulp.dest('./'));
+});
+
 gulp.task('clean', () => {
 	del(['dist', 'javascripts/bundle*.js*']);
 });
 
-gulp.task('build', ['minifyScripts'], () => {
-	gulp.src(['css/style.css', 'javascripts/bundle.min.js', 'index.html'], { base: './'})
+gulp.task('generateDist', ['injectScriptsForDev'], () => {
+	return gulp.src(['css/style.css', 'javascripts/bundle.min.js', 'index.html'], { base: './'})
+		.pipe(gulp.dest('dist'));
+});
+
+gulp.task('injectScriptsForDist', ['generateDist'], () => {
+	return gulp.src('dist/index.html')
+		.pipe(inject(gulp.src(['javascripts/bundle.min.js'])), {read: false })
 		.pipe(gulp.dest('dist'));
 });
 
 gulp.task('default', ['clean'], () => {
-	gulp.start('build');
+	gulp.start('injectScriptsForDist');
 });
