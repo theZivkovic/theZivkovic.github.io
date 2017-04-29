@@ -5,34 +5,30 @@ html, body
 }
 
 
-#overlay {
+#colorChooser {
+	width: 200px;
+	height: 200px;
+	background-color: gray;
+	border: 3px solid white;
 	position: absolute;
-	width: 100%;
-	height: 100%;
+	visibility: hidden;
 	z-index: 10;
-	top: 0;
-	left: 0;
-	color:white;
 }
 
-.colorChooser {
-	width: 100px;
-	height: 100px;
-	background-color: red;
-
-	position: absolute;
-  left: 50%;
-  top: 50%;
-  transform-style: preserve-3d;
-  transform-origin: 50% 50% 50%;
-  backface-visibility: hidden;
-
-
- animation: spin 4s linear infinite;
+#colorChooser p {
+	text-align: center
 }
 
-@keyframes spin {
-  to {
-    transform: rotateY(360deg);
-  }
+#firstColor, #secondColor {
+	width: 60px;
+	height: 60px;
+	float: left;
+	margin: 20px;
+	opacity: 0.75;
+}
+
+#firstColor:hover, #secondColor:hover {
+	opacity: 1;
+	cursor: pointer;
+	
 }

@@ -9,6 +9,9 @@ const NEAR = 0.1;
 const FAR = 10000;
 
 const sceneObjects = [];
+const firstColor = new THREE.Color(1, 0, 0);
+const secondColor = new THREE.Color(0, 1, 1);
+let chosenObject = null;
 
 // Get the DOM element to attach to
 const container = document.querySelector('#container');
@@ -26,6 +29,7 @@ const camera =
 camera.position.z = 500;
 camera.position.y = 500;
 camera.position.x = 500;
+
 
 const controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -100,11 +104,30 @@ function onClick(event) {
 
   raycaster.setFromCamera(mouse, camera);
   var intersects = raycaster.intersectObjects( sceneObjects );
-  if (intersects.length > 0){
-     console.log(intersects[0].object.name);
+  if (intersects.length > 0) {
+     chosenObject = intersects[0].object;
+     document.querySelector("#colorChooser").style.top = event.clientY + "px";
+     document.querySelector("#colorChooser").style.left = event.clientX + "px";
+     document.querySelector("#colorChooser").style.visibility = "visible";
+     controls.enabled = false;
   }
  
 }
 
 // Schedule the first frame.
 requestAnimationFrame(update);
+
+document.querySelector("#firstColor").style.backgroundColor = "#" + firstColor.getHexString();
+document.querySelector("#firstColor").addEventListener("click", () => {
+  chosenObject.material.color = firstColor;
+  document.querySelector("#colorChooser").style.visibility = "hidden";
+  controls.enabled = true;
+});
+
+
+document.querySelector("#secondColor").style.backgroundColor = "#" + secondColor.getHexString();
+document.querySelector("#secondColor").addEventListener("click", () => {
+  chosenObject.material.color = secondColor;
+  document.querySelector("#colorChooser").style.visibility = "hidden";
+  controls.enabled = true;
+});
