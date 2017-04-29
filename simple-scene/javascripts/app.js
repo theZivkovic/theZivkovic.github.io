@@ -34,7 +34,7 @@ function initializeRenderereAndContainer() {
 function initializeDomElements() {
   var container = document.getElementById('container');
   container.appendChild(renderer.domElement);
-  document.getElementById('colorChooser').style.width = colorChooserWidth + "px";
+  document.getElementById('colorChooser').style.width = colorChooserHeight + "px";
   document.getElementById('colorChooser').style.height = colorChooserHeight + "px";
 }
 

@@ -11,20 +11,28 @@ html, body
 	position: absolute;
 	visibility: hidden;
 	z-index: 10;
-	display: flex;
- 	flex-flow: row;
+	margin: 0;
 }
 
 #colorChooser p {
 	text-align: center
 }
 
-#firstColor, #secondColor {
+#firstColor {
+	float:left;
+	width:50%;
+	overflow:hidden;
+	height: 100%;
+    opacity: 0.75;
+}
+
+#secondColor {
+	float:left;
 	width: 50%;
-	flex: 1 1 auto;
-	display: inline-block;
-	opacity: 0.75;
-	float: left;
+	overflow:hidden;
+	height: 100%;
+    opacity: 0.75;
+    
 }
 
 #firstColor:hover, #secondColor:hover {
