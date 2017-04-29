@@ -1955,19 +1955,25 @@ var secondColor = new THREE.Color(0, 1, 1);
 
 function initializeEverything() {
   scene = new THREE.Scene();
-  initializeRenderAndContainer();
+  initializeRenderereAndContainer();
+  initializeDomElements();
   initializeCameraWithControls();
   initializeRaycaster();
   initializeSceneObjects();
   setupLogic();
 };
 
-function initializeRenderAndContainer() {
+function initializeRenderereAndContainer() {
   renderer = new THREE.WebGLRenderer();
   renderer.setSize(WIDTH, HEIGHT);
+};
+
+function initializeDomElements() {
   var container = document.getElementById('container');
   container.appendChild(renderer.domElement);
-};
+  document.getElementById('colorChooser').style.width = colorChooserWidth;
+  document.getElementById('colorChooser').style.height = colorChooserHeight;
+}
 
 function initializeCameraWithControls() {
   camera = new THREE.PerspectiveCamera(45, WIDTH / HEIGHT, 0.1, 10000);
@@ -2062,11 +2068,17 @@ function setupLogic() {
     if (intersects.length > 0) {
       chosenObject = intersects[0].object;
       var newColorChooserPosition = new THREE.Vector2();
+      
       console.log(event.clientX, colorChooserWidth, WIDTH);
-      if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth;else newColorChooserPosition.x = event.clientX;
-      if (event.clientX - colorChooserWidth < 0) newColorChooserPosition.x = 0;
-      if (event.clientY + colorChooserHeight > HEIGHT) newColorChooserPosition.y = HEIGHT - colorChooserHeight;else newColorChooserPosition.y = event.clientY;
-      if (event.clientY - colorChooserHeight < 0) newColorChooserPosition.y = 0;
+      
+      if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth; 
+      else if (event.clientX < 0) newColorChooserPosition.x = 0;
+      else newColorChooserPosition.x = event.clientX;
+
+      if (event.clientY + colorChooserHeight > HEIGHT) newColorChooserPosition.y = HEIGHT - colorChooserHeight;
+      else if (event.clientY - colorChooserHeight < 0) newColorChooserPosition.y = colorChooserHeight;
+      else newColorChooserPosition.y = event.clientY;
+      
       colorChooserCont.style.top = newColorChooserPosition.y + "px";
       colorChooserCont.style.left = newColorChooserPosition.x + "px";
       colorChooserCont.style.visibility = "visible";
