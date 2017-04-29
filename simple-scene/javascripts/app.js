@@ -119,9 +119,9 @@ function setupLogic() {
       chosenObject = intersects[0].object;
       var newColorChooserPosition = new THREE.Vector2();
       if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth;else newColorChooserPosition.x = event.clientX;
-
+      if (event.clientX - colorChooserWidth < 0) newColorChooserPosition.x = 0;
       if (event.clientY + colorChooserHeight > HEIGHT) newColorChooserPosition.y = HEIGHT - colorChooserHeight;else newColorChooserPosition.y = event.clientY;
-
+      if (event.clientY - colorChooserHeight < 0) newColorChooserPosition.y = 0;
       colorChooserCont.style.top = newColorChooserPosition.y + "px";
       colorChooserCont.style.left = newColorChooserPosition.x + "px";
       colorChooserCont.style.visibility = "visible";
