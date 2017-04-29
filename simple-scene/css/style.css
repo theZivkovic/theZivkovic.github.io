@@ -14,3 +14,25 @@ html, body
 	left: 0;
 	color:white;
 }
+
+.colorChooser {
+	width: 100px;
+	height: 100px;
+	background-color: red;
+
+	position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50% 50%;
+  backface-visibility: hidden;
+
+
+ animation: spin 4s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotateY(360deg);
+  }
+}
