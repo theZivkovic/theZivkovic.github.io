@@ -3,7 +3,7 @@
 var WIDTH = window.innerWidth;
 var HEIGHT = window.innerHeight;
 var colorChooserWidth = WIDTH / 8.0;
-var colorChooserHeight = HEIGHT / 8.0;
+var colorChooserHeight = colorChooserWidth;
 
 var renderer = void 0,
     camera = void 0,
@@ -34,7 +34,7 @@ function initializeRenderereAndContainer() {
 function initializeDomElements() {
   var container = document.getElementById('container');
   container.appendChild(renderer.domElement);
-  document.getElementById('colorChooser').style.width = colorChooserHeight + "px";
+  document.getElementById('colorChooser').style.width = colorChooserWidth + "px";
   document.getElementById('colorChooser').style.height = colorChooserHeight + "px";
 }
 
