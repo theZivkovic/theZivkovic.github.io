@@ -24,6 +24,8 @@ const camera =
         FAR
     );
 camera.position.z = 500;
+camera.position.y = 500;
+camera.position.x = 500;
 
 const controls = new THREE.OrbitControls( camera, renderer.domElement );
 
@@ -43,12 +45,32 @@ container.appendChild(renderer.domElement);
 const pointLight = new THREE.PointLight(0xFFFFFF);
 
 // set its position
-pointLight.position.x = 10;
-pointLight.position.y = 50;
-pointLight.position.z = 130;
+pointLight.position.y = 200;
 
-let mesh1 = new THREE.Mesh(new THREE.BoxGeometry(10, 10, 10), new THREE.MeshBasicMaterial({color: 0xFF0000}));
+let ground = new THREE.Mesh(new THREE.PlaneGeometry(1000.0, 1000.0), new THREE.MeshPhongMaterial({color: 0xDDDDDD}));
+ground.lookAt(new THREE.Vector3(0, 1, 0));
+scene.add(ground);
+
+let mesh1 = new THREE.Mesh(new THREE.BoxGeometry(100.0, 100.0, 100.0), new THREE.MeshPhongMaterial ({color: 0xDDDDDD}));
+mesh1.position.y = 50.0;
+mesh1.position.x = 200.0;
+mesh1.position.z = 200.0;
 scene.add(mesh1);
+sceneObjects.push(mesh1);
+
+let mesh2 = new THREE.Mesh(new THREE.BoxGeometry(100.0, 100.0, 100.0), new THREE.MeshPhongMaterial ({color: 0xDDDDDD}));
+mesh2.position.y = 50.0;
+mesh2.position.x = -200.0;
+mesh2.position.z = -200.0;
+scene.add(mesh2);
+sceneObjects.push(mesh2);
+
+let mesh3 = new THREE.Mesh(new THREE.BoxGeometry(100.0, 100.0, 100.0), new THREE.MeshPhongMaterial ({color: 0xDDDDDD}));
+mesh3.position.y = 50.0;
+mesh3.position.x = -200.0;
+mesh3.position.z = 200.0;
+scene.add(mesh3);
+sceneObjects.push(mesh3);
 
 // add to the scene
 scene.add(pointLight);
