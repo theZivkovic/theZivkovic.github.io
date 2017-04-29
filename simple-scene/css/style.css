@@ -7,8 +7,6 @@ html, body
 
 
 #colorChooser {
-	width: 200px;
-	height: 200px;
 	background-color: gray;
 	border: 3px solid white;
 	position: absolute;
@@ -21,11 +19,11 @@ html, body
 }
 
 #firstColor, #secondColor {
-	width: 60px;
-	height: 60px;
-	float: left;
-	margin: 20px;
+	width: 50%;
+	height: 20px;
+	display: inline-block;
 	opacity: 0.75;
+	float: left;
 }
 
 #firstColor:hover, #secondColor:hover {
