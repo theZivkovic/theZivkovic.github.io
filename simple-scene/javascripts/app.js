@@ -29,6 +29,10 @@ camera.position.x = 500;
 
 const controls = new THREE.OrbitControls( camera, renderer.domElement );
 
+
+const raycaster = new THREE.Raycaster();
+
+
 const scene = new THREE.Scene();
 
 // Add the camera to the scene.
@@ -52,6 +56,7 @@ ground.lookAt(new THREE.Vector3(0, 1, 0));
 scene.add(ground);
 
 let mesh1 = new THREE.Mesh(new THREE.BoxGeometry(100.0, 100.0, 100.0), new THREE.MeshPhongMaterial ({color: 0xDDDDDD}));
+mesh1.name = "MESH_1";
 mesh1.position.y = 50.0;
 mesh1.position.x = 200.0;
 mesh1.position.z = 200.0;
@@ -59,6 +64,7 @@ scene.add(mesh1);
 sceneObjects.push(mesh1);
 
 let mesh2 = new THREE.Mesh(new THREE.BoxGeometry(100.0, 100.0, 100.0), new THREE.MeshPhongMaterial ({color: 0xDDDDDD}));
+mesh2.name = "MESH_2";
 mesh2.position.y = 50.0;
 mesh2.position.x = -200.0;
 mesh2.position.z = -200.0;
@@ -66,6 +72,7 @@ scene.add(mesh2);
 sceneObjects.push(mesh2);
 
 let mesh3 = new THREE.Mesh(new THREE.BoxGeometry(100.0, 100.0, 100.0), new THREE.MeshPhongMaterial ({color: 0xDDDDDD}));
+mesh3.name = "MESH_3";
 mesh3.position.y = 50.0;
 mesh3.position.x = -200.0;
 mesh3.position.z = 200.0;
@@ -81,6 +88,22 @@ function update () {
 
   // Schedule the next frame.
   requestAnimationFrame(update);
+}
+
+window.addEventListener('click', onClick, false);
+
+function onClick(event) {
+
+  let mouse = new THREE.Vector2();
+  mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+  mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+  raycaster.setFromCamera(mouse, camera);
+  var intersects = raycaster.intersectObjects( sceneObjects );
+  if (intersects.length > 0){
+     console.log(intersects[0].object.name);
+  }
+ 
 }
 
 // Schedule the first frame.
