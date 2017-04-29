@@ -7,8 +7,6 @@ const sceneObjects = [];
 const firstColor = new THREE.Color(1, 1, 0);
 const secondColor = new THREE.Color(0, 1, 1);
 
-
-
 let initializeEverything = () => {
   scene = new THREE.Scene();
   initializeRenderAndContainer();
@@ -114,6 +112,10 @@ let setupLogic = () => {
        colorChooserCont.style.left = event.clientX + "px";
        colorChooserCont.style.visibility = "visible";
        controls.enabled = false;
+    }
+    else 
+    {
+      colorChooserCont.style.visibility = "hidden";
     }
   }
 }
