@@ -28,27 +28,15 @@ gulp.task('minifyScripts', ['concatScripts'], () => {
 		.pipe(gulp.dest("javascripts"));
 });
 
-gulp.task('injectScriptsForDev', ['minifyScripts'], () => {
-	return gulp.src('index.html')
-		.pipe(inject(gulp.src(['javascripts/bundle.js'])), {read: false })
-		.pipe(gulp.dest('./'));
-});
-
 gulp.task('clean', () => {
 	del(['dist', 'javascripts/bundle*.js*']);
 });
 
-gulp.task('generateDist', ['injectScriptsForDev'], () => {
+gulp.task('build', ['minifyScripts'], () => {
 	return gulp.src(['css/style.css', 'javascripts/bundle.min.js', 'index.html'], { base: './'})
 		.pipe(gulp.dest('dist'));
 });
 
-gulp.task('injectScriptsForDist', ['generateDist'], () => {
-	return gulp.src('dist/index.html')
-		.pipe(inject(gulp.src(['javascripts/bundle.min.js'])), {read: false })
-		.pipe(gulp.dest('dist'));
-});
-
 gulp.task('default', ['clean'], () => {
-	gulp.start('injectScriptsForDist');
+	gulp.start('build');
 });
