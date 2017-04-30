@@ -107,7 +107,8 @@ function initializeResizeHandler() {
 function setupLogic() {
 
   var chosenObject = null;
-
+  var wasMouseDrag = false;
+  var wasMouseDown = false;
   var colorChooserCont = document.querySelector("#colorChooser");
   var firstColorContainer = document.querySelector("#firstColor");
   var secondColorContainer = document.querySelector("#secondColor");
@@ -116,7 +117,7 @@ function setupLogic() {
   colorChooserCont.style.height = HEIGHT / 8;
 
   firstColorContainer.style.backgroundColor = "#" + firstColor.getHexString();
-  firstColorContainer.addEventListener("click", function (event) {
+  firstColorContainer.addEventListener("mouseup", function (event) {
     event.stopPropagation();
     chosenObject.material.color = firstColor;
     colorChooserCont.style.visibility = "hidden";
@@ -124,49 +125,67 @@ function setupLogic() {
   });
 
   secondColorContainer.style.backgroundColor = "#" + secondColor.getHexString();
-  secondColorContainer.addEventListener("click", function (event) {
+  secondColorContainer.addEventListener("mouseup", function (event) {
     event.stopPropagation();
     chosenObject.material.color = secondColor;
     colorChooserCont.style.visibility = "hidden";
     controls.enabled = true;
   });
 
-  window.addEventListener('click', onCanvasClick, false);
+  document.getElementById("container").addEventListener('mousedown', onMouseDown, false);
+  document.getElementById("container").addEventListener('mousemove', onMouseMove, false);
+  document.getElementById("container").addEventListener('mouseup', onMouseUp, false);
 
-  function onCanvasClick(event) {
-
-    var mouse = new THREE.Vector2();
-    mouse.x = event.clientX / window.innerWidth * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, camera);
-    var intersects = raycaster.intersectObjects(sceneObjects);
+  function onMouseUp(event){
     
-    if (intersects.length > 0) 
-    {
-      chosenObject = intersects[0].object;
-      var newColorChooserPosition = new THREE.Vector2();
+    if (!wasMouseDrag) {
+      var mouse = new THREE.Vector2();
+      mouse.x = event.clientX / window.innerWidth * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+      raycaster.setFromCamera(mouse, camera);
+      var intersects = raycaster.intersectObjects(sceneObjects);
       
-      if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth; 
-      else if (event.clientX < 0) newColorChooserPosition.x = 0;
-      else newColorChooserPosition.x = event.clientX;
+      if (intersects.length > 0) 
+      {
+        chosenObject = intersects[0].object;
+        var newColorChooserPosition = new THREE.Vector2();
+        
+        if (event.clientX + colorChooserWidth > WIDTH) newColorChooserPosition.x = WIDTH - colorChooserWidth; 
+        else if (event.clientX < 0) newColorChooserPosition.x = 0;
+        else newColorChooserPosition.x = event.clientX;
 
-      if (event.clientY + colorChooserHeight > HEIGHT) newColorChooserPosition.y = HEIGHT - colorChooserHeight;
-      else if (event.clientY - colorChooserHeight < 0) newColorChooserPosition.y = colorChooserHeight;
-      else newColorChooserPosition.y = event.clientY;
-      
-      colorChooserCont.style.top = newColorChooserPosition.y + "px";
-      colorChooserCont.style.left = newColorChooserPosition.x + "px";
-      colorChooserCont.style.visibility = "visible";
-      controls.enabled = false;
+        if (event.clientY + colorChooserHeight > HEIGHT) newColorChooserPosition.y = HEIGHT - colorChooserHeight;
+        else if (event.clientY - colorChooserHeight < 0) newColorChooserPosition.y = colorChooserHeight;
+        else newColorChooserPosition.y = event.clientY;
+        
+        colorChooserCont.style.top = newColorChooserPosition.y + "px";
+        colorChooserCont.style.left = newColorChooserPosition.x + "px";
+        colorChooserCont.style.visibility = "visible";
+        
+      }
+      else 
+      {
+        colorChooserCont.style.visibility = "hidden";
+      }
     }
-    else 
-    {
-      colorChooserCont.style.visibility = "hidden";
-    }
+    wasMouseDown = false;
+    wasMouseDrag = false;
+  }
+
+  function onMouseMove(event){
+    if (wasMouseDown)
+      wasMouseDrag = true;
+  }
+
+  function onMouseDown(event) {
+    event.stopPropagation();
+    wasMouseDown = true;
   }
 };
 
 function update() {
+  
+  controls.update();
   renderer.render(scene, camera);
   requestAnimationFrame(update);
 }
