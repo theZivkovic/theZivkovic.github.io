@@ -108,7 +108,8 @@ function setupLogic() {
 
   var chosenObject = null;
   var wasMouseDrag = false;
-  var wasMouseDown = false;
+  var mouseDownPoint = null;
+
   var colorChooserCont = document.querySelector("#colorChooser");
   var firstColorContainer = document.querySelector("#firstColor");
   var secondColorContainer = document.querySelector("#secondColor");
@@ -137,7 +138,6 @@ function setupLogic() {
   document.getElementById("container").addEventListener('mouseup', onMouseUp, false);
 
   function onMouseUp(event){
-    
     if (!wasMouseDrag) {
       var mouse = new THREE.Vector2();
       mouse.x = event.clientX / window.innerWidth * 2 - 1;
@@ -168,18 +168,20 @@ function setupLogic() {
         colorChooserCont.style.visibility = "hidden";
       }
     }
-    wasMouseDown = false;
+    mouseDownPoint = null;
     wasMouseDrag = false;
   }
 
   function onMouseMove(event){
-    if (wasMouseDown)
-      wasMouseDrag = true;
+    if (mouseDownPoint != null){
+      if (mouseDownPoint.x != event.clientX && mouseDownPoint.y != event.clientY)
+        wasMouseDrag = true;
+    }
   }
 
   function onMouseDown(event) {
     event.stopPropagation();
-    wasMouseDown = true;
+    mouseDownPoint = new THREE.Vector2(event.clientX, event.clientY);
   }
 };
 
