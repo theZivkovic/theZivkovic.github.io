@@ -1,0 +1,21 @@
+ /* remove the border */
+body {
+	border: 0;
+	background-color: white;
+	width: 800px;
+	height: 600px;
+	margin-left: auto;
+	margin-right: auto;
+	background-color: black;
+	overflow: hidden;
+}
+/* make the canvas the size of the viewport */
+#glCanvas {
+	width: 100%;
+	height: 100%;
+	display: block;
+}
+
+h1 {
+	color: white;
+}
