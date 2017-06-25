@@ -7051,7 +7051,7 @@ class Camera {
 		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniformMatrix4fv(viewMatUniform, false, viewMatrix);
 
 		let perspectiveMatrix = __WEBPACK_IMPORTED_MODULE_1__bower_components_gl_matrix_dist_gl_matrix___default.a.mat4.create();
-		__WEBPACK_IMPORTED_MODULE_1__bower_components_gl_matrix_dist_gl_matrix___default.a.mat4.perspective(perspectiveMatrix, 45, 4 / 3.0, 0.1, 1000.0);
+		__WEBPACK_IMPORTED_MODULE_1__bower_components_gl_matrix_dist_gl_matrix___default.a.mat4.perspective(perspectiveMatrix, 45, 5.333 / 3.0, 0.1, 1000.0);
 
 		var perspectiveMatUniform = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(programID, "P");
 		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniformMatrix4fv(perspectiveMatUniform, false, perspectiveMatrix);
@@ -7345,7 +7345,7 @@ class Application {
 	}
 
 	initializeCamera() {
-		this._camera = new __WEBPACK_IMPORTED_MODULE_6__Camera__["a" /* default */](0, 0, 100);
+		this._camera = new __WEBPACK_IMPORTED_MODULE_6__Camera__["a" /* default */](0, Math.PI / 8.0, 40);
 		this._camera.setSourceOfInteraction(this._renderCanvas);
 	}
 
@@ -7772,7 +7772,7 @@ module.exports = "attribute vec3 aVertexPosition;\r\n\r\nuniform mat4 P;\r\nunif
 /* 38 */
 /***/ (function(module, exports) {
 
-module.exports = "precision mediump float;\r\n\r\nuniform sampler2D reflectionTexture;\r\nuniform sampler2D refractionTexture;\r\nuniform sampler2D waterDUDVMap;\r\nuniform sampler2D waterNormalMap;\r\n\r\nuniform float waterMoveFactor;\r\nuniform float relectionRefractionFactor;\r\n\r\nvarying vec4 waterCoordinates;\r\n\r\nfloat waveStrength = 0.01;\r\nvoid main(void){\r\n\r\n\tvec2 waterCoords = (waterCoordinates.xy / waterCoordinates.w) / 2.0 + 0.5;\r\n\tvec2 waterHorizontalDistortion = (texture2D(waterDUDVMap, vec2(waterCoords.x + waterMoveFactor, waterCoords.y)).rg * 2.0 - 1.0) * waveStrength;\r\n\tvec2 waterDiagonalDistortion = (texture2D(waterDUDVMap, vec2(waterCoords.x + waterMoveFactor, waterCoords.y + waterMoveFactor)).rg * 2.0 - 1.0) * waveStrength;\r\n\r\n\tvec2 totalWaterDistortion = waterHorizontalDistortion + waterDiagonalDistortion;\r\n    vec2 distortedCoords = clamp(waterCoords + totalWaterDistortion, vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\r\n\tvec4 reflectionColor = texture2D(reflectionTexture, vec2(distortedCoords.x, 1.0 - distortedCoords.y));\r\n\tvec4 refractionColor = texture2D(refractionTexture, distortedCoords);\r\n\t\r\n\tgl_FragColor = mix(reflectionColor, refractionColor, relectionRefractionFactor);\r\n}"
+module.exports = "precision mediump float;\r\n\r\nuniform sampler2D reflectionTexture;\r\nuniform sampler2D refractionTexture;\r\nuniform sampler2D waterDUDVMap;\r\nuniform sampler2D waterNormalMap;\r\n\r\nuniform float waterMoveFactor;\r\nuniform float relectionRefractionFactor;\r\n\r\nvarying vec4 waterCoordinates;\r\n\r\nfloat waveStrength = 0.01;\r\n\r\nvoid main(void) \r\n{\r\n\r\n\tvec2 waterCoords = (waterCoordinates.xy / waterCoordinates.w) / 2.0 + 0.5;\r\n\r\n\tvec2 waterMovementXCoords = clamp(vec2(waterCoords.x + waterMoveFactor, waterCoords.y), vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\tvec2 waterMovementXYCoords = clamp(vec2(waterCoords.x + waterMoveFactor, waterCoords.y + waterMoveFactor), vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\t\r\n\tvec2 waterHorizontalDistortion = (texture2D(waterDUDVMap, waterMovementXCoords).rg * 2.0 - 1.0) * waveStrength;\r\n\tvec2 waterDiagonalDistortion = (texture2D(waterDUDVMap, waterMovementXYCoords).rg * 2.0 - 1.0) * waveStrength;\r\n\r\n\tvec2 totalWaterDistortion = waterHorizontalDistortion + waterDiagonalDistortion;\r\n    vec2 distortedCoords = clamp(waterCoords + totalWaterDistortion, vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\r\n\tvec4 reflectionColor = texture2D(reflectionTexture, vec2(distortedCoords.x, 1.0 - distortedCoords.y));\r\n\tvec4 refractionColor = texture2D(refractionTexture, distortedCoords);\r\n\t\r\n\tgl_FragColor = mix(reflectionColor, refractionColor, relectionRefractionFactor);\r\n}"
 
 /***/ }),
 /* 39 */
