@@ -7101,19 +7101,19 @@ class ColoredCubesRenderer extends __WEBPACK_IMPORTED_MODULE_0__Program__["a" /*
 		this.enableVertexPositionAttribute();
 		this.enableVertexColorAttribute();
 
-		this._cube1 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(-30, 10, -30), 2);
+		this._cube1 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(-30, 5, -30), 2);
 		this._cube1.setColor(__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(1, 0, 0));
 
-		this._cube2 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(-30, 10, 30), 2);
+		this._cube2 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(-30, 5, 30), 2);
 		this._cube2.setColor(__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(1, 1, 0));
 
-		this._cube3 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(30, 10, -30), 2);
+		this._cube3 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(30, 5, -30), 2);
 		this._cube3.setColor(__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 1, 1));
 
-		this._cube4 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(30, 10, 30), 2);
+		this._cube4 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(30, 5, 30), 2);
 		this._cube4.setColor(__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(1, 0, 1));
 
-		this._cube5 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 10, 0), 2);
+		this._cube5 = new __WEBPACK_IMPORTED_MODULE_2__CubeMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 20, 0), 5);
 		this._cube5.setColor(__WEBPACK_IMPORTED_MODULE_3__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 1, 0));
 	}
 
@@ -7518,121 +7518,124 @@ class Skybox {
 
 class WaterRenderer extends __WEBPACK_IMPORTED_MODULE_4__Program__["a" /* default */] {
 
-	constructor(canvasWidth, canvasHeight) {
-		super();
-		this.initialize();
-		this._canvasWidth = canvasWidth;
-		this._canvasHeight = canvasHeight;
-		let reflectionFrameBufferResult = this.setupFramebuffer();
-		this._reflectionFramebuffer = reflectionFrameBufferResult.framebuffer;
-		this._reflectionTexture = reflectionFrameBufferResult.renderTexture;
-		let refractionFrameBufferResult = this.setupFramebuffer();
-		this._refractionFramebuffer = refractionFrameBufferResult.framebuffer;
-		this._refractionTexture = refractionFrameBufferResult.renderTexture;
-		this._dudvMap = new __WEBPACK_IMPORTED_MODULE_7__Texture__["a" /* default */]("waterDUDVMap", 2);
-		this._waterNormalMap = new __WEBPACK_IMPORTED_MODULE_7__Texture__["a" /* default */]("waterNormalMap", 3);
-		this._waterMoveFactor = 0.0;
-	}
+		constructor(canvasWidth, canvasHeight) {
+				super();
+				this.initialize();
+				this._canvasWidth = canvasWidth;
+				this._canvasHeight = canvasHeight;
+				let reflectionFrameBufferResult = this.setupFramebuffer();
+				this._reflectionFramebuffer = reflectionFrameBufferResult.framebuffer;
+				this._reflectionTexture = reflectionFrameBufferResult.renderTexture;
+				let refractionFrameBufferResult = this.setupFramebuffer();
+				this._refractionFramebuffer = refractionFrameBufferResult.framebuffer;
+				this._refractionTexture = refractionFrameBufferResult.renderTexture;
+				this._dudvMap = new __WEBPACK_IMPORTED_MODULE_7__Texture__["a" /* default */]("waterDUDVMap", 2);
+				this._waterNormalMap = new __WEBPACK_IMPORTED_MODULE_7__Texture__["a" /* default */]("waterNormalMap", 3);
+				this._waterMoveFactor = 0.0;
+		}
 
-	initialize() {
-		this.addShaderDuo("waterShader");
-		this.enableVertexPositionAttribute();
+		initialize() {
+				this.addShaderDuo("waterShader");
+				this.enableVertexPositionAttribute();
 
-		this._coloredCubesRenderer = new __WEBPACK_IMPORTED_MODULE_1__ColoredCubesRenderer__["a" /* default */]();
-		this._skyboxRenderer = new __WEBPACK_IMPORTED_MODULE_2__SkyboxRenderer__["a" /* default */]();
-		this._poolSidesRenderer = new __WEBPACK_IMPORTED_MODULE_3__PoolSidesRenderer__["a" /* default */]();
-		this.initializeRenderingBits();
-		this._waterPlane = new __WEBPACK_IMPORTED_MODULE_5__PlaneMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(1, 0, 0), __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 1, 0), 30.0);
-	}
+				this._coloredCubesRenderer = new __WEBPACK_IMPORTED_MODULE_1__ColoredCubesRenderer__["a" /* default */]();
+				this._skyboxRenderer = new __WEBPACK_IMPORTED_MODULE_2__SkyboxRenderer__["a" /* default */]();
+				this._poolSidesRenderer = new __WEBPACK_IMPORTED_MODULE_3__PoolSidesRenderer__["a" /* default */]();
+				this.initializeRenderingBits();
+				this._waterPlane = new __WEBPACK_IMPORTED_MODULE_5__PlaneMesh__["a" /* default */](__WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 0, 0), __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(1, 0, 0), __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 1, 0), 30.0);
+		}
 
-	initializeRenderingBits() {
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clearColor(0.0, 0.0, 0.0, 1.0);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].enable(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_TEST);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].depthFunc(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].LEQUAL);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clear(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_BUFFER_BIT);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].enable(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].CULL_FACE);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].cullFace(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRONT);
-	}
+		initializeRenderingBits() {
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clearColor(0.0, 0.0, 0.0, 1.0);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].enable(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_TEST);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].depthFunc(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].LEQUAL);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clear(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_BUFFER_BIT);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].enable(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].CULL_FACE);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].cullFace(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRONT);
+		}
 
-	setupFramebuffer() {
+		setupFramebuffer() {
 
-		let framebuffer = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].createFramebuffer();
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, framebuffer);
-		framebuffer.width = this._canvasWidth;
-		framebuffer.height = this._canvasHeight;
+				let framebuffer = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].createFramebuffer();
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, framebuffer);
+				framebuffer.width = this._canvasWidth;
+				framebuffer.height = this._canvasHeight;
 
-		let renderTexture = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].createTexture();
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, renderTexture);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texImage2D(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, 0, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RGBA, framebuffer.width, framebuffer.height, 0, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RGBA, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].UNSIGNED_BYTE, null);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_MAG_FILTER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].LINEAR);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_MIN_FILTER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].LINEAR);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_WRAP_S, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].CLAMP_TO_EDGE);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_WRAP_T, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].CLAMP_TO_EDGE);
+				let renderTexture = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].createTexture();
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, renderTexture);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texImage2D(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, 0, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RGBA, framebuffer.width, framebuffer.height, 0, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RGBA, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].UNSIGNED_BYTE, null);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_MAG_FILTER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].LINEAR);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_MIN_FILTER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].LINEAR);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_WRAP_S, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].CLAMP_TO_EDGE);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].texParameteri(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_WRAP_T, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].CLAMP_TO_EDGE);
 
-		let depthBuffer = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].createRenderbuffer();
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindRenderbuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, depthBuffer);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].renderbufferStorage(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_COMPONENT16, framebuffer.width, framebuffer.height);
+				let depthBuffer = __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].createRenderbuffer();
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindRenderbuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, depthBuffer);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].renderbufferStorage(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_COMPONENT16, framebuffer.width, framebuffer.height);
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].framebufferTexture2D(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_ATTACHMENT0, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, renderTexture, 0);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].framebufferRenderbuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_ATTACHMENT, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, depthBuffer);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].framebufferTexture2D(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_ATTACHMENT0, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, renderTexture, 0);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].framebufferRenderbuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_ATTACHMENT, __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, depthBuffer);
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, null);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindRenderbuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, null);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, null);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, null);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindRenderbuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].RENDERBUFFER, null);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, null);
 
-		return {
-			framebuffer, renderTexture
-		};
-	}
+				return {
+						framebuffer, renderTexture
+				};
+		}
 
-	render(camera) {
+		render(camera) {
 
-		this._waterMoveFactor += 0.0005;
-		this._waterMoveFactor %= 1;
+				this._waterMoveFactor += 0.0005;
+				this._waterMoveFactor %= 1;
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, this._reflectionFramebuffer);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clear(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_BUFFER_BIT);
-		camera.invertTheta();
-		this._coloredCubesRenderer.preRender(camera);
-		this._coloredCubesRenderer.render();
-		this._skyboxRenderer.preRender(camera);
-		this._skyboxRenderer.render();
-		//this._poolSidesRenderer.preRender(camera);
-		//this._poolSidesRenderer.render();
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, null);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, this._reflectionFramebuffer);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clear(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_BUFFER_BIT);
+				camera.invertTheta();
+				this._coloredCubesRenderer.preRender(camera);
+				this._coloredCubesRenderer.render();
+				this._skyboxRenderer.preRender(camera);
+				this._skyboxRenderer.render();
+				//this._poolSidesRenderer.preRender(camera);
+				//this._poolSidesRenderer.render();
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, null);
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, this._refractionFramebuffer);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clear(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_BUFFER_BIT);
-		camera.invertTheta();
-		//this._coloredCubesRenderer.preRender(camera);
-		//this._coloredCubesRenderer.render();
-		//this._skyboxRenderer.preRender(camera);
-		//this._skyboxRenderer.render();
-		this._poolSidesRenderer.preRender(camera);
-		this._poolSidesRenderer.render();
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, null);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, this._refractionFramebuffer);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].clear(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].COLOR_BUFFER_BIT | __WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].DEPTH_BUFFER_BIT);
+				camera.invertTheta();
+				this._coloredCubesRenderer.preRender(camera);
+				this._coloredCubesRenderer.render();
+				//this._skyboxRenderer.preRender(camera);
+				//this._skyboxRenderer.render();
+				this._poolSidesRenderer.preRender(camera);
+				this._poolSidesRenderer.render();
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindFramebuffer(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].FRAMEBUFFER, null);
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].useProgram(this.id);
-		camera.render(this.id);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].activeTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE0);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, this._reflectionTexture);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1i(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "reflectionTexture"), 0);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].useProgram(this.id);
+				camera.render(this.id);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].activeTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE0);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, this._reflectionTexture);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1i(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "reflectionTexture"), 0);
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].activeTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE1);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, this._refractionTexture);
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1i(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "refractionTexture"), 1);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].activeTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE1);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].bindTexture(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].TEXTURE_2D, this._refractionTexture);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1i(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "refractionTexture"), 1);
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1f(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "waterMoveFactor"), this._waterMoveFactor);
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1f(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "waterMoveFactor"), this._waterMoveFactor);
 
-		let cameraToWaterAngle = __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.dot(__WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 1, 0), camera.calculatePosition());
-		let absCameraToWaterAngle = Math.abs(cameraToWaterAngle);
-		let relectionRefractionFactor = absCameraToWaterAngle / 90.0;
+				let cameraToWaterAngle = __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.dot(__WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(0, 1, 0), camera.calculatePosition());
+				let absCameraToWaterAngle = Math.abs(cameraToWaterAngle);
+				let relectionRefractionFactor = absCameraToWaterAngle / 90.0;
 
-		__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1f(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "relectionRefractionFactor"), relectionRefractionFactor);
-		this._dudvMap.render(this.id);
-		this._waterPlane.render(this.id);
-		this._waterNormalMap.render(this.id);
-	}
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform3fv(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "cameraPosition"), camera.calculatePosition());
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform3fv(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "lightPosition"), __WEBPACK_IMPORTED_MODULE_6__bower_components_gl_matrix_dist_gl_matrix___default.a.vec3.fromValues(-50, 50, 0));
+
+				__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].uniform1f(__WEBPACK_IMPORTED_MODULE_0__GL__["b" /* GL */].getUniformLocation(this.id, "relectionRefractionFactor"), relectionRefractionFactor);
+				this._dudvMap.render(this.id);
+				this._waterPlane.render(this.id);
+				this._waterNormalMap.render(this.id);
+		}
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (WaterRenderer);
@@ -7772,13 +7775,13 @@ module.exports = "attribute vec3 aVertexPosition;\r\n\r\nuniform mat4 P;\r\nunif
 /* 38 */
 /***/ (function(module, exports) {
 
-module.exports = "precision mediump float;\r\n\r\nuniform sampler2D reflectionTexture;\r\nuniform sampler2D refractionTexture;\r\nuniform sampler2D waterDUDVMap;\r\nuniform sampler2D waterNormalMap;\r\n\r\nuniform float waterMoveFactor;\r\nuniform float relectionRefractionFactor;\r\n\r\nvarying vec4 waterCoordinates;\r\n\r\nfloat waveStrength = 0.01;\r\n\r\nvoid main(void) \r\n{\r\n\r\n\tvec2 waterCoords = (waterCoordinates.xy / waterCoordinates.w) / 2.0 + 0.5;\r\n\r\n\tvec2 waterMovementXCoords = clamp(vec2(waterCoords.x + waterMoveFactor, waterCoords.y), vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\tvec2 waterMovementXYCoords = clamp(vec2(waterCoords.x + waterMoveFactor, waterCoords.y + waterMoveFactor), vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\t\r\n\tvec2 waterHorizontalDistortion = (texture2D(waterDUDVMap, waterMovementXCoords).rg * 2.0 - 1.0) * waveStrength;\r\n\tvec2 waterDiagonalDistortion = (texture2D(waterDUDVMap, waterMovementXYCoords).rg * 2.0 - 1.0) * waveStrength;\r\n\r\n\tvec2 totalWaterDistortion = waterHorizontalDistortion + waterDiagonalDistortion;\r\n    vec2 distortedCoords = clamp(waterCoords + totalWaterDistortion, vec2(0.0, 0.0), vec2(1.0, 1.0));\r\n\r\n\tvec4 reflectionColor = texture2D(reflectionTexture, vec2(distortedCoords.x, 1.0 - distortedCoords.y));\r\n\tvec4 refractionColor = texture2D(refractionTexture, distortedCoords);\r\n\t\r\n\tgl_FragColor = mix(reflectionColor, refractionColor, relectionRefractionFactor);\r\n}"
+module.exports = "precision mediump float;\r\n\r\nuniform sampler2D reflectionTexture;\r\nuniform sampler2D refractionTexture;\r\nuniform sampler2D waterDUDVMap;\r\nuniform sampler2D waterNormalMap;\r\n\r\nuniform float waterMoveFactor;\r\nuniform float relectionRefractionFactor;\r\n\r\nvarying vec4 waterCoordinates;\r\nvarying vec3 lightVector;\r\nvarying vec3 cameraVector;\r\n\r\nfloat waveStrength = 0.02;\r\n\r\nvoid main(void) \r\n{\r\n\tvec2 waterCoords = (waterCoordinates.xy / waterCoordinates.w) / 2.0 + 0.5;\r\n\r\n\tvec2 waterMovementXCoords = vec2(waterCoords.x + waterMoveFactor, waterCoords.y);\r\n\tvec2 waterMovementXYCoords = vec2(waterCoords.x + waterMoveFactor, waterCoords.y + waterMoveFactor);\r\n\t\r\n\tvec2 waterHorizontalDistortion = (texture2D(waterDUDVMap, waterMovementXCoords).rg * 2.0 - 1.0) * waveStrength;\r\n\tvec2 waterDiagonalDistortion = (texture2D(waterDUDVMap, waterMovementXYCoords).rg * 2.0 - 1.0) * waveStrength;\r\n\r\n\tvec2 totalWaterDistortion = waterHorizontalDistortion + waterDiagonalDistortion;\r\n    vec2 distortedCoords = waterCoords + totalWaterDistortion;\r\n\r\n\tvec4 reflectionColor = texture2D(reflectionTexture, vec2(distortedCoords.x, 1.0 - distortedCoords.y));\r\n\tvec4 refractionColor = texture2D(refractionTexture, distortedCoords);\r\n\t\r\n\tvec4 reflectionAndRefractionColor = mix(reflectionColor, refractionColor, relectionRefractionFactor);\r\n\r\n\t// normal map calculations\r\n\tvec3 normalVector = (texture2D(waterNormalMap, distortedCoords) * 2.0 - 1.0).rgb;\r\n\tvec3 reflectionVector = normalVector * dot(normalVector, lightVector) * 2.0 - lightVector;\r\n\tfloat specularFactor = pow(max(0.0, dot(reflectionVector, cameraVector)), 3.0);\r\n\r\n\t//gl_FragColor = reflectionAndRefractionColor;\r\n\tgl_FragColor = reflectionAndRefractionColor * (1.0 + specularFactor);\r\n}"
 
 /***/ }),
 /* 39 */
 /***/ (function(module, exports) {
 
-module.exports = "attribute vec3 aVertexPosition;\r\nattribute vec2 aTextureCoord;\r\n\r\nuniform mat4 P;\r\nuniform mat4 V;\r\nuniform mat4 M;\r\n\r\nvarying vec4 waterCoordinates;\r\n\r\n\r\nvoid main(void){\r\n\r\n\twaterCoordinates = P * V * M * vec4(aVertexPosition, 1.0);\r\n\tgl_Position = waterCoordinates;\r\n}"
+module.exports = "attribute vec3 aVertexPosition;\r\nattribute vec2 aTextureCoord;\r\n\r\nuniform mat4 P;\r\nuniform mat4 V;\r\nuniform mat4 M;\r\n\r\nuniform vec3 lightPosition;\r\nuniform vec3 cameraPosition;\r\n\r\n\r\nvarying vec4 waterCoordinates;\r\nvarying vec3 lightVector;\r\nvarying vec3 cameraVector;\r\n\r\nvoid main(void){\r\n\r\n\tvec3 worldPosition = (M * vec4(aVertexPosition, 1.0)).xyz;\r\n\twaterCoordinates = P * V * vec4(worldPosition, 1.0);\r\n\tlightVector = normalize(lightPosition - worldPosition);\r\n\tcameraVector = normalize(cameraPosition - worldPosition);\r\n\tgl_Position = waterCoordinates;\r\n}"
 
 /***/ })
 /******/ ]);
